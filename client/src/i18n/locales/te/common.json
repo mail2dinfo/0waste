@@ -1,0 +1,18 @@
+{
+  "brand": "Zerowaste",
+  "nav": {
+    "dashboard": "డాష్‌బోర్డ్",
+    "events": "ఈవెంట్‌లు",
+    "planEvent": "ఈవెంట్ ప్లాన్ చేయండి"
+  },
+  "countryLabel": "దేశం",
+  "countryLabelCaps": "దేశం",
+  "languageLabel": "భాష",
+  "languageLabelCaps": "భాష",
+  "auth": {
+    "login": "లాగిన్",
+    "signup": "సైన్ అప్",
+    "logout": "లాగ్ ఔట్"
+  },
+  "greeting": "హలో {{name}}"
+}

@@ -1,0 +1,18 @@
+{
+  "brand": "Zerowaste",
+  "nav": {
+    "dashboard": "டாஷ்போர்ட்",
+    "events": "நிகழ்வுகள்",
+    "planEvent": "நிகழ்வு திட்டமிடு"
+  },
+  "countryLabel": "நாடு",
+  "countryLabelCaps": "நாடு",
+  "languageLabel": "மொழி",
+  "languageLabelCaps": "மொழி",
+  "auth": {
+    "login": "உள்நுழைய",
+    "signup": "பதிவு செய்க",
+    "logout": "வெளியேறு"
+  },
+  "greeting": "வணக்கம் {{name}}"
+}

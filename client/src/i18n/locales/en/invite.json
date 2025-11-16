@@ -1,0 +1,73 @@
+{
+  "hero": {
+    "badge": "You’re invited",
+    "hostedBy": "Hosted by {{name}}",
+    "tagline": "Join the ZeroWaste circle",
+    "subtagline": "Submit your RSVP to help us plan a feast with zero food wastage.",
+    "ctaButton": "Join the zero waste table",
+    "illustrationAlt": "Guests celebrating a mindful, zero waste feast"
+  },
+  "loading": "Fetching delicious details…",
+  "errors": {
+    "missingEvent": "Invite link is missing event details.",
+    "notFound": "We couldn’t find this event. Please check with the host.",
+    "unavailable": "Unable to load invite details right now."
+  },
+  "defaults": {
+    "title": "Zerowaste celebration",
+    "location": "Venue details coming soon"
+  },
+  "rsvp": {
+    "title": "Preferences",
+    "question": "Will you be joining the housewarming?",
+    "attendanceHint": "Swipe to confirm attendance",
+    "attendingYes": "Yes, count us in",
+    "attendingNo": "Unable to attend",
+    "guestCounts": {
+      "title": "How many of you are coming?",
+      "adults": "Adults",
+      "kids": "Kids"
+    },
+    "arrivalSlot": {
+      "title": "Preferred arrival slot",
+      "none": "Let the host decide",
+      "noOptions": "Arrival slots will be shared soon."
+    },
+    "transport": {
+      "title": "Transportation",
+      "parking": "Need parking",
+      "carpool": "Would like to carpool",
+      "self": "Arranging myself"
+    },
+    "reminders": {
+      "title": "Send me a reminder",
+      "whatsapp": "WhatsApp",
+      "sms": "SMS",
+      "email": "Email"
+    },
+    "submit": "Submit",
+    "updating": "Saving your RSVP…",
+    "success": "Thanks! Your RSVP is on its way.",
+    "error": "We couldn’t save your RSVP. Please try again.",
+    "editNotice": "You can update these details anytime before the celebration.",
+    "totalsHint": "We’ll fine tune portions based on everyone’s responses."
+  },
+  "schedule": {
+    "title": "Schedule & experiences",
+    "subtitle": "Timings and highlights for each celebration slot.",
+    "itemLabel": "Schedule {{index}}",
+    "details": "Servings: {{servings}} | Categories: {{categories}}",
+    "categoriesFallback": "TBD",
+    "menuNotes": "Menu focus: {{notes}}",
+    "empty": "The host is still refining the detailed schedule. Check back closer to the celebration!"
+  },
+  "notes": {
+    "title": "Host notes"
+  },
+  "cta": {
+    "title": "Help us keep the celebration mindful.",
+    "subtitle": "Share your attendance, dietary needs, or speciality dish requests with the host so the kitchen can plan the perfect portions.",
+    "poweredBy": "Powered by Zerowaste",
+    "link": "Discover ZeroWaste planning"
+  }
+}

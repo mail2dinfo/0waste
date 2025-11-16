@@ -1,0 +1,18 @@
+{
+  "brand": "Zerowaste",
+  "nav": {
+    "dashboard": "डैशबोर्ड",
+    "events": "इवेंट",
+    "planEvent": "इवेंट योजना"
+  },
+  "countryLabel": "देश",
+  "countryLabelCaps": "देश",
+  "languageLabel": "भाषा",
+  "languageLabelCaps": "भाषा",
+  "auth": {
+    "login": "लॉगिन",
+    "signup": "साइन अप",
+    "logout": "लॉग आउट"
+  },
+  "greeting": "नमस्ते {{name}}"
+}

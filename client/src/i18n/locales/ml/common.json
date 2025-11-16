@@ -1,0 +1,18 @@
+{
+  "brand": "Zerowaste",
+  "nav": {
+    "dashboard": "ഡാഷ്‌ബോർഡ്",
+    "events": "ഇവന്റുകൾ",
+    "planEvent": "ഇവന്റ് പ്ലാൻ ചെയ്യുക"
+  },
+  "countryLabel": "രാജ്യം",
+  "countryLabelCaps": "രാജ്യം",
+  "languageLabel": "ഭാഷ",
+  "languageLabelCaps": "ഭാഷ",
+  "auth": {
+    "login": "ലോഗിൻ",
+    "signup": "സൈൻ അപ്പ്",
+    "logout": "ലോഗ് ഔട്ട്"
+  },
+  "greeting": "ഹായ് {{name}}"
+}

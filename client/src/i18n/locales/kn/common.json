@@ -1,0 +1,22 @@
+{
+  "brand": "Zerowaste",
+  "nav": {
+    "dashboard": "ಡ್ಯಾಶ್ಬೋರ್ಡ್",
+    "events": "ಕಾರ್ಯಕ್ರಮಗಳು",
+    "planEvent": "ಕಾರ್ಯಕ್ರಮವನ್ನು ಯೋಜಿಸಿ"
+  },
+  "countryLabel": "ದೇಶ",
+  "countryLabelCaps": "ದೇಶ",
+  "languageLabel": "ಭಾಷೆ",
+  "languageLabelCaps": "ಭಾಷೆ",
+  "auth": {
+    "login": "ಲಾಗಿನ್",
+    "signup": "ಖಾತೆ ತೆರೆಯಿರಿ",
+    "logout": "ಲಾಗ್ ಔಟ್"
+  },
+  "greeting": "ನಮಸ್ಕಾರ {{name}}"
+}
+
+
+
+

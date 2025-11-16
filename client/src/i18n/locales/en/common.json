@@ -1,0 +1,19 @@
+{
+  "brand": "Zerowaste",
+  "nav": {
+    "dashboard": "Dashboard",
+    "events": "Events",
+    "planEvent": "Plan Event",
+    "admin": "Admin"
+  },
+  "countryLabel": "Country",
+  "countryLabelCaps": "COUNTRY",
+  "languageLabel": "Language",
+  "languageLabelCaps": "LANGUAGE",
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout"
+  },
+  "greeting": "Hi {{name}}"
+}
