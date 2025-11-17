@@ -66,7 +66,7 @@ const eventLocales: Record<SupportedLocale, EventLocale> = {
     dateLocale: "en-IN",
     title: "Events",
     description:
-      "Review each celebration you are planning with ZeroWaste. Open an event to access its intelligence dashboard, manage guests, or tweak the plan.",
+      "Review each celebration you are planning with ZeroVaste. Open an event to access its intelligence dashboard, manage guests, or tweak the plan.",
     statsEvents: "Events hosted",
     statsGuests: "Guests planned",
     createButton: "Create event",
@@ -74,7 +74,7 @@ const eventLocales: Record<SupportedLocale, EventLocale> = {
     error: "We couldn't load your events right now. Please try again in a moment.",
     emptyTitle: "You haven't added any events yet.",
     emptyDescription:
-      "Start by creating a ZeroWaste event plan. We'll help you gather RSVPs, forecast meals, and reduce food waste.",
+      "Start by creating a ZeroVaste event plan. We'll help you gather RSVPs, forecast meals, and reduce food waste.",
     emptyCta: "Plan your first event",
     locationFallback: "Location to be confirmed",
     metrics: {
@@ -104,7 +104,7 @@ const eventLocales: Record<SupportedLocale, EventLocale> = {
     dateLocale: "ta-IN",
     title: "நிகழ்வுகள்",
     description:
-      "நீங்கள் திட்டமிடும் ஒவ்வொரு ZeroWaste கொண்டாட்டத்தையும் இங்கிருந்து பராமரிக்கவும். நிகழ்வைத் திறந்து அறிவுக் கண்காணிப்பை பார்வையிடுங்கள், விருந்தினர்களை நிர்வகிக்கவும், திட்டத்தை மாற்றவும்.",
+      "நீங்கள் திட்டமிடும் ஒவ்வொரு ZeroVaste கொண்டாட்டத்தையும் இங்கிருந்து பராமரிக்கவும். நிகழ்வைத் திறந்து அறிவுக் கண்காணிப்பை பார்வையிடுங்கள், விருந்தினர்களை நிர்வகிக்கவும், திட்டத்தை மாற்றவும்.",
     statsEvents: "நிகழ்வுகள்",
     statsGuests: "திட்டமிட்ட விருந்தினர்கள்",
     createButton: "புதிய நிகழ்வு",
@@ -112,7 +112,7 @@ const eventLocales: Record<SupportedLocale, EventLocale> = {
     error: "இப்போது உங்கள் நிகழ்வுகளை ஏற்ற முடியவில்லை. சில நொடி கழித்து மீண்டும் முயற்சிக்கவும்.",
     emptyTitle: "இன்னும் எந்த நிகழ்வும் சேர்க்கப்படவில்லை.",
     emptyDescription:
-      "ZeroWaste நிகழ்வு திட்டத்துடன் தொடங்குங்கள். RSVP-ஐ சேகரிக்க, உணவு முன்னறிவிப்பை உருவாக்க, உணவுக் கழிவை குறைக்க நாம் உதவுவோம்.",
+      "ZeroVaste நிகழ்வு திட்டத்துடன் தொடங்குங்கள். RSVP-ஐ சேகரிக்க, உணவு முன்னறிவிப்பை உருவாக்க, உணவுக் கழிவை குறைக்க நாம் உதவுவோம்.",
     emptyCta: "உங்கள் முதல் நிகழ்வை திட்டமிடுங்கள்",
     locationFallback: "இடம் பின்னர் உறுதிப்படுத்தப்படும்",
     metrics: {
@@ -142,7 +142,7 @@ const eventLocales: Record<SupportedLocale, EventLocale> = {
     dateLocale: "hi-IN",
     title: "कार्यक्रम",
     description:
-      "ZeroWaste के साथ योजना बना रहे हर उत्सव की यहाँ समीक्षा करें। कार्यक्रम खोलें, बुद्धिमान डैशबोर्ड देखें, मेहमानों का प्रबंधन करें और योजना में बदलाव करें।",
+      "ZeroVaste के साथ योजना बना रहे हर उत्सव की यहाँ समीक्षा करें। कार्यक्रम खोलें, बुद्धिमान डैशबोर्ड देखें, मेहमानों का प्रबंधन करें और योजना में बदलाव करें।",
     statsEvents: "आयोजित कार्यक्रम",
     statsGuests: "योजना में मेहमान",
     createButton: "कार्यक्रम बनाएँ",
@@ -150,7 +150,7 @@ const eventLocales: Record<SupportedLocale, EventLocale> = {
     error: "हम अभी आपके कार्यक्रम लोड नहीं कर सके। कृपया कुछ देर बाद पुनः प्रयास करें।",
     emptyTitle: "आपने अभी तक कोई कार्यक्रम नहीं जोड़ा है।",
     emptyDescription:
-      "ZeroWaste कार्यक्रम योजना से शुरुआत करें। हम RSVP, भोजन अनुमान और खाद्य अपशिष्ट कम करने में आपकी मदद करेंगे।",
+      "ZeroVaste कार्यक्रम योजना से शुरुआत करें। हम RSVP, भोजन अनुमान और खाद्य अपशिष्ट कम करने में आपकी मदद करेंगे।",
     emptyCta: "अपना पहला कार्यक्रम योजना बनाएं",
     locationFallback: "स्थान बाद में निर्धारित होगा",
     metrics: {
@@ -180,7 +180,7 @@ const eventLocales: Record<SupportedLocale, EventLocale> = {
     dateLocale: "te-IN",
     title: "ఈవెంట్లు",
     description:
-      "ZeroWaste తో మీరు ప్రణాళిక చేస్తున్న ప్రతి వేడుకను ఇక్కడ సమీక్షించండి. ఈవెంట్ తెరచి ఇంటెలిజెన్స్ డ్యాష్‌బోర్డ్ చూడండి, అతిథులను నిర్వహించండి, ప్రణాళికను సవరించండి.",
+      "ZeroVaste తో మీరు ప్రణాళిక చేస్తున్న ప్రతి వేడుకను ఇక్కడ సమీక్షించండి. ఈవెంట్ తెరచి ఇంటెలిజెన్స్ డ్యాష్‌బోర్డ్ చూడండి, అతిథులను నిర్వహించండి, ప్రణాళికను సవరించండి.",
     statsEvents: "ఆయోజిత ఈవెంట్లు",
     statsGuests: "ప్రణాళికలో ఉన్న అతిథులు",
     createButton: "ఈవెంట్ సృష్టించండి",
@@ -188,7 +188,7 @@ const eventLocales: Record<SupportedLocale, EventLocale> = {
     error: "ఇప్పుడు మీ ఈవెంట్లను లోడ్ చేయలేకపోయాం. మరికొంత సేపటి తర్వాత ప్రయత్నించండి.",
     emptyTitle: "మీరు ఇంకా ఏ ఈవెంట్‌ని కూడా జోడించలేదు.",
     emptyDescription:
-      "ZeroWaste ఈవెంట్ ప్రణాళికతో ప్రారంభించండి. RSVPలను సేకరించడంలో, భోజన అంచనాలు వేయడంలో మరియు ఆహార వ్యర్థాన్ని తగ్గించడంలో మేము సహాయపడతాము.",
+      "ZeroVaste ఈవెంట్ ప్రణాళికతో ప్రారంభించండి. RSVPలను సేకరించడంలో, భోజన అంచనాలు వేయడంలో మరియు ఆహార వ్యర్థాన్ని తగ్గించడంలో మేము సహాయపడతాము.",
     emptyCta: "మీ మొదటి ఈవెంట్‌ను ప్రణాళిక చేయండి",
     locationFallback: "స్థలం తరువాత నిర్ణయించబడుతుంది",
     metrics: {
@@ -218,7 +218,7 @@ const eventLocales: Record<SupportedLocale, EventLocale> = {
     dateLocale: "kn-IN",
     title: "ಕಾರ್ಯಕ್ರಮಗಳು",
     description:
-      "ZeroWaste ಜೊತೆಗೆ ನೀವು ಯೋಜಿಸುತ್ತಿರುವ ಪ್ರತಿಯೊಂದು ಸಂಭ್ರಮವನ್ನೂ ಇಲ್ಲಿ ವಿಮರ್ಶಿಸಿ. ಕಾರ್ಯಕ್ರಮವನ್ನು ತೆರೆಯಿರಿ, ಬುದ್ಧಿವಂತಿಕೆ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ನೋಡಿ, ಅತಿಥಿಗಳನ್ನು ನಿರ್ವಹಿಸಿ ಮತ್ತು ಯೋಜನೆಯನ್ನು ಬದಲಿಸಿ.",
+      "ZeroVaste ಜೊತೆಗೆ ನೀವು ಯೋಜಿಸುತ್ತಿರುವ ಪ್ರತಿಯೊಂದು ಸಂಭ್ರಮವನ್ನೂ ಇಲ್ಲಿ ವಿಮರ್ಶಿಸಿ. ಕಾರ್ಯಕ್ರಮವನ್ನು ತೆರೆಯಿರಿ, ಬುದ್ಧಿವಂತಿಕೆ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ನೋಡಿ, ಅತಿಥಿಗಳನ್ನು ನಿರ್ವಹಿಸಿ ಮತ್ತು ಯೋಜನೆಯನ್ನು ಬದಲಿಸಿ.",
     statsEvents: "ನಡೆಯಿಸಿದ ಕಾರ್ಯಕ್ರಮಗಳು",
     statsGuests: "ಯೋಜಿತ ಅತಿಥಿಗಳು",
     createButton: "ಕಾರ್ಯಕ್ರಮವನ್ನು ರಚಿಸಿ",
@@ -226,7 +226,7 @@ const eventLocales: Record<SupportedLocale, EventLocale> = {
     error: "ಈಗ ನಿಮ್ಮ ಕಾರ್ಯಕ್ರಮಗಳನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಸ್ವಲ್ಪ ಹೊತ್ತಿನ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
     emptyTitle: "ನೀವು ಇನ್ನೂ ಯಾವುದೇ ಕಾರ್ಯಕ್ರಮವನ್ನು ಸೇರಿಸಿಲ್ಲ.",
     emptyDescription:
-      "ZeroWaste ಕಾರ್ಯಕ್ರಮ ಯೋಜನೆ ಮೂಲಕ ಪ್ರಾರಂಭಿಸಿ. RSVPಗಳನ್ನು ಸಂಗ್ರಹಿಸಲು, ಆಹಾರ ಅಂದಾಜು ಮಾಡಲು ಮತ್ತು ವ್ಯರ್ಥವನ್ನು ಕಡಿಮೆ ಮಾಡಲು ನಾವು ಸಹಾಯ ಮಾಡುತ್ತೇವೆ.",
+      "ZeroVaste ಕಾರ್ಯಕ್ರಮ ಯೋಜನೆ ಮೂಲಕ ಪ್ರಾರಂಭಿಸಿ. RSVPಗಳನ್ನು ಸಂಗ್ರಹಿಸಲು, ಆಹಾರ ಅಂದಾಜು ಮಾಡಲು ಮತ್ತು ವ್ಯರ್ಥವನ್ನು ಕಡಿಮೆ ಮಾಡಲು ನಾವು ಸಹಾಯ ಮಾಡುತ್ತೇವೆ.",
     emptyCta: "ನಿಮ್ಮ ಮೊದಲ ಕಾರ್ಯಕ್ರಮವನ್ನು ಯೋಜಿಸಿ",
     locationFallback: "ಸ್ಥಳವನ್ನು ನಂತರ ದೃಢಪಡಿಸಲಾಗುವುದು",
     metrics: {

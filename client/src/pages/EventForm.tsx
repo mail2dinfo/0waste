@@ -7,7 +7,7 @@ import { useApi } from "../hooks/useApi";
 const APP_ORIGIN =
   typeof window !== "undefined" && window.location
     ? window.location.origin
-    : "https://zerowaste.in";
+    : "https://zerovaste.in";
 
 const PREVIEW_INVITE_LINK = `${APP_ORIGIN}/invite/preview`;
 
@@ -153,12 +153,12 @@ const templates: EventTemplate[] = [
   },
   {
     id: "corporate-zero-waste",
-    name: "Corporate • Zerowaste offsite",
+    name: "Corporate • Zerovaste offsite",
     subtitle: "Leadership retreats & annual meets",
     description:
       "Ideal for corporate gatherings with buffet, live counters, coffee stations, and post-event donation planning.",
     defaults: {
-      name: "Corporate ZeroWaste offsite",
+      name: "Corporate ZeroVaste offsite",
       schedule: [
         { ...createScheduleEntry(1), label: "Leadership Conference Day" },
       ],
@@ -204,7 +204,7 @@ const surveyQuestions: SurveyQuestion[] = [
   },
   {
     id: "zero_waste_pledge",
-    prompt: "Would you like guests to pledge ZeroWaste at RSVP?",
+    prompt: "Would you like guests to pledge ZeroVaste at RSVP?",
     type: "boolean",
     required: true,
   },
@@ -216,7 +216,7 @@ const surveyQuestions: SurveyQuestion[] = [
   },
   {
     id: "share_recommendation",
-    prompt: "If Zerowaste feels productive, will you recommend it to friends and relatives?",
+    prompt: "If Zerovaste feels productive, will you recommend it to friends and relatives?",
     type: "boolean",
     required: true,
   },
@@ -825,7 +825,7 @@ function EventForm() {
                 })}
               </div>
                   <p className="text-xs text-slate-500">
-                    Zerowaste will gather precise RSVPs and menu preferences before
+                    Zerovaste will gather precise RSVPs and menu preferences before
                     the deadline to fine tune these numbers.
                   </p>
             </div>
@@ -1051,7 +1051,7 @@ function EventForm() {
               </article>
             </div>
             <footer className="text-center text-xs text-slate-500">
-              Thanks for championing ZeroWaste. Share this experience with friends
+              Thanks for championing ZeroVaste. Share this experience with friends
               so every celebration feeds people, not landfills.
             </footer>
           </section>
@@ -1065,7 +1065,7 @@ function EventForm() {
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.9 12a5 5 0 0 1 8.2-3.8l1.2 1 1.2-1A5 5 0 1 1 19.9 15l-7 5-7-5A5 5 0 0 1 3.9 12z"/></svg>
                 </div>
                 <div>
-                  <h3 className="mt-1 text-2xl font-bold text-slate-900">Share your Zerowaste invitation</h3>
+                  <h3 className="mt-1 text-2xl font-bold text-slate-900">Share your Zerovaste invitation</h3>
                   <p className="text-sm text-slate-600">Send the link or QR code to collect guest preferences quickly.</p>
                 </div>
               </div>

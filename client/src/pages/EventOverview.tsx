@@ -6,7 +6,7 @@ import { QRCodeSVG } from "qrcode.react";
 const APP_ORIGIN =
   typeof window !== "undefined" && window.location
     ? window.location.origin
-    : "https://zerowaste.in";
+    : "https://zerovaste.in";
 
 const buildInviteLink = (id?: string | null) =>
   id ? `${APP_ORIGIN}/invite/${id}` : `${APP_ORIGIN}/invite/preview`;
@@ -37,7 +37,7 @@ const eventMap = {
     ],
     expectation: [
       "188 guests expected including 12 vendors",
-      "ZeroWaste survey closes 14 Nov 8pm",
+      "ZeroVaste survey closes 14 Nov 8pm",
       "Donation partner: Feeding India • Slot booked 11:30pm",
     ],
     menuPreferences: [
@@ -78,7 +78,7 @@ const eventMap = {
     ],
     expectation: [
       "Children entertainment corner planned",
-      "ZeroWaste pledge acceptance at 68%",
+      "ZeroVaste pledge acceptance at 68%",
       "Donation partner: Robin Hood Army",
     ],
     menuPreferences: [
@@ -119,7 +119,7 @@ const eventMap = {
     ],
     expectation: [
       "Executive committee aligning on cuisines",
-      "ZeroWaste pledge to be embedded in invites",
+      "ZeroVaste pledge to be embedded in invites",
       "Donation partner shortlist: Feeding India / Akshay Patra",
     ],
     menuPreferences: [],
@@ -572,15 +572,15 @@ function EventOverview() {
                           <div className="flex items-center gap-4">
                             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-500/10 text-brand-700">
                               <span className="text-lg font-bold">{index + 1}</span>
-                            </div>
+            </div>
                             <div className="text-left">
-                              <p className="text-xs uppercase tracking-wide text-brand-600">
+                  <p className="text-xs uppercase tracking-wide text-brand-600">
                                 Schedule {index + 1}
                               </p>
                               <h3 className="text-lg font-semibold text-slate-900">
                                 {entry.label ?? `Serving window ${index + 1}`}
                               </h3>
-                              <p className="text-sm text-slate-600">
+                  <p className="text-sm text-slate-600">
                                 {entry.date ?? "Date TBD"} • {entry.servingsPerDay ?? 0} serving{(entry.servingsPerDay ?? 0) === 1 ? "" : "s"}
                               </p>
                             </div>
@@ -664,8 +664,8 @@ function EventOverview() {
                                       <th className="text-right py-2 px-3 text-xs uppercase tracking-wide text-slate-500 font-semibold">Planned</th>
                                       <th className="text-right py-2 px-3 text-xs uppercase tracking-wide text-slate-500 font-semibold">Expected</th>
                                       <th className="text-right py-2 px-3 text-xs uppercase tracking-wide text-slate-500 font-semibold">Gap</th>
-                                    </tr>
-                                  </thead>
+                      </tr>
+                    </thead>
                                   <tbody className="divide-y divide-orange-50">
                                     <tr>
                                       <td className="py-3 px-3 font-medium text-slate-900">Adults</td>
@@ -673,7 +673,7 @@ function EventOverview() {
                                       <td className="py-3 px-3 text-right font-semibold text-emerald-600">{expectedAdults}</td>
                                       <td className={`py-3 px-3 text-right font-bold ${expectedAdults - plannedAdults >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                                         {expectedAdults - plannedAdults >= 0 ? '+' : ''}{expectedAdults - plannedAdults}
-                                      </td>
+                            </td>
                                     </tr>
                                     <tr>
                                       <td className="py-3 px-3 font-medium text-slate-900">Kids</td>
@@ -681,7 +681,7 @@ function EventOverview() {
                                       <td className="py-3 px-3 text-right font-semibold text-emerald-600">{expectedKids}</td>
                                       <td className={`py-3 px-3 text-right font-bold ${expectedKids - plannedKids >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                                         {expectedKids - plannedKids >= 0 ? '+' : ''}{expectedKids - plannedKids}
-                                      </td>
+                            </td>
                                     </tr>
                                     <tr className="border-t-2 border-orange-200 bg-orange-50/50">
                                       <td className="py-3 px-3 font-semibold text-slate-900">Total</td>
@@ -689,11 +689,11 @@ function EventOverview() {
                                       <td className="py-3 px-3 text-right font-bold text-emerald-600">{expectedTotal}</td>
                                       <td className={`py-3 px-3 text-right font-bold text-lg ${expectedTotal - plannedTotal >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                                         {expectedTotal - plannedTotal >= 0 ? '+' : ''}{expectedTotal - plannedTotal}
-                                      </td>
-                                    </tr>
-                                  </tbody>
-                                </table>
-                              </div>
+                            </td>
+                          </tr>
+                    </tbody>
+                  </table>
+                </div>
                             </div>
 
                             {/* Guest Arrival Peak Time Slot, Parking & Food Recommendations */}
@@ -719,21 +719,21 @@ function EventOverview() {
                                         <span className="text-xs font-semibold uppercase tracking-wide text-brand-600">
                                           Peak time
                                         </span>
-                                      </div>
-                                    </div>
+                      </div>
+                  </div>
                                     {arrivalSlots.length > 1 && (
                                       <div className="space-y-2">
                                         <p className="text-xs uppercase tracking-wide text-slate-500 font-semibold mb-3">All time slots</p>
                                         {arrivalSlots.map((slot) => {
-                                          const widthPercent = maxArrivalCount
+                          const widthPercent = maxArrivalCount
                                             ? Math.max(10, Math.round((slot.count / maxArrivalCount) * 100))
-                                            : 0;
+                            : 0;
                                           const isPeak = slot.value === peakArrivalSlot?.value;
-                                          return (
+                          return (
                                             <div key={slot.value} className="space-y-1.5">
-                                              <div className="flex items-center justify-between text-xs">
+                              <div className="flex items-center justify-between text-xs">
                                                 <div className="flex items-center gap-2">
-                                                  <span className="font-medium text-slate-700">{slot.label}</span>
+                                <span className="font-medium text-slate-700">{slot.label}</span>
                                                   {isPeak && (
                                                     <span className="inline-flex items-center rounded-full bg-brand-500 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
                                                       Peak
@@ -741,27 +741,27 @@ function EventOverview() {
                                                   )}
                                                 </div>
                                                 <span className="text-brand-600 font-semibold">{formatCount(slot.count)}</span>
-                                              </div>
-                                              <div className="h-2 w-full rounded-full bg-orange-50">
-                                                <div
+                              </div>
+                              <div className="h-2 w-full rounded-full bg-orange-50">
+                                <div
                                                   className={`h-full rounded-full transition-all ${isPeak ? 'bg-brand-500' : 'bg-brand-300'}`}
-                                                  style={{ width: `${widthPercent}%` }}
-                                                />
-                                              </div>
-                                            </div>
-                                          );
+                                  style={{ width: `${widthPercent}%` }}
+                                />
+                              </div>
+                            </div>
+                          );
                                         })}
                                       </div>
                                     )}
                                   </div>
-                                ) : (
+                      ) : (
                                   <div className="rounded-xl bg-orange-50 p-4 text-center">
-                                    <p className="text-xs text-slate-500">
-                                      No arrival slots captured yet. Encourage guests to pick their time window.
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
+                        <p className="text-xs text-slate-500">
+                          No arrival slots captured yet. Encourage guests to pick their time window.
+                        </p>
+                    </div>
+                    )}
+                  </div>
 
                               {/* Parking Recommendation */}
                               <div className="rounded-2xl border border-orange-100 bg-white p-5">
@@ -777,15 +777,15 @@ function EventOverview() {
                                       </p>
                                       <p className="text-sm font-medium text-slate-900">
                                         {formatCount(totalBikes)} {totalBikes === 1 ? "Bike" : "Bikes"} {totalBikes === 1 ? "is" : "are"} expected to come.
-                                      </p>
-                                    </div>
-                                  </div>
+                    </p>
+                  </div>
+                </div>
                                   {totalCars > 0 && parkingSlotsNeeded !== null && (
                                     <div className="rounded-xl bg-orange-50 p-3">
                                       <p className="text-xs text-slate-600">
                                         <span className="font-semibold">Recommended slots:</span> {formatCount(parkingSlotsNeeded)} (assumes 3 guests per car)
-                                      </p>
-                                    </div>
+                  </p>
+                </div>
                                   )}
                                   {totalCars === 0 && totalBikes === 0 && (
                                     <div className="rounded-xl bg-orange-50 p-3">
@@ -821,8 +821,8 @@ function EventOverview() {
                                         ) : (
                                           <>Based on planned guest count (no RSVPs yet)</>
                                         )}
-                                      </p>
-                                    </div>
+                      </p>
+                    </div>
 
                                     {aiForecast ? (
                                       <>
@@ -831,8 +831,8 @@ function EventOverview() {
                                           <p className="text-2xl font-bold text-brand-700">{formatCount(aiForecast.recommendedFoodKg)} kg</p>
                                           <p className="text-xs text-slate-600 mt-1">
                                             For {formatCount(expectedTotal)} expected guests
-                                          </p>
-                                        </div>
+                      </p>
+                    </div>
                                         <div className="rounded-xl bg-orange-50 p-3 space-y-2">
                                           <div className="flex items-center justify-between text-xs">
                                             <span className="text-slate-600">Per guest</span>
@@ -868,26 +868,26 @@ function EventOverview() {
                                               Calculate based on {formatCount(expectedTotal)} expected guests
                                             </p>
                                           )}
-                                        </div>
+                    </div>
                                         <div className="rounded-xl bg-orange-50 p-3">
                                           <p className="text-xs text-slate-600">
                                             <span className="font-semibold">Tip:</span> Share more invites or log planned food to unlock AI-powered portion recommendations.
-                                          </p>
-                                        </div>
-                                      </div>
+                      </p>
+                    </div>
+                  </div>
                                     )}
-                                  </div>
+                    </div>
                                 ) : (
                                   <div className="rounded-xl bg-orange-50 p-4 text-center">
                                     <p className="text-xs text-slate-500">
                                       Food quantity recommendation will appear once RSVPs are captured.
                                     </p>
-                                  </div>
+                    </div>
                                 )}
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                    </div>
+                  </div>
+                </div>
+              )}
                       </div>
                     );
                   })
@@ -906,7 +906,7 @@ function EventOverview() {
                   <p className="text-xs text-slate-600">
                     Share this link to capture RSVPs and preferences.
                   </p>
-                </header>
+                      </header>
 
                 <div className="flex flex-col items-center gap-3 rounded-2xl border border-orange-100 bg-orange-50/70 p-4 shadow-inner shadow-orange-100/70">
                   <QRCodeSVG
@@ -920,7 +920,7 @@ function EventOverview() {
                   <code className="block break-all rounded-lg bg-white px-3 py-2 text-[10px] font-semibold text-brand-600 shadow-sm max-w-full">
                     {inviteLink}
                   </code>
-                </div>
+                          </div>
 
                 <div className="space-y-2 text-xs font-semibold uppercase tracking-wide text-brand-600">
                   <button
@@ -944,7 +944,7 @@ function EventOverview() {
                   >
                     Share via SMS
                   </a>
-                </div>
+                          </div>
               </aside>
             </section>
 
@@ -963,7 +963,7 @@ function EventOverview() {
                 </div>
                 <div className="rounded-2xl bg-orange-50 p-4 text-sm text-slate-700">
                   <p className="text-xs uppercase tracking-wide text-slate-500">
-                    ZeroWaste pledge
+                    ZeroVaste pledge
                   </p>
                   <p className="mt-2 font-semibold text-slate-900">
                     {surveySnapshot.zero_waste_pledge === true
@@ -987,7 +987,7 @@ function EventOverview() {
                   </p>
                   <p className="mt-2 font-semibold text-slate-900">
                     {surveySnapshot.share_recommendation === true
-                      ? "Host intends to recommend ZeroWaste"
+                      ? "Host intends to recommend ZeroVaste"
                       : "Host has not committed to share yet"}
                   </p>
                 </div>
@@ -1094,7 +1094,7 @@ function EventOverview() {
               <p className="text-xs uppercase tracking-wide text-brand-600">Invitation toolkit</p>
               <h3 className="text-lg font-semibold text-slate-900">QR code & quick share</h3>
               <p className="text-sm text-slate-600">
-                Share this link anytime to capture RSVPs, menu preferences, and ZeroWaste pledges.
+                Share this link anytime to capture RSVPs, menu preferences, and ZeroVaste pledges.
               </p>
             </header>
 
@@ -1203,7 +1203,7 @@ function EventOverview() {
 
           <aside className="space-y-4 rounded-3xl border border-orange-200 bg-white/90 p-8 shadow-lg shadow-orange-200/60">
             <p className="text-sm text-slate-600">
-              After you unlock the premium report, answer a quick survey so we can continue improving ZeroWaste for your future events.
+              After you unlock the premium report, answer a quick survey so we can continue improving ZeroVaste for your future events.
             </p>
             {hasPaidReport ? (
               <div className="space-y-3 text-xs font-semibold uppercase tracking-wide text-brand-600">

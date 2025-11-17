@@ -12,10 +12,10 @@ import { NwSettings } from "../models/NwSettings.js";
 import { NwChatMessage } from "../models/NwChatMessage.js";
 
 const defaultRenderConfig = {
-  host: "dpg-d41rn4juibrs73flltn0-a.singapore-postgres.render.com",
-  database: "investo_3mo3",
-  username: "investo_3mo3_user",
-  password: "8UExBu4D44YsoQOEtGa9PTw9do3XUQ5E",
+  host: "dpg-d4dmojemcj7s73edtop0-a",
+  database: "zerovaste",
+  username: "zerovaste_user",
+  password: "TDN6XLUg84Xzb0u4lDkeZiIsYrEWFI27",
   port: 5432,
   ssl: true,
 };

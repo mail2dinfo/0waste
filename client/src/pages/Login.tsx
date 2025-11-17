@@ -52,7 +52,7 @@ function Login() {
       <div className="w-full max-w-md space-y-8 rounded-3xl border border-orange-100 bg-white p-8 shadow-xl shadow-orange-200/50">
         <div className="space-y-3 text-center">
           <Link to="/" className="inline-flex flex-col items-center gap-2">
-            <img src={logo} alt="Zerowaste logo" className="h-10 w-10" />
+            <img src={logo} alt="Zerovaste logo" className="h-10 w-10" />
             <span className="text-xl font-bold">
               <span className="text-brand-600">Zero</span>
               <span className="text-slate-900">waste</span>

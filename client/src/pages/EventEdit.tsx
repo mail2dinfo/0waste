@@ -86,7 +86,7 @@ function formatInviteLink(inviteLink: string | null, id: string | null) {
     const origin =
       typeof window !== "undefined" && window.location
         ? window.location.origin
-        : "https://zerowaste.in";
+        : "https://zerovaste.in";
     return `${origin}/invite/${id}`;
   }
   return null;
@@ -136,7 +136,7 @@ const eventEditLocales: Record<SupportedLocale, EventEditLocale> = {
     headerBadge: "Manage event plan",
     headerTitle: "Edit event details",
     headerDescription:
-      "Fine tune the information shared with your guests and internal teams. Updating these fields keeps the ZeroWaste forecasts accurate.",
+      "Fine tune the information shared with your guests and internal teams. Updating these fields keeps the ZeroVaste forecasts accurate.",
     inviteLinkLabel: "Invitation link",
     loading: "Loading event details…",
     loadError: "We couldn't load this event. Please try again soon.",
@@ -152,7 +152,7 @@ const eventEditLocales: Record<SupportedLocale, EventEditLocale> = {
       adults: "Adults",
       kids: "Kids",
       staff: "Support staff",
-      notes: "Notes for ZeroWaste team",
+      notes: "Notes for ZeroVaste team",
       notesPlaceholder: "Add additional context or coordination notes…",
     },
     statusOptions: {
@@ -173,7 +173,7 @@ const eventEditLocales: Record<SupportedLocale, EventEditLocale> = {
     headerBadge: "நிகழ்வு திட்ட மேலாண்மை",
     headerTitle: "நிகழ்வு விவரங்களைத் திருத்து",
     headerDescription:
-      "விருந்தினர்களும் உங்கள் அணியும் பகிரும் தகவல்களை நுணுக்கமாக மாற்றுங்கள். இப்புலங்களை புதுப்பிப்பது ZeroWaste முன்னறிவிப்புகளை துல்லியமாக வைத்திருக்கிறது.",
+      "விருந்தினர்களும் உங்கள் அணியும் பகிரும் தகவல்களை நுணுக்கமாக மாற்றுங்கள். இப்புலங்களை புதுப்பிப்பது ZeroVaste முன்னறிவிப்புகளை துல்லியமாக வைத்திருக்கிறது.",
     inviteLinkLabel: "அழைப்புக் இணைப்பு",
     loading: "நிகழ்வு விவரங்கள் ஏற்றப்படுகின்றன…",
     loadError:
@@ -190,7 +190,7 @@ const eventEditLocales: Record<SupportedLocale, EventEditLocale> = {
       adults: "பெரியவர்கள்",
       kids: "குழந்தைகள்",
       staff: "ஆதரவு பணியாளர்கள்",
-      notes: "ZeroWaste அணிக்கான குறிப்புகள்",
+      notes: "ZeroVaste அணிக்கான குறிப்புகள்",
       notesPlaceholder:
         "அமைப்புத் தகவல்கள், குறிப்புகள், ஒருங்கிணைப்பு தேவை ஆகியவற்றை உள்ளிடுங்கள்…",
     },
@@ -212,7 +212,7 @@ const eventEditLocales: Record<SupportedLocale, EventEditLocale> = {
     headerBadge: "कार्यक्रम योजना प्रबंधन",
     headerTitle: "कार्यक्रम विवरण संपादित करें",
     headerDescription:
-      "मेहमानों और आपकी टीम के साथ साझा जानकारी को परिष्कृत करें। इन फ़ील्ड्स को अपडेट करने से ZeroWaste पूर्वानुमान सटीक रहते हैं।",
+      "मेहमानों और आपकी टीम के साथ साझा जानकारी को परिष्कृत करें। इन फ़ील्ड्स को अपडेट करने से ZeroVaste पूर्वानुमान सटीक रहते हैं।",
     inviteLinkLabel: "आमंत्रण लिंक",
     loading: "कार्यक्रम का विवरण लोड हो रहा है…",
     loadError: "हम यह कार्यक्रम लोड नहीं कर सके। कृपया थोड़ी देर बाद फिर प्रयास करें।",
@@ -228,7 +228,7 @@ const eventEditLocales: Record<SupportedLocale, EventEditLocale> = {
       adults: "बड़े",
       kids: "बच्चे",
       staff: "सहायक स्टाफ",
-      notes: "ZeroWaste टीम के लिए नोट्स",
+      notes: "ZeroVaste टीम के लिए नोट्स",
       notesPlaceholder:
         "अतिरिक्त संदर्भ, मेनू नोट्स या समन्वय विवरण साझा करें…",
     },
@@ -250,7 +250,7 @@ const eventEditLocales: Record<SupportedLocale, EventEditLocale> = {
     headerBadge: "ఈవెంట్ ప్రణాళిక నిర్వహణ",
     headerTitle: "ఈవెంట్ వివరాలను సవరించండి",
     headerDescription:
-      "అతిథులు మరియు మీ బృందంతో పంచుకునే సమాచారాన్ని మెరుగుపరచండి. ఈ ఫీల్డులను నవీకరించడం ద్వారా ZeroWaste అంచనాలు సరిగ్గా ఉంటాయి.",
+      "అతిథులు మరియు మీ బృందంతో పంచుకునే సమాచారాన్ని మెరుగుపరచండి. ఈ ఫీల్డులను నవీకరించడం ద్వారా ZeroVaste అంచనాలు సరిగ్గా ఉంటాయి.",
     inviteLinkLabel: "ఆహ్వాన లింక్",
     loading: "ఈవెంట్ వివరాలు లోడ్ అవుతున్నాయి…",
     loadError: "ఈ ఈవెంట్‌ను లోడ్ చేయలేకపోయాం. దయచేసి కొద్దిసేపటి తర్వాత ప్రయత్నించండి.",
@@ -266,7 +266,7 @@ const eventEditLocales: Record<SupportedLocale, EventEditLocale> = {
       adults: "పెద్దలు",
       kids: "పిల్లలు",
       staff: "సహాయక సిబ్బంది",
-      notes: "ZeroWaste బృందానికి గమనికలు",
+      notes: "ZeroVaste బృందానికి గమనికలు",
       notesPlaceholder:
         "అదనపు సమాచారాన్ని లేదా సమన్వయ వివరాలను ఇక్కడ పంచుకోండి…",
     },
@@ -288,7 +288,7 @@ const eventEditLocales: Record<SupportedLocale, EventEditLocale> = {
     headerBadge: "ಕಾರ್ಯಕ್ರಮ ಯೋಜನೆ ನಿರ್ವಹಣೆ",
     headerTitle: "ಕಾರ್ಯಕ್ರಮ ವಿವರಗಳನ್ನು ಸಂಪಾದಿಸಿ",
     headerDescription:
-      "ಅತಿಥಿಗಳು ಮತ್ತು ನಿಮ್ಮ ತಂಡದೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳುವ ಮಾಹಿತಿಯನ್ನು ಹೆಚ್ಚು ನಿಖರಗೊಳಿಸಿ. ಈ ಕ್ಷೇತ್ರಗಳನ್ನು ನವೀಕರಿಸುವುದು ZeroWaste ಅಂದಾಜುಗಳನ್ನು ಸರಿಯಾಗಿ ಇಡುತ್ತದೆ.",
+      "ಅತಿಥಿಗಳು ಮತ್ತು ನಿಮ್ಮ ತಂಡದೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳುವ ಮಾಹಿತಿಯನ್ನು ಹೆಚ್ಚು ನಿಖರಗೊಳಿಸಿ. ಈ ಕ್ಷೇತ್ರಗಳನ್ನು ನವೀಕರಿಸುವುದು ZeroVaste ಅಂದಾಜುಗಳನ್ನು ಸರಿಯಾಗಿ ಇಡುತ್ತದೆ.",
     inviteLinkLabel: "ಆಮಂತ್ರಣ ಲಿಂಕ್",
     loading: "ಕಾರ್ಯಕ್ರಮ ವಿವರಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ…",
     loadError:
@@ -305,7 +305,7 @@ const eventEditLocales: Record<SupportedLocale, EventEditLocale> = {
       adults: "ವಯಸ್ಕರು",
       kids: "ಮಕ್ಕಳು",
       staff: "ಸಹಾಯಕ ಸಿಬ್ಬಂದಿ",
-      notes: "ZeroWaste ತಂಡಕ್ಕೆ ಟಿಪ್ಪಣಿಗಳು",
+      notes: "ZeroVaste ತಂಡಕ್ಕೆ ಟಿಪ್ಪಣಿಗಳು",
       notesPlaceholder:
         "ಹೆಚ್ಚುವರಿ ವಿವರಗಳು ಅಥವಾ ಸಮನ್ವಯ ಸೂಚನೆಗಳನ್ನು ಇಲ್ಲಿ ಹಂಚಿಕೊಳ್ಳಿ…",
     },

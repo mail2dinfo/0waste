@@ -43,7 +43,7 @@ export async function ensureDefaultAdmin() {
   const [admin, created] = await NwUser.findOrCreate({
     where: { phoneNumber: DEFAULT_ADMIN_PHONE },
     defaults: {
-      fullName: "ZeroWaste Admin",
+      fullName: "ZeroVaste Admin",
       email: DEFAULT_ADMIN_EMAIL,
       phoneNumber: DEFAULT_ADMIN_PHONE,
       passwordHash: DEFAULT_ADMIN_PASSWORD,

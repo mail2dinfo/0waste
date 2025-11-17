@@ -1,7 +1,7 @@
 import { NwSettings } from "../models/NwSettings.js";
 
-const DEFAULT_UPI_ID = "zerowaste@upi";
-const DEFAULT_UPI_NAME = "Zerowaste";
+const DEFAULT_UPI_ID = "zerovaste@upi";
+const DEFAULT_UPI_NAME = "Zerovaste";
 
 export async function getUpiSettings() {
   const upiIdSetting = await NwSettings.findOne({ where: { key: "upi_id" } });

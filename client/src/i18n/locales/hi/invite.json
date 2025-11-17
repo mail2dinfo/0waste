@@ -14,7 +14,7 @@
     "unavailable": "आमंत्रण विवरण फिलहाल उपलब्ध नहीं है।"
   },
   "defaults": {
-    "title": "ZeroWaste समारोह",
+    "title": "ZeroVaste समारोह",
     "location": "स्थल की जानकारी जल्द ही साझा की जाएगी"
   },
   "rsvp": {
@@ -67,7 +67,7 @@
   "cta": {
     "title": "उत्सव को जिम्मेदारी से मनाने में हमारा साथ दें।",
     "subtitle": "अपनी उपस्थिति, खाने की पसंद और विशेष आवश्यकताओं को साझा करें ताकि हम सही मात्रा तैयार कर सकें।",
-    "poweredBy": "Powered by ZeroWaste",
-    "link": "ZeroWaste योजना जानें"
+    "poweredBy": "Powered by ZeroVaste",
+    "link": "ZeroVaste योजना जानें"
   }
 }

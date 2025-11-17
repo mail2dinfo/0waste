@@ -137,10 +137,10 @@ function ShellLayout() {
           {/* Top row: logo left, country/language right */}
           <div className="flex flex-wrap items-center justify-between gap-4">
             <Link to="/dashboard" className="flex items-center gap-2">
-              <img src={logo} alt="Zerowaste logo" className="h-7 w-7" />
+              <img src={logo} alt="Zerovaste logo" className="h-7 w-7" />
               <span className="text-2xl font-bold">
                 <span className="text-brand-600">Zero</span>
-                <span className="text-slate-900">waste</span>
+                <span className="text-slate-900">vaste</span>
               </span>
             </Link>
             <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold tracking-wide text-brand-600">

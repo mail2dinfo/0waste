@@ -155,11 +155,11 @@ function AdminUpiSettings() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, upiId: e.target.value }))
                 }
-                placeholder="zerowaste@upi"
+                placeholder="zerovaste@upi"
                 className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-200"
               />
               <p className="mt-1 text-xs text-slate-500">
-                Format: username@bankname (e.g., zerowaste@upi, zerowaste@paytm)
+                Format: username@bankname (e.g., zerovaste@upi, zerovaste@paytm)
               </p>
             </div>
 
@@ -173,7 +173,7 @@ function AdminUpiSettings() {
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, upiName: e.target.value }))
                 }
-                placeholder="Zerowaste"
+                placeholder="Zerovaste"
                 className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-200"
               />
               <p className="mt-1 text-xs text-slate-500">

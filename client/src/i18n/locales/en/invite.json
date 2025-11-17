@@ -2,7 +2,7 @@
   "hero": {
     "badge": "You’re invited",
     "hostedBy": "Hosted by {{name}}",
-    "tagline": "Join the ZeroWaste circle",
+    "tagline": "Join the ZeroVaste circle",
     "subtagline": "Submit your RSVP to help us plan a feast with zero food wastage.",
     "ctaButton": "Join the zero waste table",
     "illustrationAlt": "Guests celebrating a mindful, zero waste feast"
@@ -14,7 +14,7 @@
     "unavailable": "Unable to load invite details right now."
   },
   "defaults": {
-    "title": "Zerowaste celebration",
+    "title": "Zerovaste celebration",
     "location": "Venue details coming soon"
   },
   "rsvp": {
@@ -67,7 +67,7 @@
   "cta": {
     "title": "Help us keep the celebration mindful.",
     "subtitle": "Share your attendance, dietary needs, or speciality dish requests with the host so the kitchen can plan the perfect portions.",
-    "poweredBy": "Powered by Zerowaste",
-    "link": "Discover ZeroWaste planning"
+    "poweredBy": "Powered by Zerovaste",
+    "link": "Discover ZeroVaste planning"
   }
 }

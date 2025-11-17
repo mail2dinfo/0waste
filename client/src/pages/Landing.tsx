@@ -54,7 +54,7 @@ const rotatingEvents = [
     date: "December 19",
     location: "Hyderabad",
     savings: "₹35,000",
-    savingsText: "Saved by Zerowaste",
+    savingsText: "Saved by Zerovaste",
     type: "Housewarming",
   },
   {
@@ -70,7 +70,7 @@ const rotatingEvents = [
     date: "December 21",
     location: "Chennai",
     savings: "₹28,500",
-    savingsText: "Saved by Zerowaste",
+    savingsText: "Saved by Zerovaste",
     type: "Community Gathering",
   },
   {
@@ -86,7 +86,7 @@ const rotatingEvents = [
     date: "December 23",
     location: "Coimbatore",
     savings: "₹19,000",
-    savingsText: "Saved by Zerowaste",
+    savingsText: "Saved by Zerovaste",
     type: "Community Gathering",
   },
 ];
@@ -160,11 +160,11 @@ function Landing() {
     <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-orange-100">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-2">
         <div className="flex items-center gap-3">
-          <img src={logo} alt="Zerowaste logo" className="h-9 w-9" />
+          <img src={logo} alt="Zerovaste logo" className="h-9 w-9" />
           <div className="leading-tight">
             <div className="text-3xl font-bold">
               <span className="text-brand-600">Zero</span>
-              <span className="text-slate-900">waste</span>
+              <span className="text-slate-900">vaste</span>
             </div>
             <span className="mt-0.5 inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-700">
               Fight food waste
@@ -228,11 +228,11 @@ function Landing() {
               Plan your events with{" "}
               <span className="font-bold">
                 <span className="text-brand-600">Zero</span>
-                <span className="text-slate-900">waste</span>
+                <span className="text-slate-900">vaste</span>
               </span>
             </h1>
             <p className="text-lg text-slate-600">
-              Zerowaste helps you estimate food portions, collect RSVPs, and
+              Zerovaste helps you estimate food portions, collect RSVPs, and
               donate leftovers seamlessly. Spend less, feed more, and protect
               the planet—one celebration at a time.
             </p>
@@ -292,7 +292,7 @@ function Landing() {
                     </div>
                     <div className="mt-6 rounded-2xl border border-orange-100 bg-orange-50 p-4">
                       <p className="text-sm font-semibold text-brand-700">
-                        “Zerowaste guided our entire menu planning. We donated 30 kg of
+                        “Zerovaste guided our entire menu planning. We donated 30 kg of
                         surplus food after the event.”
                       </p>
                       <p className="mt-3 text-xs text-slate-500">
@@ -370,7 +370,7 @@ function Landing() {
 
         <section className="mt-16 rounded-3xl border border-orange-100 bg-gradient-to-r from-orange-50 to-brand-50 p-8 text-center shadow-md">
           <h3 className="text-2xl font-bold text-slate-900">Ready to reduce food waste?</h3>
-          <p className="mt-2 text-slate-600">Start planning with Zerowaste today and see your impact instantly.</p>
+          <p className="mt-2 text-slate-600">Start planning with Zerovaste today and see your impact instantly.</p>
           <div className="mt-5">
             <Link
               to="/signup"
@@ -384,19 +384,19 @@ function Landing() {
         <footer className="mt-16 border-t border-orange-200 bg-white/80 py-12">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {/* Company Info */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <img src={logo} alt="Zerowaste logo" className="h-8 w-8" />
+            <div className="space-y-4 text-right">
+              <div className="flex items-center justify-end gap-2">
+                <img src={logo} alt="Zerovaste logo" className="h-8 w-8" />
                 <span className="text-xl font-bold">
                   <span className="text-brand-600">Zero</span>
-                  <span className="text-slate-900">waste</span>
+                  <span className="text-slate-900">vaste</span>
                 </span>
               </div>
               <p className="text-sm text-slate-600">
-                Plan your events with Zerowaste. Reduce food waste, save money, and protect the planet.
+                Plan your events with Zerovaste. Reduce food waste, save money, and protect the planet.
               </p>
               <p className="text-xs text-slate-500">
-                © {new Date().getFullYear()} Zerowaste. All rights reserved.
+                © {new Date().getFullYear()} Zerovaste. All rights reserved.
               </p>
             </div>
 

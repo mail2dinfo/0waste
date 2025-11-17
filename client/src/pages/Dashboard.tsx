@@ -157,9 +157,9 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
     guestsUpdating: "Updating",
     inviteReady: "Ready to share",
       welcomeWithName: "Welcome {{name}}",
-      welcomeGeneric: "Welcome back, Zerowaste champion!",
+      welcomeGeneric: "Welcome back, Zerovaste champion!",
     welcomeDescription:
-      "Your celebrations are already making a dent in food waste. Review your highlights below and keep building the ZeroWaste movement.",
+      "Your celebrations are already making a dent in food waste. Review your highlights below and keep building the ZeroVaste movement.",
     statCards: {
       eventsTitle: "My events",
       eventsLoading: "Calculating your celebrations",
@@ -168,7 +168,7 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
       eventsHelper: (count) =>
         `${count} celebration${count > 1 ? "s" : ""} planned`,
       foodTitle: "Food saved",
-      foodLoading: "Tallying ZeroWaste impact",
+      foodLoading: "Tallying ZeroVaste impact",
       foodEmpty: "Savings will appear once events go live",
       foodHelper: (value) =>
         value > 0
@@ -193,7 +193,7 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
         "We couldn't load your dashboard summary. Please refresh to try again.",
       emptyTitle: "No upcoming events yet.",
       emptyDescription:
-        "Start your first ZeroWaste celebration to see RSVP intelligence, savings, and the premium report unlock option right here.",
+        "Start your first ZeroVaste celebration to see RSVP intelligence, savings, and the premium report unlock option right here.",
       layoutList: "List",
       layoutCard: "Card",
     },
@@ -222,7 +222,7 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
       plannedFoodLabel: "Planned food",
       guestsLabel: "Guests expected",
       inviteLabel: "Invite link",
-      reportReadyHeading: "Report ready — unlock ZeroWaste insights for",
+      reportReadyHeading: "Report ready — unlock ZeroVaste insights for",
       reportDescription:
         "Pay once to access the detailed report for this celebration.",
       viewReportButton: "View report",
@@ -241,7 +241,7 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
     pricingErrorMessage: "Pricing unavailable for your region",
     alerts: {
       payInfo:
-        "Payment integration is coming soon. We'll guide you through secure checkout to unlock the full ZeroWaste report.",
+        "Payment integration is coming soon. We'll guide you through secure checkout to unlock the full ZeroVaste report.",
       viewInfoTemplate:
         "Report access for event {{eventId}} will redirect here once available.",
     },
@@ -255,18 +255,18 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
     guestsUpdating: "புதுப்பிக்கப்படுகிறது",
     inviteReady: "பகிர தயாராக உள்ளது",
     welcomeWithName: "மீண்டும் வரவேற்கிறோம், {{name}}!",
-    welcomeGeneric: "ZeroWaste முன்னோடி, மீண்டும் வரவேற்கிறோம்!",
+    welcomeGeneric: "ZeroVaste முன்னோடி, மீண்டும் வரவேற்கிறோம்!",
     welcomeDescription:
-      "உங்கள் கொண்டாட்டங்கள் ஏற்கனவே உணவுக் கழிவை குறைக்கும் தாக்கத்தை உருவாக்குகின்றன. கீழே உள்ள முக்கிய தருணங்களை மீண்டும் பார்வையிட்டு ZeroWaste இயக்கத்தை தொடர்ந்து வளர்த்திடுங்கள்.",
+      "உங்கள் கொண்டாட்டங்கள் ஏற்கனவே உணவுக் கழிவை குறைக்கும் தாக்கத்தை உருவாக்குகின்றன. கீழே உள்ள முக்கிய தருணங்களை மீண்டும் பார்வையிட்டு ZeroVaste இயக்கத்தை தொடர்ந்து வளர்த்திடுங்கள்.",
     statCards: {
       eventsTitle: "என் நிகழ்வுகள்",
       eventsLoading: "உங்கள் கொண்டாட்டங்களை கணக்கிடுகிறது",
-      eventsEmpty: "உங்கள் முதல் ZeroWaste நிகழ்வை உருவாக்குங்கள்",
+      eventsEmpty: "உங்கள் முதல் ZeroVaste நிகழ்வை உருவாக்குங்கள்",
       eventsZeroHelper: "உங்கள் முதல் பொறுப்பான கொண்டாட்டத்தைத் தொடங்குங்கள்",
       eventsHelper: (count) =>
         `${count} நிகழ்வு${count > 1 ? "கள்" : ""} திட்டமிடப்பட்டுள்ளன`,
       foodTitle: "சேமிக்கப்பட்ட உணவு",
-      foodLoading: "ZeroWaste தாக்கத்தை கணக்கிடுகிறது",
+      foodLoading: "ZeroVaste தாக்கத்தை கணக்கிடுகிறது",
       foodEmpty: "நிகழ்வுகள் செயலில் வந்தவுடன் சேமிப்பு காட்டப்படும்",
       foodHelper: (value) =>
         value > 0
@@ -291,7 +291,7 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
         "உங்கள் டாஷ்போர்ட் சுருக்கத்தை ஏற்ற முடியவில்லை. தயவுசெய்து புதுப்பித்துப் பார்க்கவும்.",
       emptyTitle: "வரவிருக்கும் நிகழ்வுகள் எதுவும் இல்லை.",
       emptyDescription:
-        "RSVP தகவல், சேமிப்பு, மற்றும் பிரீமியம் அறிக்கை திறக்க மாற்றத்தை இங்கிருந்தே பார்க்க உங்கள் முதல் ZeroWaste நிகழ்வைத் தொடங்குங்கள்.",
+        "RSVP தகவல், சேமிப்பு, மற்றும் பிரீமியம் அறிக்கை திறக்க மாற்றத்தை இங்கிருந்தே பார்க்க உங்கள் முதல் ZeroVaste நிகழ்வைத் தொடங்குங்கள்.",
       layoutList: "பட்டியல்",
       layoutCard: "அட்டைகள்",
     },
@@ -320,7 +320,7 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
       plannedFoodLabel: "திட்டமிட்ட உணவு",
       guestsLabel: "எதிர்பார்க்கப்படும் விருந்தினர்கள்",
       inviteLabel: "அழைப்புக் இணைப்பு",
-      reportReadyHeading: "அறிக்கை தயார் — ZeroWaste அறிவுகளைத் திறக்க",
+      reportReadyHeading: "அறிக்கை தயார் — ZeroVaste அறிவுகளைத் திறக்க",
       reportDescription:
         "இந்த கொண்டாட்டத்திற்கான விரிவான அறிக்கையை அணுக ஒருமுறை கட்டணம் செலுத்துங்கள்.",
       viewReportButton: "அறிக்கையை காண்",
@@ -339,7 +339,7 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
     pricingErrorMessage: "உங்கள் பகுதியில் விலைத் தகவல் இல்லை",
     alerts: {
       payInfo:
-        "கட்டண ஒருங்கிணைப்பு விரைவில் வருகிறது. முழுமையான ZeroWaste அறிக்கையைத் திறக்க பாதுகாப்பான செலுத்தும் செயல்முறையில் நாங்கள் வழிநடத்துவோம்.",
+        "கட்டண ஒருங்கிணைப்பு விரைவில் வருகிறது. முழுமையான ZeroVaste அறிக்கையைத் திறக்க பாதுகாப்பான செலுத்தும் செயல்முறையில் நாங்கள் வழிநடத்துவோம்.",
       viewInfoTemplate:
         "நிகழ்வு {{eventId}} கான அறிக்கையினை அணுகும் இணைப்பு தயார் ஆனதும் இங்கிருந்தே மாற்றப்படுகிறோம்.",
     },
@@ -353,17 +353,17 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
     guestsUpdating: "अद्यतन हो रहा है",
     inviteReady: "साझा करने के लिए तैयार",
     welcomeWithName: "फिर से स्वागत है, {{name}}!",
-    welcomeGeneric: "ZeroWaste चैम्पियन, आपका स्वागत है!",
+    welcomeGeneric: "ZeroVaste चैम्पियन, आपका स्वागत है!",
     welcomeDescription:
-      "आपके उत्सव पहले ही खाद्य अपशिष्ट कम कर रहे हैं। नीचे मुख्य झलकियां देखें और ZeroWaste आंदोलन को आगे बढ़ाते रहें।",
+      "आपके उत्सव पहले ही खाद्य अपशिष्ट कम कर रहे हैं। नीचे मुख्य झलकियां देखें और ZeroVaste आंदोलन को आगे बढ़ाते रहें।",
     statCards: {
       eventsTitle: "मेरे कार्यक्रम",
       eventsLoading: "आपके उत्सवों की गणना हो रही है",
-      eventsEmpty: "अपना पहला ZeroWaste कार्यक्रम बनाएँ",
+      eventsEmpty: "अपना पहला ZeroVaste कार्यक्रम बनाएँ",
       eventsZeroHelper: "अपना पहला जिम्मेदार उत्सव शुरू करें",
       eventsHelper: (count) => `${count} कार्यक्रम योजना में हैं`,
       foodTitle: "सहेजा गया भोजन",
-      foodLoading: "ZeroWaste प्रभाव की गणना हो रही है",
+      foodLoading: "ZeroVaste प्रभाव की गणना हो रही है",
       foodEmpty: "जैसे ही कार्यक्रम लाइव होंगे, बचत दिखाई देगी",
       foodHelper: (value) =>
         value > 0
@@ -388,7 +388,7 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
         "हम डैशबोर्ड सारांश लोड नहीं कर सके। कृपया रिफ्रेश करके पुनः प्रयास करें।",
       emptyTitle: "अभी कोई आगामी कार्यक्रम नहीं है।",
       emptyDescription:
-        "RSVP जानकारी, बचत और प्रीमियम रिपोर्ट विकल्प देखने के लिए अपना पहला ZeroWaste कार्यक्रम शुरू करें।",
+        "RSVP जानकारी, बचत और प्रीमियम रिपोर्ट विकल्प देखने के लिए अपना पहला ZeroVaste कार्यक्रम शुरू करें।",
       layoutList: "सूची",
       layoutCard: "कार्ड",
     },
@@ -417,7 +417,7 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
       plannedFoodLabel: "योजना बनाया भोजन",
       guestsLabel: "अपेक्षित मेहमान",
       inviteLabel: "आमंत्रण लिंक",
-      reportReadyHeading: "रिपोर्ट तैयार — ZeroWaste अंतर्दृष्टि अनलॉक करें",
+      reportReadyHeading: "रिपोर्ट तैयार — ZeroVaste अंतर्दृष्टि अनलॉक करें",
       reportDescription:
         "इस उत्सव की विस्तृत रिपोर्ट देखने के लिए एक बार भुगतान करें।",
       viewReportButton: "रिपोर्ट देखें",
@@ -436,7 +436,7 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
     pricingErrorMessage: "आपके क्षेत्र के लिए मूल्य उपलब्ध नहीं है",
     alerts: {
       payInfo:
-        "भुगतान एकीकरण जल्द ही आ रहा है। पूर्ण ZeroWaste रिपोर्ट अनलॉक करने के लिए हम आपको सुरक्षित प्रक्रिया से मार्गदर्शन करेंगे।",
+        "भुगतान एकीकरण जल्द ही आ रहा है। पूर्ण ZeroVaste रिपोर्ट अनलॉक करने के लिए हम आपको सुरक्षित प्रक्रिया से मार्गदर्शन करेंगे।",
       viewInfoTemplate:
         "कार्यक्रम {{eventId}} के लिए रिपोर्ट उपलब्ध होते ही यहाँ से खुल जाएगी।",
     },
@@ -450,17 +450,17 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
     guestsUpdating: "నవీకరించబడుతోంది",
     inviteReady: "పంచుకోవడానికి సిద్ధంగా ఉంది",
     welcomeWithName: "తిరిగి స్వాగతం, {{name}}!",
-    welcomeGeneric: "ZeroWaste చాంపియన్, తిరిగి స్వాగతం!",
+    welcomeGeneric: "ZeroVaste చాంపియన్, తిరిగి స్వాగతం!",
     welcomeDescription:
-      "మీ వేడుకలు ఇప్పటికే ఆహార వ్యర్థాన్ని తగ్గిస్తున్నాయి. క్రింది ముఖ్యాంశాలను చూడండి మరియు ZeroWaste ఉద్యమాన్ని కొనసాగించండి.",
+      "మీ వేడుకలు ఇప్పటికే ఆహార వ్యర్థాన్ని తగ్గిస్తున్నాయి. క్రింది ముఖ్యాంశాలను చూడండి మరియు ZeroVaste ఉద్యమాన్ని కొనసాగించండి.",
     statCards: {
       eventsTitle: "నా ఈవెంట్లు",
       eventsLoading: "మీ వేడుకలను లెక్కిస్తున్నాం",
-      eventsEmpty: "మీ మొదటి ZeroWaste ఈవెంట్ సృష్టించండి",
+      eventsEmpty: "మీ మొదటి ZeroVaste ఈవెంట్ సృష్టించండి",
       eventsZeroHelper: "మీ మొదటి బాధ్యతాయుత వేడుకను ప్రారంభించండి",
       eventsHelper: (count) => `${count} ఈవెంట్‌లు ప్రణాళికలో ఉన్నాయి`,
       foodTitle: "సేవ్ చేసిన ఆహారం",
-      foodLoading: "ZeroWaste ప్రభావాన్ని లెక్కిస్తున్నాం",
+      foodLoading: "ZeroVaste ప్రభావాన్ని లెక్కిస్తున్నాం",
       foodEmpty: "ఈవెంట్‌లు ప్రారంభమైన తర్వాత సేవింగ్స్ కనిపిస్తాయి",
       foodHelper: (value) =>
         value > 0
@@ -485,7 +485,7 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
         "మేము డ్యాష్‌బోర్డ్ సారాంశాన్ని లోడ్ చేయలేకపోయాము. దయచేసి రిఫ్రెష్ చేసి మళ్లీ ప్రయత్నించండి.",
       emptyTitle: "ఇప్పటికి రాబోయే ఈవెంట్‌లు లేవు.",
       emptyDescription:
-        "RSVP సమాచారం, సేవింగ్స్, ప్రీమియం రిపోర్ట్ ఎంపికలను చూడటానికి మీ మొదటి ZeroWaste ఈవెంట్‌ను ప్రారంభించండి.",
+        "RSVP సమాచారం, సేవింగ్స్, ప్రీమియం రిపోర్ట్ ఎంపికలను చూడటానికి మీ మొదటి ZeroVaste ఈవెంట్‌ను ప్రారంభించండి.",
       layoutList: "జాబితా",
       layoutCard: "కార్డు",
     },
@@ -514,7 +514,7 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
       plannedFoodLabel: "ప్రణాళిక చేసిన ఆహారం",
       guestsLabel: "అంచనా అతిథులు",
       inviteLabel: "ఆహ్వాన లింక్",
-      reportReadyHeading: "రిపోర్ట్ సిద్ధం — ZeroWaste అంతర్దృష్టులను అన్లాక్ చేయండి",
+      reportReadyHeading: "రిపోర్ట్ సిద్ధం — ZeroVaste అంతర్దృష్టులను అన్లాక్ చేయండి",
       reportDescription:
         "ఈ వేడుక కోసం వివరణాత్మక రిపోర్ట్‌ను చూడటానికి ఒకసారి చెల్లించండి.",
       viewReportButton: "రిపోర్ట్ చూడండి",
@@ -533,7 +533,7 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
     pricingErrorMessage: "మీ ప్రాంతానికి ధర సమాచారంలేదు",
     alerts: {
       payInfo:
-        "చెల్లింపు సమగ్రీకరణ త్వరలో వస్తోంది. పూర్తి ZeroWaste రిపోర్ట్‌ను అన్లాక్ చేయడానికి మేము మీకు భద్రమైన చెకೌట్ ద్వారా మార్గదర్శనం చేస్తాము.",
+        "చెల్లింపు సమగ్రీకరణ త్వరలో వస్తోంది. పూర్తి ZeroVaste రిపోర్ట్‌ను అన్లాక్ చేయడానికి మేము మీకు భద్రమైన చెకೌట్ ద్వారా మార్గదర్శనం చేస్తాము.",
       viewInfoTemplate:
         "ఈవెంట్ {{eventId}} కి సంబంధించిన రిపోర్ట్ అందుబాటులో వచ్చిన వెంటనే ఇక్కడే తెరవబడుతుంది.",
     },
@@ -547,17 +547,17 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
     guestsUpdating: "ನವೀಕರಿಸಲಾಗುತ್ತಿದೆ",
     inviteReady: "ಹಂಚಲು ಸಿದ್ಧವಾಗಿದೆ",
     welcomeWithName: "ಮತ್ತೆ ಸ್ವಾಗತ, {{name}}!",
-    welcomeGeneric: "ZeroWaste ನಾಯಕ, ನಿಮ್ಮನ್ನು ಮತ್ತೆ ಸ್ವಾಗತಿಸುತ್ತೇವೆ!",
+    welcomeGeneric: "ZeroVaste ನಾಯಕ, ನಿಮ್ಮನ್ನು ಮತ್ತೆ ಸ್ವಾಗತಿಸುತ್ತೇವೆ!",
     welcomeDescription:
-      "ನಿಮ್ಮ ಸಂಭ್ರಮಗಳು ಈಗಾಗಲೇ ಆಹಾರ ವ್ಯರ్ಥವನ್ನು ಕಡಿಮೆ ಮಾಡುತ್ತಿವೆ. ಕೆಳಗಿನ ಮುಖ್ಯಾಂಶಗಳನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ZeroWaste ಚಳವಳಿಯನ್ನು ಮುಂದುವರಿಸಿ.",
+      "ನಿಮ್ಮ ಸಂಭ್ರಮಗಳು ಈಗಾಗಲೇ ಆಹಾರ ವ್ಯರ్ಥವನ್ನು ಕಡಿಮೆ ಮಾಡುತ್ತಿವೆ. ಕೆಳಗಿನ ಮುಖ್ಯಾಂಶಗಳನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ZeroVaste ಚಳವಳಿಯನ್ನು ಮುಂದುವರಿಸಿ.",
     statCards: {
       eventsTitle: "ನನ್ನ ಕಾರ್ಯಕ್ರಮಗಳು",
       eventsLoading: "ನಿಮ್ಮ ಸಂಭ್ರಮಗಳನ್ನು கணಿಸುತ್ತಿದೆ",
-      eventsEmpty: "ನಿಮ್ಮ ಮೊದಲ ZeroWaste ಕಾರ್ಯಕ್ರಮವನ್ನು ರಚಿಸಿ",
+      eventsEmpty: "ನಿಮ್ಮ ಮೊದಲ ZeroVaste ಕಾರ್ಯಕ್ರಮವನ್ನು ರಚಿಸಿ",
       eventsZeroHelper: "ನಿಮ್ಮ ಮೊದಲ ಜವಾಬ್ದಾರಿಯುತ ಸಂಭ್ರಮವನ್ನು ಪ್ರಾರಂಭಿಸಿ",
       eventsHelper: (count) => `${count} ಕಾರ್ಯಕ್ರಮಗಳು ಯೋಜನೆಗೊಂಡಿವೆ`,
       foodTitle: "ಉಳಿಸಿದ ಆಹಾರ",
-      foodLoading: "ZeroWaste ಪರಿಣಾಮವನ್ನು ಲೆಕ್ಕಿಸುತ್ತಿದೆ",
+      foodLoading: "ZeroVaste ಪರಿಣಾಮವನ್ನು ಲೆಕ್ಕಿಸುತ್ತಿದೆ",
       foodEmpty: "ಕಾರ್ಯಕ್ರಮಗಳು ಲೈವ್ ಆದ ನಂತರ ಉಳಿವುಗಳು ಕಾಣಿಸುತ್ತದೆ",
       foodHelper: (value) =>
         value > 0
@@ -582,7 +582,7 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
         "ನಾವು ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಸಾರಾಂಶವನ್ನು ಲೋಡ್ ಮಾಡಲಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ರಿಫ್ರೆಶ್ ಮಾಡಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
       emptyTitle: "ಈಗ ಮುಂಬರುವ ಕಾರ್ಯಕ್ರಮಗಳಿಲ್ಲ.",
       emptyDescription:
-        "RSVP ಮಾಹಿತಿ, ಉಳಿವುಗಳು ಮತ್ತು ಪ್ರೀಮಿಯಂ ರಿಪೋರ್ಟ్ ಆಯ್ಕೆಯನ್ನು ಇಲ್ಲಿ ನೋಡಲು ನಿಮ್ಮ ಮೊದಲ ZeroWaste ಕಾರ್ಯಕ್ರಮವನ್ನು ಪ್ರಾರಂಭಿಸಿ.",
+        "RSVP ಮಾಹಿತಿ, ಉಳಿವುಗಳು ಮತ್ತು ಪ್ರೀಮಿಯಂ ರಿಪೋರ್ಟ్ ಆಯ್ಕೆಯನ್ನು ಇಲ್ಲಿ ನೋಡಲು ನಿಮ್ಮ ಮೊದಲ ZeroVaste ಕಾರ್ಯಕ್ರಮವನ್ನು ಪ್ರಾರಂಭಿಸಿ.",
       layoutList: "ಪಟ್ಟಿ",
       layoutCard: "ಕಾರ್ಡ್",
     },
@@ -611,7 +611,7 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
       plannedFoodLabel: "ಯೋಜಿತ ಆಹಾರ",
       guestsLabel: "ಅಪೇಕ್ಷಿತ ಅತಿಥಿಗಳು",
       inviteLabel: "ಆಮಂತ್ರಣ ಲಿಂಕ್",
-      reportReadyHeading: "ವರದಿ ಸಿದ್ಧ — ZeroWaste ತಿಳಿವಳಿಕೆಯನ್ನು ಅನ್ಲಾಕ్ ಮಾಡಿ",
+      reportReadyHeading: "ವರದಿ ಸಿದ್ಧ — ZeroVaste ತಿಳಿವಳಿಕೆಯನ್ನು ಅನ್ಲಾಕ్ ಮಾಡಿ",
       reportDescription:
         "ಈ ಸಂಭ್ರಮದ ವಿವರವಾದ ವರದಿಯನ್ನು ನೋಡಲು ಒಮ್ಮೆ ಪಾವತಿ ಮಾಡಿ.",
       viewReportButton: "ವರದಿ ನೋಡಿ",
@@ -630,7 +630,7 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
     pricingErrorMessage: "ನಿಮ್ಮ ಪ್ರದೇಶಕ್ಕೆ ಬೆಲೆ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ",
     alerts: {
       payInfo:
-        "ಪಾವತಿ ಏಕೀಕರಣವು ಶೀಘ್ರದಲ್ಲೇ ಬರುತ್ತಿದೆ. ಸಂಪೂರ್ಣ ZeroWaste ವರದಿಯನ್ನು ಅನ್ಲಾಕ್ ಮಾಡಲು ನಾವು ಭದ್ರ ಚೆಕ್‌ಔಟ್ ಮೂಲಕ ನಿಮಗೆ ಮಾರ್ಗದರ್ಶನ ನೀಡುತ್ತೇವೆ.",
+        "ಪಾವತಿ ಏಕೀಕರಣವು ಶೀಘ್ರದಲ್ಲೇ ಬರುತ್ತಿದೆ. ಸಂಪೂರ್ಣ ZeroVaste ವರದಿಯನ್ನು ಅನ್ಲಾಕ್ ಮಾಡಲು ನಾವು ಭದ್ರ ಚೆಕ್‌ಔಟ್ ಮೂಲಕ ನಿಮಗೆ ಮಾರ್ಗದರ್ಶನ ನೀಡುತ್ತೇವೆ.",
       viewInfoTemplate:
         "ಕಾರ್ಯಕ್ರಮ {{eventId}} ಗೆ ಸಂಬంಧಿಸಿದ ವರದಿ ಲಭ್ಯವಾಗುತ್ತಿದ್ದಂತೆ ಇಲ್ಲಿಯೇ ತೆರೆಯಲಾಗುತ್ತದೆ.",
     },
@@ -753,7 +753,7 @@ function Dashboard() {
         console.error("Failed to fetch UPI settings:", err);
         // Fallback to default
         if (ignore) return;
-        setUpiSettings({ upiId: "zerowaste@upi", upiName: "Zerowaste", qrCodeImage: null });
+        setUpiSettings({ upiId: "zerovaste@upi", upiName: "Zerovaste", qrCodeImage: null });
       });
 
     syncPricing();
@@ -902,7 +902,7 @@ function Dashboard() {
         currencyCode: reportPricing.currencyCode,
         method: "upi",
         // Host UPI ID where the user should send the money
-        upiId: upiSettings?.upiId || "zerowaste@upi",
+        upiId: upiSettings?.upiId || "zerovaste@upi",
         reference: upiId.trim(),
       };
 
@@ -973,7 +973,7 @@ function Dashboard() {
               <p className="text-sm text-slate-600">
                 {upcomingEvents.length > 0
                   ? "Track, unlock, and share your celebration intelligence with a richer visual summary."
-                  : "Plan your first mindful celebration to unlock tracking, predictions, and premium ZeroWaste reports right here."}
+                  : "Plan your first mindful celebration to unlock tracking, predictions, and premium ZeroVaste reports right here."}
               </p>
             </div>
             <div className="flex flex-col items-stretch justify-end gap-3 sm:flex-row sm:items-center">
@@ -1312,7 +1312,7 @@ function Dashboard() {
                 </h3>
                 {formattedPrice && (
                   <p className="mt-1 text-sm text-slate-600">
-                    Pay {formattedPrice} once to access ZeroWaste insights for this celebration.
+                    Pay {formattedPrice} once to access ZeroVaste insights for this celebration.
                   </p>
                 )}
               </div>
@@ -1328,7 +1328,7 @@ function Dashboard() {
             {paymentStatus === "success" ? (
               <div className="mt-6 space-y-4">
                 <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
-                  Payment received! The detailed ZeroWaste report is now unlocked.
+                  Payment received! The detailed ZeroVaste report is now unlocked.
                 </div>
                 <button
                   type="button"
@@ -1367,7 +1367,7 @@ function Dashboard() {
                         />
                       ) : (
                         <QRCodeSVG
-                          value={`upi://pay?pa=${upiSettings?.upiId || "zerowaste@upi"}&pn=${encodeURIComponent(upiSettings?.upiName || "Zerowaste")}&am=${reportPricing?.amount ?? 0}&cu=INR&tn=Event Report Payment`}
+                          value={`upi://pay?pa=${upiSettings?.upiId || "zerovaste@upi"}&pn=${encodeURIComponent(upiSettings?.upiName || "Zerovaste")}&am=${reportPricing?.amount ?? 0}&cu=INR&tn=Event Report Payment`}
                           size={160}
                           fgColor="#1f2937"
                           bgColor="#ffffff"
@@ -1382,11 +1382,11 @@ function Dashboard() {
                         <span className="font-semibold">
                           {formattedPrice ?? text.payCta.fallback}
                         </span>{" "}
-                        to <span className="font-semibold text-brand-600">{upiSettings?.upiId || "zerowaste@upi"}</span>.
+                        to <span className="font-semibold text-brand-600">{upiSettings?.upiId || "zerovaste@upi"}</span>.
                       </p>
                       <div className="rounded-lg border border-orange-200 bg-white p-2 text-center">
                         <p className="text-xs font-medium text-slate-600">UPI ID</p>
-                        <p className="text-sm font-bold text-brand-600">{upiSettings?.upiId || "zerowaste@upi"}</p>
+                        <p className="text-sm font-bold text-brand-600">{upiSettings?.upiId || "zerovaste@upi"}</p>
                       </div>
                     </div>
                   </div>

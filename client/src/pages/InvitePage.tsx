@@ -465,10 +465,10 @@ function InvitePage() {
             <div className="md:col-span-2">
               <div className="mb-2 flex items-center justify-center gap-2">
                 <Link to="/" className="inline-flex items-center gap-2">
-                  <img src={logo} alt="Zerowaste logo" className="h-8 w-8" />
+                  <img src={logo} alt="Zerovaste logo" className="h-8 w-8" />
                   <span className="text-3xl font-bold">
                     <span className="text-brand-600">Zero</span>
-                    <span className="text-slate-900">waste</span>
+                    <span className="text-slate-900">vaste</span>
                   </span>
                 </Link>
               </div>

@@ -14,7 +14,7 @@
     "unavailable": "ക്ഷണ വിശദാംശങ്ങൾ ഇപ്പോൾ ലഭ്യമല്ല."
   },
   "defaults": {
-    "title": "ZeroWaste ആഘോഷം",
+    "title": "ZeroVaste ആഘോഷം",
     "location": "വേദി ഉടൻ അറിയിക്കും"
   },
   "rsvp": {
@@ -67,7 +67,7 @@
   "cta": {
     "title": "ആഘോഷം ഉത്തരവാദിത്തത്തോടെ നിറവേറ്റാൻ നമ്മെ സഹായിക്കുക.",
     "subtitle": "നിങ്ങളുടെ പങ്കാളിത്തം, ഭക്ഷണ അഭിരുചികൾ, പ്രത്യേക ആവശ്യങ്ങൾ എന്നിവ ഹോസ്റ്റുമായി പങ്കിടൂ.",
-    "poweredBy": "ZeroWaste - powered",
-    "link": "ZeroWaste പ്ലാനിംഗ് അറിയുക"
+    "poweredBy": "ZeroVaste - powered",
+    "link": "ZeroVaste പ്ലാനിംഗ് അറിയുക"
   }
 }
