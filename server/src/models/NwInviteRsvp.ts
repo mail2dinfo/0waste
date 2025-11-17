@@ -46,4 +46,12 @@ export class NwInviteRsvp extends BaseModel<NwInviteRsvp> {
   @AllowNull(true)
   @Column(DataType.TEXT)
   declare notes: string | null;
+
+  @AllowNull(true)
+  @Column({ type: DataType.INTEGER, defaultValue: 0 })
+  declare carCount: number;
+
+  @AllowNull(true)
+  @Column({ type: DataType.INTEGER, defaultValue: 0 })
+  declare bikeCount: number;
 }

@@ -26,13 +26,17 @@ export class NwEvent extends BaseModel<NwEvent> {
   declare eventDate: string;
 
   @AllowNull(true)
+  @Column(DataType.DATEONLY)
+  declare surveyCutoffDate: string | null;
+
+  @AllowNull(true)
   @Column(DataType.STRING)
   declare location: string | null;
 
   @AllowNull(false)
   @Default("draft")
   @Column(DataType.STRING)
-  declare status: "draft" | "published" | "completed";
+  declare status: "draft" | "published" | "survey_completed" | "completed";
 
   @AllowNull(false)
   @Default("unpaid")

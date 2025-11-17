@@ -22,9 +22,11 @@ interface InviteEventResponse {
   id: string;
   title: string;
   eventDate?: string | null;
+  surveyCutoffDate?: string | null;
   location?: string | null;
   inviteLink?: string | null;
   notes?: string | null;
+  status?: string | null;
   scheduleSnapshot?: ScheduleSnapshot[] | null;
   owner?: {
     fullName?: string | null;
@@ -41,6 +43,8 @@ type StoredRsvp = {
   arrivalSlot: string | null;
   transportMode: string | null;
   reminderPreference: string[];
+  carCount: number;
+  bikeCount: number;
 };
 
 function formatDateLabel(value?: string | null) {
@@ -75,6 +79,8 @@ function InvitePage() {
   const [arrivalSlot, setArrivalSlot] = useState<string>("flexible");
   const [transportMode, setTransportMode] = useState<string | null>(null);
   const [reminderPreference, setReminderPreference] = useState<string[]>([]);
+  const [carCount, setCarCount] = useState(0);
+  const [bikeCount, setBikeCount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -136,6 +142,8 @@ function InvitePage() {
       setArrivalSlot(parsed.arrivalSlot ?? "flexible");
       setTransportMode(parsed.transportMode ?? null);
       setReminderPreference(parsed.reminderPreference ?? []);
+      setCarCount(parsed.carCount ?? 0);
+      setBikeCount(parsed.bikeCount ?? 0);
     } catch (err) {
       console.error("Failed to parse stored RSVP", err);
     }
@@ -275,6 +283,8 @@ function InvitePage() {
       setArrivalSlot("flexible");
       setTransportMode(null);
       setReminderPreference([]);
+      setCarCount(0);
+      setBikeCount(0);
     }
   };
 
@@ -285,6 +295,16 @@ function InvitePage() {
 
   const adjustKidCount = (delta: number) => {
     setKidCount((prev) => Math.max(0, prev + delta));
+    clearSubmitState();
+  };
+
+  const adjustCarCount = (delta: number) => {
+    setCarCount((prev) => Math.max(0, prev + delta));
+    clearSubmitState();
+  };
+
+  const adjustBikeCount = (delta: number) => {
+    setBikeCount((prev) => Math.max(0, prev + delta));
     clearSubmitState();
   };
 
@@ -305,11 +325,38 @@ function InvitePage() {
     clearSubmitState();
   };
 
-  const canSubmit = attending !== null && (!attending || adultCount + kidCount > 0);
+  // Check if survey is closed (cutoff date passed or status is survey_completed)
+  const isSurveyClosed = useMemo(() => {
+    if (!event) return false;
+    
+    // Check status first
+    if (event.status === "survey_completed") {
+      return true;
+    }
+    
+    // Check cutoff date
+    if (event.surveyCutoffDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const cutoffDate = new Date(event.surveyCutoffDate);
+      cutoffDate.setHours(0, 0, 0, 0);
+      return today > cutoffDate;
+    }
+    
+    return false;
+  }, [event]);
+
+  const canSubmit = !isSurveyClosed && attending !== null && (!attending || adultCount + kidCount > 0);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!eventId || attending === null) {
+      return;
+    }
+
+    // Check if survey is closed
+    if (isSurveyClosed) {
+      setSubmitError("The survey has closed. RSVPs are no longer being accepted.");
       return;
     }
 
@@ -327,6 +374,8 @@ function InvitePage() {
       transportMode: attending ? transportMode : null,
       reminderPreference:
         attending && reminderPreference.length > 0 ? reminderPreference : null,
+      carCount: attending ? carCount : 0,
+      bikeCount: attending ? bikeCount : 0,
     };
 
     try {
@@ -356,6 +405,8 @@ function InvitePage() {
         arrivalSlot: attending ? (payload.arrivalSlot ?? "flexible") : "flexible",
         transportMode: attending ? payload.transportMode ?? null : null,
         reminderPreference: attending ? reminderPreference : [],
+        carCount: attending ? carCount : 0,
+        bikeCount: attending ? bikeCount : 0,
       };
       if (typeof window !== "undefined") {
         window.localStorage.setItem(
@@ -459,7 +510,25 @@ function InvitePage() {
           </section>
         )}
 
-        {!error && event && (
+        {!error && event && isSurveyClosed && (
+          <section className="rounded-3xl border border-orange-200 bg-orange-50 p-6 text-center shadow-sm">
+            <div className="space-y-2">
+              <p className="text-base font-semibold text-orange-900">
+                Survey Closed
+              </p>
+              <p className="text-sm text-orange-700">
+                The RSVP survey for this event has closed. We're no longer accepting responses.
+              </p>
+              {event.surveyCutoffDate && (
+                <p className="text-xs text-orange-600">
+                  Survey closed on {formatDateLabel(event.surveyCutoffDate)}
+                </p>
+              )}
+            </div>
+          </section>
+        )}
+
+        {!error && event && !isSurveyClosed && (
           <>
             <section
               id="rsvp-card"
@@ -591,25 +660,78 @@ function InvitePage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                       <p className="font-medium text-slate-800">
                         {t("rsvp.transport.title")}
                       </p>
-                      <div className="flex flex-wrap gap-2">
-                        {transportOptions.map((option) => (
-                          <button
-                            key={option.value}
-                            type="button"
-                            onClick={() => handleTransportSelect(option.value)}
-                            className={`rounded-full border px-4 py-2 text-xs font-semibold transition ${
-                              transportMode === option.value
-                                ? "border-emerald-500 bg-emerald-500 text-white shadow"
-                                : "border-brand-200 bg-white text-brand-600 hover:bg-brand-100"
-                            }`}
-                          >
-                            {option.label}
-                          </button>
-                        ))}
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {/* Car Option */}
+                        <div className="flex items-center justify-between rounded-2xl border border-orange-100 bg-white p-4 shadow-sm">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100">
+                              <svg className="h-6 w-6 text-brand-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                              </svg>
+                            </div>
+                            <span className="text-sm font-medium text-slate-700">Car</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={() => adjustCarCount(-1)}
+                              className="flex h-8 w-8 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100"
+                              aria-label="Car count -"
+                            >
+                              −
+                            </button>
+                            <span className="w-6 text-center font-semibold text-slate-900">
+                              {carCount}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => adjustCarCount(1)}
+                              className="flex h-8 w-8 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100"
+                              aria-label="Car count +"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Bike Option */}
+                        <div className="flex items-center justify-between rounded-2xl border border-orange-100 bg-white p-4 shadow-sm">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
+                              <svg className="h-6 w-6 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM5 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm5.5-1.5c-.83 0-1.5-.67-1.5-1.5S9.67 5.5 10.5 5.5 12 6.17 12 7s-.67 1.5-1.5 1.5zm4.5 6.5c-1.5 0-4.5.83-4.5 2.5V19h9v-1.5c0-1.67-3-2.5-4.5-2.5z"/>
+                                <circle cx="6.5" cy="11.5" r="1.5"/>
+                                <circle cx="17.5" cy="11.5" r="1.5"/>
+                              </svg>
+                            </div>
+                            <span className="text-sm font-medium text-slate-700">Bike</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={() => adjustBikeCount(-1)}
+                              className="flex h-8 w-8 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100"
+                              aria-label="Bike count -"
+                            >
+                              −
+                            </button>
+                            <span className="w-6 text-center font-semibold text-slate-900">
+                              {bikeCount}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => adjustBikeCount(1)}
+                              className="flex h-8 w-8 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100"
+                              aria-label="Bike count +"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
 

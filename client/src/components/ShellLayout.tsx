@@ -4,6 +4,8 @@ import clsx from "clsx";
 import { useTranslation } from "react-i18next";
 import api from "../hooks/useApi";
 import logo from "../assets/zerowaste-logo.svg";
+import ScrollToTop from "./ScrollToTop";
+import ChatWidget from "./ChatWidget";
 
 const formatName = (value: string | null): string | null => {
   if (!value) return null;
@@ -12,15 +14,11 @@ const formatName = (value: string | null): string | null => {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 };
 
-const getNavItems = (isAdmin: boolean) => {
-  const items = [
+const getNavItems = () => {
+  return [
     { path: "/events", labelKey: "nav.events", exact: true },
     { path: "/events/new", labelKey: "nav.planEvent" },
   ];
-  if (isAdmin) {
-    items.push({ path: "/admin", labelKey: "nav.admin", exact: false });
-  }
-  return items;
 };
 
 type AuthState = { name: string | null; userId: string | null; role: string | null };
@@ -62,11 +60,11 @@ function ShellLayout() {
 
   const translatedNavItems = useMemo(
     () =>
-      getNavItems(auth.role === "admin").map((item) => ({
+      getNavItems().map((item) => ({
         ...item,
         label: t(item.labelKey),
       })),
-    [t, auth.role]
+    [t]
   );
 
   const syncAuth = useCallback(() => {
@@ -202,6 +200,11 @@ function ShellLayout() {
               </nav>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-brand-600">
+              {auth.userId && (
+                <div className="mr-2">
+                  <ChatWidget />
+                </div>
+              )}
               {auth.userId ? (
                 <>
                   {auth.name && (
@@ -239,6 +242,7 @@ function ShellLayout() {
       <main className="mx-auto max-w-6xl px-6 py-8">
         <Outlet />
       </main>
+      <ScrollToTop />
     </div>
   );
 }

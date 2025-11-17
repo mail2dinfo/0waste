@@ -15,6 +15,8 @@ export async function createInviteRsvpHandler(req: Request, res: Response) {
     transportMode,
     reminderPreference,
     notes,
+    carCount,
+    bikeCount,
   } = req.body ?? {};
 
   if (typeof attending !== "boolean") {
@@ -23,31 +25,43 @@ export async function createInviteRsvpHandler(req: Request, res: Response) {
       .json({ message: "attending must be provided as a boolean" });
   }
 
-  const rsvp = await saveInviteRsvp(eventId, {
-    rsvpId: typeof rsvpId === "string" ? rsvpId : undefined,
-    attending,
-    adults,
-    kids,
-    arrivalSlot,
-    transportMode,
-    reminderPreference,
-    notes,
-  });
+  try {
+    const rsvp = await saveInviteRsvp(eventId, {
+      rsvpId: typeof rsvpId === "string" ? rsvpId : undefined,
+      attending,
+      adults,
+      kids,
+      arrivalSlot,
+      transportMode,
+      reminderPreference,
+      notes,
+      carCount,
+      bikeCount,
+    });
 
-  if (!rsvp) {
-    return res.status(404).json({ message: "Event not found" });
+    if (!rsvp) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    return res.status(rsvpId ? 200 : 201).json({
+      id: rsvp.id,
+      attending: rsvp.attending,
+      adults: rsvp.adults,
+      kids: rsvp.kids,
+      arrivalSlot: rsvp.arrivalSlot,
+      transportMode: rsvp.transportMode,
+      reminderPreference: rsvp.reminderPreference,
+      notes: rsvp.notes,
+      carCount: rsvp.carCount,
+      bikeCount: rsvp.bikeCount,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("survey has closed")) {
+      return res.status(403).json({ message: error.message });
+    }
+    throw error;
   }
 
-  return res.status(rsvpId ? 200 : 201).json({
-    id: rsvp.id,
-    attending: rsvp.attending,
-    adults: rsvp.adults,
-    kids: rsvp.kids,
-    arrivalSlot: rsvp.arrivalSlot,
-    transportMode: rsvp.transportMode,
-    reminderPreference: rsvp.reminderPreference,
-    notes: rsvp.notes,
-  });
 }
 
 export async function getInviteRsvpSummaryHandler(req: Request, res: Response) {

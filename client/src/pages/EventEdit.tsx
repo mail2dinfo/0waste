@@ -7,6 +7,7 @@ type EventRecord = {
   id: string;
   title: string | null;
   eventDate: string | null;
+  surveyCutoffDate: string | null;
   location: string | null;
   status: string | null;
   plannedFoodKg: number | null;
@@ -22,6 +23,7 @@ type EventRecord = {
 type FormState = {
   title: string;
   eventDate: string;
+  surveyCutoffDate: string;
   location: string;
   status: string;
   plannedFoodKg: string;
@@ -34,6 +36,7 @@ type FormState = {
 const defaultFormState: FormState = {
   title: "",
   eventDate: "",
+  surveyCutoffDate: "",
   location: "",
   status: "draft",
   plannedFoodKg: "",
@@ -52,6 +55,7 @@ function buildFormState(event: EventRecord | null): FormState {
   return {
     title: event.title ?? "",
     eventDate: event.eventDate ?? "",
+    surveyCutoffDate: event.surveyCutoffDate ?? "",
     location: event.location ?? "",
     status: event.status ?? "draft",
     plannedFoodKg:
@@ -391,6 +395,7 @@ function EventEdit() {
       } = {
         title: form.title.trim(),
         eventDate: form.eventDate ? form.eventDate : null,
+        surveyCutoffDate: form.surveyCutoffDate || null,
         location: form.location ? form.location.trim() : null,
         status: form.status as EventRecord["status"],
         plannedFoodKg:
@@ -501,6 +506,25 @@ function EventEdit() {
                 }
                 className="w-full rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 text-sm text-slate-900 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
               />
+            </label>
+            <label className="space-y-2 text-sm font-medium text-slate-800">
+              Survey cutoff date
+              <input
+                type="date"
+                value={form.surveyCutoffDate}
+                onChange={(evt) =>
+                  setForm((prev) => ({ ...prev, surveyCutoffDate: evt.target.value }))
+                }
+                max={form.eventDate ? (() => {
+                  const eventDate = new Date(form.eventDate);
+                  eventDate.setDate(eventDate.getDate() - 1);
+                  return eventDate.toISOString().split('T')[0];
+                })() : undefined}
+                className="w-full rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 text-sm text-slate-900 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
+              />
+              <p className="text-xs text-slate-500">
+                Survey will close on this date (must be before event date)
+              </p>
             </label>
             <label className="space-y-2 text-sm font-medium text-slate-800">
               {text.form.location}

@@ -1015,9 +1015,28 @@ function Dashboard() {
           </header>
 
           {loading && (
-            <p className="rounded-2xl border border-orange-100 bg-orange-50/60 px-4 py-3 text-sm text-slate-600">
-              {upcomingText.loading}
-            </p>
+            <div className="rounded-2xl border border-orange-100 bg-white px-6 py-6">
+              <div className="space-y-3">
+                <div className="w-full h-2 bg-orange-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-brand-400 via-brand-500 to-brand-400 rounded-full"
+                    style={{
+                      width: '60%',
+                      animation: 'shimmer 1.5s ease-in-out infinite',
+                      background: 'linear-gradient(90deg, #fb923c 0%, #f97316 50%, #fb923c 100%)',
+                      backgroundSize: '200% 100%'
+                    }}
+                  />
+                </div>
+                <p className="text-center text-sm text-slate-600">Loading events...</p>
+              </div>
+              <style>{`
+                @keyframes shimmer {
+                  0% { background-position: -200% 0; }
+                  100% { background-position: 200% 0; }
+                }
+              `}</style>
+            </div>
           )}
 
           {error && !loading && (
@@ -1079,10 +1098,6 @@ function Dashboard() {
                           <p className="text-[11px] uppercase tracking-wide text-slate-500">
                             {formatDate(event.eventDate)} • {event.location}
                           </p>
-                          <p className="pt-1 text-[11px] font-semibold uppercase tracking-wide text-brand-600">
-                            {tableText.reportReadyPrefix}
-                            {formattedPrice ?? tableText.reportReadyFallback}
-                          </p>
                         </div>
                       </td>
                       <td className="px-5 py-4 text-slate-700">
@@ -1104,29 +1119,13 @@ function Dashboard() {
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex flex-wrap gap-2">
-                          {event.reportStatus === "paid" ? (
-                            <>
-                              <Link
-                                to={`/events/${event.id}/overview`}
-                                className="rounded-full border border-brand-200 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand-600 transition hover:bg-brand-50"
-                              >
-                                {tableText.actions.view}
-                              </Link>
-                              <Link
-                                to={`/events/${event.id}`}
-                                className="rounded-full border border-brand-200 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand-600 transition hover:bg-brand-50"
-                              >
-                                {tableText.actions.log}
-                              </Link>
-                              <button
-                                type="button"
-                                onClick={() => handleViewReportClick(event.id)}
-                                className="rounded-full bg-emerald-500 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow hover:bg-emerald-600"
-                              >
-                                {tableText.actions.viewReport}
-                              </button>
-                            </>
-                          ) : (
+                          <Link
+                            to={`/events/${event.id}/overview`}
+                            className="rounded-full border border-brand-200 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand-600 transition hover:bg-brand-50"
+                          >
+                            {tableText.actions.view}
+                          </Link>
+                          {event.reportStatus !== "paid" && (
                             <button
                               type="button"
                               onClick={() => handlePayClick(event)}
@@ -1134,6 +1133,15 @@ function Dashboard() {
                               className="rounded-full bg-brand-500 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-500/30 transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-slate-400"
                             >
                               {payCtaLabel}
+                            </button>
+                          )}
+                          {event.reportStatus === "paid" && (
+                            <button
+                              type="button"
+                              onClick={() => handleViewReportClick(event.id)}
+                              className="rounded-full bg-emerald-500 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow hover:bg-emerald-600"
+                            >
+                              {tableText.actions.viewReport}
                             </button>
                           )}
                         </div>
@@ -1244,16 +1252,25 @@ function Dashboard() {
                         >
                           {cardText.plannedStatusButton}
                         </Link>
-                        <Link
-                          to={`/events/${event.id}`}
-                          className="flex-1 rounded-full border border-brand-200 px-4 py-2 text-center hover:bg-brand-50"
+                        <button
+                          type="button"
+                          onClick={() => handleViewReportClick(event.id)}
+                          className="flex-1 rounded-full bg-emerald-500 px-4 py-2 text-center text-white shadow hover:bg-emerald-600"
                         >
-                          {cardText.predictionLogButton}
-                        </Link>
+                          {tableText.actions.viewReport}
+                        </button>
                       </div>
                     </>
                   ) : (
                     <>
+                      <div className="flex flex-wrap gap-2">
+                        <Link
+                          to={`/events/${event.id}/overview`}
+                          className="flex-1 rounded-full border border-brand-200 px-4 py-2 text-center hover:bg-brand-50"
+                        >
+                          {cardText.plannedStatusButton}
+                        </Link>
+                      </div>
                       <button
                         className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-500 px-4 py-2 text-white shadow hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-slate-400"
                         onClick={() => handlePayClick(event)}

@@ -294,6 +294,8 @@ function Events() {
           return text.status.published;
         case "completed":
           return text.status.completed;
+        case "survey_completed":
+          return "Survey completed";
         default:
           return text.status.draft;
       }

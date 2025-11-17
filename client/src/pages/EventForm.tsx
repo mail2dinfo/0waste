@@ -34,6 +34,7 @@ type MenuItem = {
 type FormState = {
   name: string;
   eventDate: string;
+  surveyCutoffDate: string;
   location: string;
   schedule: ScheduleEntry[];
   menu: MenuItem[];
@@ -236,6 +237,7 @@ function EventForm() {
   const [form, setForm] = useState<FormState>({
     name: "",
     eventDate: "",
+    surveyCutoffDate: "",
     location: "",
     schedule: [createScheduleEntry(1)],
     menu: defaultMenu,
@@ -304,6 +306,7 @@ function EventForm() {
       const payload = {
         title: form.name,
         eventDate: form.eventDate || null,
+        surveyCutoffDate: form.surveyCutoffDate || null,
         location: form.location,
         status: "draft",
         plannedFoodKg: form.plannedFoodKg ?? null,
@@ -468,6 +471,28 @@ function EventForm() {
                   }
                   className="w-full rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 text-sm text-slate-900 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
                 />
+              </label>
+              <label className="space-y-2 text-sm font-medium text-slate-800">
+                Survey cutoff date
+                <input
+                  type="date"
+                  value={form.surveyCutoffDate}
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      surveyCutoffDate: event.target.value,
+                    }))
+                  }
+                  max={form.eventDate ? (() => {
+                    const eventDate = new Date(form.eventDate);
+                    eventDate.setDate(eventDate.getDate() - 1);
+                    return eventDate.toISOString().split('T')[0];
+                  })() : undefined}
+                  className="w-full rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 text-sm text-slate-900 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
+                />
+                <p className="text-xs text-slate-500">
+                  Survey will close on this date (must be before event date)
+                </p>
               </label>
               <label className="space-y-2 text-sm font-medium text-slate-800 sm:col-span-2">
                 Location / venue

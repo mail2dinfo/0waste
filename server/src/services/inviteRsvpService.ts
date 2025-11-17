@@ -10,6 +10,8 @@ export interface InviteRsvpInput {
   transportMode?: string | null;
   reminderPreference?: string[] | null;
   notes?: string | null;
+  carCount?: number;
+  bikeCount?: number;
 }
 
 export interface InviteRsvpSummary {
@@ -20,6 +22,8 @@ export interface InviteRsvpSummary {
     adults: number;
     kids: number;
     guestsCommitted: number;
+    totalCars: number;
+    totalBikes: number;
   };
   ratios: {
     attendanceRate: number | null;
@@ -58,6 +62,21 @@ export async function saveInviteRsvp(
     return null;
   }
 
+  // Check if survey is closed (cutoff date passed or status is survey_completed)
+  if (event.status === "survey_completed") {
+    throw new Error("The survey has closed. RSVPs are no longer being accepted.");
+  }
+
+  if (event.surveyCutoffDate) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const cutoffDate = new Date(event.surveyCutoffDate);
+    cutoffDate.setHours(0, 0, 0, 0);
+    if (today > cutoffDate) {
+      throw new Error("The survey has closed. RSVPs are no longer being accepted.");
+    }
+  }
+
   const payload = {
     attending: Boolean(input.attending),
     adults: normaliseCount(input.adults),
@@ -66,6 +85,8 @@ export async function saveInviteRsvp(
     transportMode: normaliseString(input.transportMode),
     reminderPreference: normaliseStringArray(input.reminderPreference),
     notes: normaliseString(input.notes),
+    carCount: normaliseCount(input.carCount),
+    bikeCount: normaliseCount(input.bikeCount),
   };
 
   if (!payload.attending) {
@@ -75,6 +96,8 @@ export async function saveInviteRsvp(
     payload.transportMode = null;
     payload.reminderPreference = null;
     payload.notes = payload.notes ?? null;
+    payload.carCount = 0;
+    payload.bikeCount = 0;
   }
 
   if (input.rsvpId) {
@@ -122,6 +145,8 @@ export async function getInviteRsvpSummary(
     adults: 0,
     kids: 0,
     guestsCommitted: 0,
+    totalCars: 0,
+    totalBikes: 0,
   };
 
   const arrivalSlotMap = new Map<string, { label: string; count: number }>();
@@ -143,6 +168,8 @@ export async function getInviteRsvpSummary(
       totals.attendingYes += 1;
       totals.adults += normaliseCount(rsvp.adults);
       totals.kids += normaliseCount(rsvp.kids);
+      totals.totalCars += normaliseCount(rsvp.carCount);
+      totals.totalBikes += normaliseCount(rsvp.bikeCount);
     } else {
       totals.attendingNo += 1;
     }

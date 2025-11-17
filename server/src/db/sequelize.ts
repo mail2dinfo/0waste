@@ -9,6 +9,7 @@ import { NwInviteRsvp } from "../models/NwInviteRsvp.js";
 import { NwReportPricing } from "../models/NwReportPricing.js";
 import { NwReportPayment } from "../models/NwReportPayment.js";
 import { NwSettings } from "../models/NwSettings.js";
+import { NwChatMessage } from "../models/NwChatMessage.js";
 
 const defaultRenderConfig = {
   host: "dpg-d41rn4juibrs73flltn0-a.singapore-postgres.render.com",
@@ -33,6 +34,7 @@ function buildSequelize(): Sequelize {
         NwReportPricing,
         NwReportPayment,
         NwSettings,
+        NwChatMessage,
       ],
       dialectOptions: env.dbSsl
         ? { ssl: { require: true, rejectUnauthorized: false } }
@@ -73,6 +75,7 @@ function buildSequelize(): Sequelize {
       NwReportPricing,
       NwReportPayment,
       NwSettings,
+      NwChatMessage,
     ],
   });
 }

@@ -52,3 +52,5 @@ export class NwGuest extends BaseModel<NwGuest> {
 
 
 
+
+
