@@ -27,7 +27,13 @@ async function bootstrap() {
         if (allowedOrigins.has(origin)) {
           return callback(null, true);
         }
+        // Allow localhost for development
         if (/^http:\/\/localhost:\d+$/.test(origin)) {
+          allowedOrigins.add(origin);
+          return callback(null, true);
+        }
+        // Allow Render domains (onrender.com)
+        if (/^https:\/\/.*\.onrender\.com$/.test(origin)) {
           allowedOrigins.add(origin);
           return callback(null, true);
         }
