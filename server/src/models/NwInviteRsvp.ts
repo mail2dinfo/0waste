@@ -7,7 +7,7 @@ import {
   Table,
 } from "sequelize-typescript";
 import { BaseModel } from "./BaseModel.js";
-import type { NwEvent } from "./NwEvent.js";
+import { NwEvent } from "./NwEvent.js";
 
 @Table({ tableName: "nw_invite_rsvps" })
 export class NwInviteRsvp extends BaseModel<NwInviteRsvp> {

@@ -7,7 +7,7 @@ import {
   Table,
 } from "sequelize-typescript";
 import { BaseModel } from "./BaseModel.js";
-import type { NwUser } from "./NwUser.js";
+import { NwUser } from "./NwUser.js";
 
 @Table({ tableName: "nw_chat_messages" })
 export class NwChatMessage extends BaseModel<NwChatMessage> {
