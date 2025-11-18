@@ -728,7 +728,7 @@ function EventOverview() {
                           const widthPercent = maxArrivalCount
                                             ? Math.max(10, Math.round((slot.count / maxArrivalCount) * 100))
                             : 0;
-                                          const isPeak = slot.value === peakArrivalSlot?.value;
+                                          const isPeak = slot.label === peakArrivalSlot?.label;
                           return (
                                             <div key={slot.value} className="space-y-1.5">
                               <div className="flex items-center justify-between text-xs">
@@ -1003,6 +1003,7 @@ function EventOverview() {
     return <Navigate to="/events" replace />;
   }
 
+  const event = staticEvent;
   const hasPaidReport = event.reportStatus === "paid";
   const inviteLink = buildInviteLink(eventId);
   const shareTitle = event.title ?? "our celebration";

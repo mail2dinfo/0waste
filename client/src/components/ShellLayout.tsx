@@ -43,7 +43,7 @@ const supportedLanguages = [
 function ShellLayout() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation("common");
-  const [auth, setAuth] = useState<AuthState>({ name: null, userId: null });
+  const [auth, setAuth] = useState<AuthState>({ name: null, userId: null, role: null });
   const [locale, setLocale] = useState<LocaleState>(() => {
     const storedCountry = window.localStorage.getItem("nowasteCountry");
     const storedLanguage = window.localStorage.getItem("nowasteLanguage");

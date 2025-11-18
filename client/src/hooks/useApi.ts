@@ -11,7 +11,9 @@ export function useApi() {
     api.interceptors.request.use((config) => {
       const userId = window.localStorage.getItem("nowasteUserId");
       if (userId) {
-        config.headers = config.headers ?? {};
+        if (!config.headers) {
+          config.headers = {} as any;
+        }
         config.headers["x-user-id"] = userId;
       }
       return config;
