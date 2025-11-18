@@ -627,7 +627,7 @@ function EventForm() {
                       </p>
                       <div className="flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-wide">
                         {servingTimelineOptions.map((slot) => {
-                          const selectedSlots = entry.sessionsDescription
+                          const selectedSlots = (entry.sessionsDescription || "")
                             ? entry.sessionsDescription
                                 .split("\n")
                                 .map((value) => value.trim())
@@ -645,7 +645,7 @@ function EventForm() {
                                     if (item.id !== entry.id) {
                                       return item;
                                     }
-                                    const current = item.sessionsDescription
+                                    const current = (item.sessionsDescription || "")
                                       ? item.sessionsDescription
                                           .split("\n")
                                           .map((value) => value.trim())
@@ -680,7 +680,7 @@ function EventForm() {
                       <p className="tracking-wide">Meal categories served</p>
                       <div className="flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-wide">
                         {["Breakfast", "Lunch", "Dinner", "Evening snacks"].map((category) => {
-                          const isActive = entry.categories.includes(category);
+                          const isActive = (entry.categories || []).includes(category);
                           return (
                             <button
                               key={`${entry.id}-${category}`}
@@ -693,8 +693,8 @@ function EventForm() {
                                       ? {
                                           ...item,
                                           categories: isActive
-                                            ? item.categories.filter((cat) => cat !== category)
-                                            : [...item.categories, category],
+                                            ? (item.categories || []).filter((cat) => cat !== category)
+                                            : [...(item.categories || []), category],
                                         }
                                       : item
                                   ),
@@ -999,19 +999,20 @@ function EventForm() {
                           <div>
                             <dt className="text-xs uppercase tracking-wide text-slate-500">Serving timeline</dt>
                             <dd className="mt-2 flex flex-wrap gap-2">
-                              {entry.sessionsDescription
-                                .split("\n")
-                                .map((slot) => slot.trim())
-                                .filter(Boolean)
-                                .map((slot) => (
-                                  <span
-                                    key={`${entry.id}-${slot}`}
-                                    className="inline-flex items-center rounded-full bg-brand-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand-600"
-                                  >
-                                    {slot}
-                                  </span>
-                                ))}
-                              {!entry.sessionsDescription.trim() && (
+                              {entry.sessionsDescription && entry.sessionsDescription.trim() ? (
+                                entry.sessionsDescription
+                                  .split("\n")
+                                  .map((slot) => slot.trim())
+                                  .filter(Boolean)
+                                  .map((slot) => (
+                                    <span
+                                      key={`${entry.id}-${slot}`}
+                                      className="inline-flex items-center rounded-full bg-brand-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand-600"
+                                    >
+                                      {slot}
+                                    </span>
+                                  ))
+                              ) : (
                                 <span className="rounded-full border border-dashed border-orange-200 px-3 py-1 text-[11px] uppercase tracking-wide text-orange-300">
                                   No timeline added
                                 </span>
