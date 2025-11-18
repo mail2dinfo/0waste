@@ -82,10 +82,10 @@ export class NwEvent extends BaseModel<NwEvent> {
   @Column(DataType.JSONB)
   declare impactSnapshot:
     | {
-        foodSavedKg?: number;
-        moneySavedInr?: number;
-        mealsSupported?: number;
-      }
+      foodSavedKg?: number;
+      moneySavedInr?: number;
+      mealsSupported?: number;
+    }
     | null;
 
   @HasMany(() => NwGuest)
