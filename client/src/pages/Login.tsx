@@ -55,7 +55,7 @@ function Login() {
             <img src={logo} alt="Zerovaste logo" className="h-10 w-10" />
             <span className="text-xl font-bold">
               <span className="text-brand-600">Zero</span>
-              <span className="text-slate-900">waste</span>
+              <span className="text-slate-900">vaste</span>
             </span>
           </Link>
           <h1 className="text-2xl font-semibold text-slate-900">
