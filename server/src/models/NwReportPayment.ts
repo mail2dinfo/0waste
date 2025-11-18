@@ -8,26 +8,24 @@ import {
   Table,
 } from "sequelize-typescript";
 import { BaseModel } from "./BaseModel.js";
-import { NwUser } from "./NwUser.js";
-import { NwEvent } from "./NwEvent.js";
 
 @Table({ tableName: "nw_report_payments" })
 export class NwReportPayment extends BaseModel<NwReportPayment> {
-  @ForeignKey(() => NwUser)
+  @ForeignKey(() => require("./NwUser.js").NwUser)
   @AllowNull(false)
   @Column(DataType.UUID)
   declare userId: string;
 
-  @BelongsTo(() => NwUser)
-  declare user?: NwUser;
+  @BelongsTo(() => require("./NwUser.js").NwUser)
+  declare user?: any;
 
-  @ForeignKey(() => NwEvent)
+  @ForeignKey(() => require("./NwEvent.js").NwEvent)
   @AllowNull(false)
   @Column(DataType.UUID)
   declare eventId: string;
 
-  @BelongsTo(() => NwEvent)
-  declare event?: NwEvent;
+  @BelongsTo(() => require("./NwEvent.js").NwEvent)
+  declare event?: any;
 
   @AllowNull(false)
   @Column(DataType.STRING)

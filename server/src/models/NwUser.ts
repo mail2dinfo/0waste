@@ -8,7 +8,6 @@ import {
   Default,
 } from "sequelize-typescript";
 import { BaseModel } from "./BaseModel.js";
-import { NwEvent } from "./NwEvent.js";
 
 @Table({ tableName: "nw_users" })
 export class NwUser extends BaseModel<NwUser> {
@@ -34,7 +33,7 @@ export class NwUser extends BaseModel<NwUser> {
   @Column(DataType.STRING)
   declare role: "admin" | "product_owner";
 
-  @HasMany(() => NwEvent)
-  declare events?: NwEvent[];
+  @HasMany(() => require("./NwEvent.js").NwEvent)
+  declare events?: any[];
 }
 

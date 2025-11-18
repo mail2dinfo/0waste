@@ -7,17 +7,16 @@ import {
   Table,
 } from "sequelize-typescript";
 import { BaseModel } from "./BaseModel.js";
-import { NwUser } from "./NwUser.js";
 
 @Table({ tableName: "nw_chat_messages" })
 export class NwChatMessage extends BaseModel<NwChatMessage> {
-  @ForeignKey(() => NwUser)
+  @ForeignKey(() => require("./NwUser.js").NwUser)
   @AllowNull(false)
   @Column(DataType.UUID)
   declare userId: string;
 
-  @BelongsTo(() => NwUser)
-  declare user?: NwUser;
+  @BelongsTo(() => require("./NwUser.js").NwUser)
+  declare user?: any;
 
   @AllowNull(false)
   @Column(DataType.STRING)

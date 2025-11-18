@@ -9,11 +9,6 @@ import {
   Table,
 } from "sequelize-typescript";
 import { BaseModel } from "./BaseModel.js";
-import { NwUser } from "./NwUser.js";
-import { NwGuest } from "./NwGuest.js";
-import { NwFoodItem } from "./NwFoodItem.js";
-import { NwPrediction } from "./NwPrediction.js";
-import { NwInviteRsvp } from "./NwInviteRsvp.js";
 
 @Table({ tableName: "nw_events" })
 export class NwEvent extends BaseModel<NwEvent> {
@@ -55,12 +50,12 @@ export class NwEvent extends BaseModel<NwEvent> {
   @Column(DataType.TEXT)
   declare notes: string | null;
 
-  @ForeignKey(() => NwUser)
+  @ForeignKey(() => require("./NwUser.js").NwUser)
   @Column(DataType.UUID)
   declare ownerId: string;
 
-  @BelongsTo(() => NwUser)
-  declare owner?: NwUser;
+  @BelongsTo(() => require("./NwUser.js").NwUser)
+  declare owner?: any;
 
   @AllowNull(true)
   @Column(DataType.JSONB)
@@ -88,16 +83,16 @@ export class NwEvent extends BaseModel<NwEvent> {
     }
     | null;
 
-  @HasMany(() => NwGuest)
-  declare guests?: NwGuest[];
+  @HasMany(() => require("./NwGuest.js").NwGuest)
+  declare guests?: any[];
 
-  @HasMany(() => NwFoodItem)
-  declare menu?: NwFoodItem[];
+  @HasMany(() => require("./NwFoodItem.js").NwFoodItem)
+  declare menu?: any[];
 
-  @HasMany(() => NwPrediction)
-  declare predictions?: NwPrediction[];
+  @HasMany(() => require("./NwPrediction.js").NwPrediction)
+  declare predictions?: any[];
 
-  @HasMany(() => NwInviteRsvp)
-  declare inviteRsvps?: NwInviteRsvp[];
+  @HasMany(() => require("./NwInviteRsvp.js").NwInviteRsvp)
+  declare inviteRsvps?: any[];
 }
 
