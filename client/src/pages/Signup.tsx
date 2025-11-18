@@ -23,26 +23,42 @@ function Signup() {
     if (isSubmitting) return;
     setError(null);
     setSuccess(null);
+    
+    // Validate phone number is exactly 10 digits
+    const phoneDigits = form.phone.replace(/\D/g, "");
+    if (phoneDigits.length !== 10) {
+      setError("Please enter a valid 10-digit phone number without country code.");
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
       await api.post("/users", {
         fullName: form.fullName.trim(),
         email: form.email.trim(),
-        phoneNumber: form.phone.trim(),
+        phoneNumber: phoneDigits,
         password: form.password,
       });
       setSuccess(t("signup.successMessage"));
       localStorage.setItem("nowasteUserName", form.fullName.trim());
       setTimeout(() => navigate("/login"), 800);
     } catch (err: unknown) {
-      console.error(err);
+      console.error("Signup error:", err);
       if (
         typeof err === "object" &&
         err !== null &&
-        "response" in err &&
-        (err as any).response?.data?.message
+        "response" in err
       ) {
-        setError((err as any).response.data.message);
+        const axiosError = err as any;
+        if (axiosError.response?.data?.message) {
+          setError(axiosError.response.data.message);
+        } else if (axiosError.response?.status === 409) {
+          setError("Email or phone number is already registered. Please use a different email or phone number.");
+        } else if (axiosError.response?.status === 400) {
+          setError(axiosError.response.data?.message || "Please check all fields are filled correctly.");
+        } else {
+          setError(axiosError.response?.statusText || t("signup.errorMessage"));
+        }
       } else {
         setError(t("signup.errorMessage"));
       }
@@ -98,7 +114,9 @@ function Signup() {
           <label className="space-y-2 text-sm font-medium text-slate-700">
             {t("signup.phoneLabel")}
             <input
-              type="tel"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               required
               value={form.phone}
               onChange={(event) => {
@@ -106,8 +124,10 @@ function Signup() {
                 const trimmed = digitsOnly.length > 10 ? digitsOnly.slice(-10) : digitsOnly;
                 setForm((prev) => ({ ...prev, phone: trimmed }));
               }}
+              autoComplete="tel-national"
               className="w-full rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
               placeholder={t("signup.phonePlaceholder")}
+              maxLength={10}
             />
           </label>
           <label className="space-y-2 text-sm font-medium text-slate-700">
