@@ -98,11 +98,14 @@ function Signup() {
           <label className="space-y-2 text-sm font-medium text-slate-700">
             {t("signup.phoneLabel")}
             <input
+              type="tel"
               required
               value={form.phone}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, phone: event.target.value }))
-              }
+              onChange={(event) => {
+                const digitsOnly = event.target.value.replace(/\D/g, "");
+                const trimmed = digitsOnly.length > 10 ? digitsOnly.slice(-10) : digitsOnly;
+                setForm((prev) => ({ ...prev, phone: trimmed }));
+              }}
               className="w-full rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
               placeholder={t("signup.phonePlaceholder")}
             />
