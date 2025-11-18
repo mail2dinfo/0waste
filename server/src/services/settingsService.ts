@@ -47,7 +47,7 @@ export async function updateUpiSettings(upiId: string, upiName: string, qrCodeIm
       key: "upi_name",
       value: (upiName || DEFAULT_UPI_NAME).trim(),
       description: "Display name for UPI payments",
-    });
+    } as any);
   }
 
   // Handle QR code image upload
@@ -63,7 +63,7 @@ export async function updateUpiSettings(upiId: string, upiName: string, qrCodeIm
           key: "qr_code_image",
           value: qrCodeImage.trim(),
           description: "Uploaded QR code image (base64)",
-        });
+        } as any);
       }
     } else if (qrCodeSetting) {
       // Remove QR code if empty string is passed
@@ -87,7 +87,7 @@ export async function ensureDefaultSettings() {
       key: "upi_id",
       value: DEFAULT_UPI_ID,
       description: "UPI ID for receiving payments",
-    });
+    } as any);
   }
 
   const existingName = await NwSettings.findOne({ where: { key: "upi_name" } });
@@ -96,7 +96,7 @@ export async function ensureDefaultSettings() {
       key: "upi_name",
       value: DEFAULT_UPI_NAME,
       description: "Display name for UPI payments",
-    });
+    } as any);
   }
 }
 

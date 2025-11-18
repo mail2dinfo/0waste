@@ -81,7 +81,7 @@ class ChatServer {
             }
           });
 
-          ws.on("error", (error) => {
+          ws.on("error", (error: Error) => {
             console.error("WebSocket error:", error);
             this.clients.delete(userId);
             if (isAdmin) {
@@ -177,7 +177,7 @@ class ChatServer {
         message: message.message,
         adminId: isAdmin ? userId : null,
         isRead: false,
-      });
+      } as any);
 
       // Fetch user info if this is a user message (for admin display)
       let userName: string | null = null;

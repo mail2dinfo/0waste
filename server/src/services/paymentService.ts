@@ -107,7 +107,7 @@ export async function recordReportPayment(
     method: payload.method,
     status: "success",
     paymentDetails,
-  });
+  } as any);
 
   return { payment, created: true } as const;
 }

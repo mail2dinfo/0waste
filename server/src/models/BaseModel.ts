@@ -9,7 +9,7 @@ import {
 import { Model } from "sequelize-typescript";
 
 @Table({ timestamps: true, paranoid: false })
-export class BaseModel<T> extends Model<T> {
+export class BaseModel<T = any> extends Model<T> {
   @PrimaryKey
   @Column({ type: DataType.UUID, defaultValue: DataType.UUIDV4 })
   declare id: string;

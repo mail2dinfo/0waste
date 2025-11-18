@@ -16,9 +16,9 @@ export async function createRuleBasedPrediction(
   return NwPrediction.create({
     eventId,
     inputSnapshot: input,
-    outputRecommendation: recommendation,
+    outputRecommendation: recommendation as any,
     generator: "rule-based",
-  });
+  } as any);
 }
 
 

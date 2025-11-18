@@ -113,7 +113,7 @@ export async function saveInviteRsvp(
   const created = await NwInviteRsvp.create({
     eventId,
     ...payload,
-  });
+  } as any);
   return created;
 }
 

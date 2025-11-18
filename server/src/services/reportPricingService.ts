@@ -23,7 +23,7 @@ export async function ensureDefaultReportPricing() {
         countryCode: code,
         currencyCode: defaults.currencyCode,
         amount: defaults.amount,
-      });
+      } as any);
     }
   }
 }
@@ -44,7 +44,7 @@ export async function getReportPricingForCountry(countryCode: string) {
     countryCode: code,
     currencyCode: defaults.currencyCode,
     amount: defaults.amount,
-  });
+  } as any);
 }
 
 interface UpsertPayload {
@@ -60,7 +60,7 @@ export async function upsertReportPricing(
   const code = countryCode.toUpperCase();
   const existing = await NwReportPricing.findOne({ where: { countryCode: code } });
   if (!existing) {
-    return NwReportPricing.create({ countryCode: code, ...payload });
+    return NwReportPricing.create({ countryCode: code, ...payload } as any);
   }
   await existing.update(payload);
   return existing;

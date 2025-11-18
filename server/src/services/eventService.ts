@@ -25,7 +25,7 @@ export async function createEvent(
   const event = await NwEvent.create({
     ...payload,
     ownerId: userId,
-  });
+  } as any);
   if (!event.inviteLink) {
     const inviteLink = buildInviteLink(event.id);
     await event.update({ inviteLink });

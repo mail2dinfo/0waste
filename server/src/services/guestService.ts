@@ -8,7 +8,7 @@ export async function upsertGuest(eventId: string, payload: Partial<NwGuest>) {
   const [guest] = await NwGuest.upsert({
     ...payload,
     eventId,
-  });
+  } as any);
   return guest;
 }
 

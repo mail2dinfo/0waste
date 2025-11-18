@@ -10,7 +10,7 @@ export async function createUser(payload: Partial<NwUser>) {
   return NwUser.create({
     ...payload,
     role,
-  });
+  } as any);
 }
 
 export async function findUserByEmail(email: string) {
@@ -48,7 +48,7 @@ export async function ensureDefaultAdmin() {
       phoneNumber: DEFAULT_ADMIN_PHONE,
       passwordHash: DEFAULT_ADMIN_PASSWORD,
       role: "admin",
-    },
+    } as any,
   });
 
   if (!created) {
