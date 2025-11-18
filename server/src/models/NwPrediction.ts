@@ -7,6 +7,7 @@ import {
   Table,
 } from "sequelize-typescript";
 import { BaseModel } from "./BaseModel.js";
+import { getNwEvent } from "./modelLoader.js";
 
 @Table({ tableName: "nw_predictions" })
 export class NwPrediction extends BaseModel<NwPrediction> {
@@ -22,11 +23,11 @@ export class NwPrediction extends BaseModel<NwPrediction> {
   @Column(DataType.STRING)
   declare generator: "rule-based" | "ai";
 
-  @ForeignKey(() => require("./NwEvent.js").NwEvent)
+  @ForeignKey(() => getNwEvent())
   @Column(DataType.UUID)
   declare eventId: string;
 
-  @BelongsTo(() => require("./NwEvent.js").NwEvent)
+  @BelongsTo(() => getNwEvent())
   declare event?: any;
 }
 

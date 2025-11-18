@@ -7,6 +7,7 @@ import {
   Table,
 } from "sequelize-typescript";
 import { BaseModel } from "./BaseModel.js";
+import { getNwEvent } from "./modelLoader.js";
 
 @Table({ tableName: "nw_guests" })
 export class NwGuest extends BaseModel<NwGuest> {
@@ -37,11 +38,11 @@ export class NwGuest extends BaseModel<NwGuest> {
   @Column(DataType.TEXT)
   declare notes: string | null;
 
-  @ForeignKey(() => require("./NwEvent.js").NwEvent)
+  @ForeignKey(() => getNwEvent())
   @Column(DataType.UUID)
   declare eventId: string;
 
-  @BelongsTo(() => require("./NwEvent.js").NwEvent)
+  @BelongsTo(() => getNwEvent())
   declare event?: any;
 }
 

@@ -9,6 +9,7 @@ import {
   Table,
 } from "sequelize-typescript";
 import { BaseModel } from "./BaseModel.js";
+import { getNwUser, getNwGuest, getNwFoodItem, getNwPrediction, getNwInviteRsvp } from "./modelLoader.js";
 
 @Table({ tableName: "nw_events" })
 export class NwEvent extends BaseModel<NwEvent> {
@@ -50,11 +51,11 @@ export class NwEvent extends BaseModel<NwEvent> {
   @Column(DataType.TEXT)
   declare notes: string | null;
 
-  @ForeignKey(() => require("./NwUser.js").NwUser)
+  @ForeignKey(() => getNwUser())
   @Column(DataType.UUID)
   declare ownerId: string;
 
-  @BelongsTo(() => require("./NwUser.js").NwUser)
+  @BelongsTo(() => getNwUser())
   declare owner?: any;
 
   @AllowNull(true)
@@ -83,16 +84,16 @@ export class NwEvent extends BaseModel<NwEvent> {
     }
     | null;
 
-  @HasMany(() => require("./NwGuest.js").NwGuest)
+  @HasMany(() => getNwGuest())
   declare guests?: any[];
 
-  @HasMany(() => require("./NwFoodItem.js").NwFoodItem)
+  @HasMany(() => getNwFoodItem())
   declare menu?: any[];
 
-  @HasMany(() => require("./NwPrediction.js").NwPrediction)
+  @HasMany(() => getNwPrediction())
   declare predictions?: any[];
 
-  @HasMany(() => require("./NwInviteRsvp.js").NwInviteRsvp)
+  @HasMany(() => getNwInviteRsvp())
   declare inviteRsvps?: any[];
 }
 

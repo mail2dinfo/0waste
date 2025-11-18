@@ -7,6 +7,7 @@ import {
   Table,
 } from "sequelize-typescript";
 import { BaseModel } from "./BaseModel.js";
+import { getNwEvent } from "./modelLoader.js";
 
 @Table({ tableName: "nw_food_items" })
 export class NwFoodItem extends BaseModel<NwFoodItem> {
@@ -26,11 +27,11 @@ export class NwFoodItem extends BaseModel<NwFoodItem> {
   @Column(DataType.FLOAT)
   declare perKidKg: number;
 
-  @ForeignKey(() => require("./NwEvent.js").NwEvent)
+  @ForeignKey(() => getNwEvent())
   @Column(DataType.UUID)
   declare eventId: string;
 
-  @BelongsTo(() => require("./NwEvent.js").NwEvent)
+  @BelongsTo(() => getNwEvent())
   declare event?: any;
 }
 

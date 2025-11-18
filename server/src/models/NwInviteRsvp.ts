@@ -7,15 +7,16 @@ import {
   Table,
 } from "sequelize-typescript";
 import { BaseModel } from "./BaseModel.js";
+import { getNwEvent } from "./modelLoader.js";
 
 @Table({ tableName: "nw_invite_rsvps" })
 export class NwInviteRsvp extends BaseModel<NwInviteRsvp> {
-  @ForeignKey(() => require("./NwEvent.js").NwEvent)
+  @ForeignKey(() => getNwEvent())
   @AllowNull(false)
   @Column(DataType.UUID)
   declare eventId: string;
 
-  @BelongsTo(() => require("./NwEvent.js").NwEvent)
+  @BelongsTo(() => getNwEvent())
   declare event?: any;
 
   @AllowNull(false)
