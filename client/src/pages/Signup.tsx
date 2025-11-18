@@ -113,22 +113,26 @@ function Signup() {
           </label>
           <label className="space-y-2 text-sm font-medium text-slate-700">
             {t("signup.phoneLabel")}
-            <input
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              required
-              value={form.phone}
-              onChange={(event) => {
-                const digitsOnly = event.target.value.replace(/\D/g, "");
-                const trimmed = digitsOnly.length > 10 ? digitsOnly.slice(-10) : digitsOnly;
-                setForm((prev) => ({ ...prev, phone: trimmed }));
-              }}
-              autoComplete="tel-national"
-              className="w-full rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
-              placeholder={t("signup.phonePlaceholder")}
-              maxLength={10}
-            />
+            <div className="relative">
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{10}"
+                required
+                value={form.phone}
+                onChange={(event) => {
+                  const digitsOnly = event.target.value.replace(/\D/g, "");
+                  const trimmed = digitsOnly.length > 10 ? digitsOnly.slice(-10) : digitsOnly;
+                  setForm((prev) => ({ ...prev, phone: trimmed }));
+                }}
+                autoComplete="off"
+                data-country-code=""
+                className="w-full rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
+                placeholder="Enter 10-digit phone number"
+                maxLength={10}
+              />
+            </div>
+            <p className="text-xs text-slate-500 mt-1">Enter phone number without country code (e.g., 9876543210)</p>
           </label>
           <label className="space-y-2 text-sm font-medium text-slate-700">
             {t("signup.passwordLabel")}
