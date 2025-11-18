@@ -30,7 +30,7 @@ export async function getEventHandler(req: Request, res: Response) {
   if (!event) {
     return res.status(404).json({ message: "Event not found" });
   }
-  const payload = event.toJSON() as Record<string, unknown>;
+  const payload = event.toJSON() as unknown as Record<string, unknown>;
   const ownerId = event.ownerId;
   if (typeof ownerId === "string") {
     const paid = await hasPaidForEvent(ownerId, event.id);

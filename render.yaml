@@ -1,0 +1,43 @@
+services:
+  # Backend API Server
+  - type: web
+    name: zerovaste-api
+    env: node
+    plan: starter
+    rootDir: server
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DB_HOST
+        value: dpg-d4dmojemcj7s73edtop0-a
+      - key: DB_NAME
+        value: zerovaste
+      - key: DB_USER
+        value: zerovaste_user
+      - key: DB_PASSWORD
+        value: TDN6XLUg84Xzb0u4lDkeZiIsYrEWFI27
+      - key: DB_PORT
+        value: 5432
+      - key: DB_SSL
+        value: "true"
+      - key: FRONTEND_URL
+        sync: false  # Will be set to client URL after deployment
+      - key: INVITE_BASE_URL
+        sync: false  # Will be set to client URL + /invite after deployment
+
+  # Frontend Client
+  - type: web
+    name: zerovaste-web
+    env: node
+    plan: starter
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false  # Will be set to API URL after deployment
+

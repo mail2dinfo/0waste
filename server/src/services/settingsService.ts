@@ -34,7 +34,7 @@ export async function updateUpiSettings(upiId: string, upiName: string, qrCodeIm
       key: "upi_id",
       value: upiId.trim(),
       description: "UPI ID for receiving payments",
-    });
+    } as any);
   }
 
   let upiNameSetting = await NwSettings.findOne({ where: { key: "upi_name" } });

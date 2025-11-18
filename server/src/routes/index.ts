@@ -12,7 +12,7 @@ import { getUpiSettingsHandler } from "../controllers/settingsController.js";
 export function registerRoutes(app: Express) {
   const api = express.Router();
 
-  api.get("/health", (_req, res) =>
+  api.get("/health", (_req: express.Request, res: express.Response) =>
     res.json({ status: "ok", service: "nowaste-api" })
   );
 
