@@ -7,7 +7,7 @@ import {
   Table,
 } from "sequelize-typescript";
 import { BaseModel } from "./BaseModel.js";
-import { NwEvent } from "./NwEvent.js";
+import type { NwEvent } from "./NwEvent.js";
 
 @Table({ tableName: "nw_food_items" })
 export class NwFoodItem extends BaseModel<NwFoodItem> {

@@ -9,11 +9,11 @@ import {
   Table,
 } from "sequelize-typescript";
 import { BaseModel } from "./BaseModel.js";
-import { NwUser } from "./NwUser.js";
-import { NwGuest } from "./NwGuest.js";
-import { NwFoodItem } from "./NwFoodItem.js";
-import { NwPrediction } from "./NwPrediction.js";
-import { NwInviteRsvp } from "./NwInviteRsvp.js";
+import type { NwUser } from "./NwUser.js";
+import type { NwGuest } from "./NwGuest.js";
+import type { NwFoodItem } from "./NwFoodItem.js";
+import type { NwPrediction } from "./NwPrediction.js";
+import type { NwInviteRsvp } from "./NwInviteRsvp.js";
 
 @Table({ tableName: "nw_events" })
 export class NwEvent extends BaseModel<NwEvent> {
