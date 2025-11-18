@@ -2,6 +2,7 @@ import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useApi } from "../hooks/useApi";
+import logo from "../assets/zerowaste-logo.svg";
 
 function Signup() {
   const navigate = useNavigate();
@@ -54,14 +55,13 @@ function Signup() {
     <div className="flex min-h-screen items-center justify-center bg-orange-50 px-4 py-12">
       <div className="w-full max-w-2xl rounded-3xl border border-orange-100 bg-white p-10 shadow-xl shadow-orange-200/50">
         <div className="mb-8 space-y-3 text-center">
-          <div className="flex items-center justify-center">
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 rounded-full bg-brand-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-brand-600 transition hover:bg-brand-500/20"
-            >
-              {t("signup.homeBadge")}
-            </Link>
-          </div>
+          <Link to="/" className="inline-flex flex-col items-center gap-2">
+            <img src={logo} alt="Zerovaste logo" className="h-10 w-10" />
+            <span className="text-xl font-bold">
+              <span className="text-brand-600">Zero</span>
+              <span className="text-slate-900">vaste</span>
+            </span>
+          </Link>
           <h1 className="text-3xl font-semibold text-slate-900">
             {t("signup.title")}
           </h1>
