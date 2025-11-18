@@ -478,7 +478,8 @@ function EventOverview() {
     const totalBikes = rsvpSummary?.totals?.totalBikes ?? 0;
     const parkingSlotsNeeded = totalCars > 0 ? Math.max(1, Math.ceil(totalCars / 3)) : null;
 
-    const inviteLink = remoteEvent.inviteLink ?? buildInviteLink(eventId);
+    // Always use production URL generated from eventId, ignore database value which may have localhost
+    const inviteLink = buildInviteLink(eventId);
     const shareTitle = remoteEvent.title ?? "our celebration";
     const shareDate = remoteEvent.eventDate ?? "the upcoming date";
     const copyLabel = copyStatus === "copied" ? "Link copied!" : "Copy invite link";

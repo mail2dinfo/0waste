@@ -3,6 +3,28 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { useApi } from "../hooks/useApi";
 
+const PRODUCTION_URL = import.meta.env.VITE_FRONTEND_URL || "https://zerowaste-06c0.onrender.com";
+
+// Normalize invite link to use production URL instead of localhost
+function normalizeInviteLink(inviteLink: string | null, eventId: string | null): string | null {
+  if (!inviteLink && !eventId) return null;
+  if (!inviteLink && eventId) {
+    return `${PRODUCTION_URL}/invite/${eventId}`;
+  }
+  if (inviteLink && inviteLink.includes('localhost')) {
+    // Replace localhost URL with production URL
+    if (eventId) {
+      return `${PRODUCTION_URL}/invite/${eventId}`;
+    }
+    // Extract eventId from localhost URL if possible
+    const match = inviteLink.match(/\/invite\/([^\/]+)/);
+    if (match && match[1]) {
+      return `${PRODUCTION_URL}/invite/${match[1]}`;
+    }
+  }
+  return inviteLink;
+}
+
 type EventListItem = {
   id: string;
   title: string;
@@ -461,13 +483,13 @@ function Events() {
                     </div>
                   </dl>
 
-                  {event.inviteLink && (
+                  {normalizeInviteLink(event.inviteLink, event.id) && (
                     <div className="mt-3 space-y-1">
                       <p className="text-[11px] uppercase tracking-wide text-slate-500">
                         {text.inviteLink}
                       </p>
                       <code className="block truncate text-[11px] text-slate-700">
-                        {event.inviteLink}
+                        {normalizeInviteLink(event.inviteLink, event.id)}
                       </code>
                     </div>
                   )}
