@@ -7,7 +7,7 @@ import { useApi } from "../hooks/useApi";
 const APP_ORIGIN =
   typeof window !== "undefined" && window.location
     ? window.location.origin
-    : "https://zerovaste.in";
+    : import.meta.env.VITE_FRONTEND_URL || "https://zerowaste-06c0.onrender.com";
 
 const PREVIEW_INVITE_LINK = `${APP_ORIGIN}/invite/preview`;
 

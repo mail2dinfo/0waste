@@ -6,7 +6,7 @@ import { QRCodeSVG } from "qrcode.react";
 const APP_ORIGIN =
   typeof window !== "undefined" && window.location
     ? window.location.origin
-    : "https://zerovaste.in";
+    : import.meta.env.VITE_FRONTEND_URL || "https://zerowaste-06c0.onrender.com";
 
 const buildInviteLink = (id?: string | null) =>
   id ? `${APP_ORIGIN}/invite/${id}` : `${APP_ORIGIN}/invite/preview`;
