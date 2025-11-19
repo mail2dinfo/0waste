@@ -885,31 +885,34 @@ function InvitePage() {
           onClick={() => setShowSuccessModal(false)}
         >
           <div 
-            className="relative w-full max-w-2xl rounded-3xl bg-white shadow-2xl transform transition-all"
+            className="relative w-full max-w-2xl rounded-3xl bg-white shadow-2xl transform transition-all overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
             <button
               onClick={() => setShowSuccessModal(false)}
-              className="absolute right-4 top-4 z-10 rounded-full bg-white p-2 text-slate-400 shadow-md hover:bg-slate-100 hover:text-slate-600 transition-colors"
+              className="absolute right-4 top-4 z-20 rounded-full bg-white p-2 text-slate-400 shadow-lg border border-slate-200 hover:bg-slate-100 hover:text-slate-600 transition-colors"
               aria-label="Close"
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
-            <div className="p-8 sm:p-12">
-              {/* Zerovaste Logo */}
-              <div className="mb-6 flex justify-center">
-                <Link to="/" className="inline-flex items-center gap-3">
-                  <img src={logo} alt="Zerovaste logo" className="h-12 w-12" />
-                  <span className="text-3xl font-bold">
+            {/* Header Section with Logo - Fixed at top */}
+            <div className="relative border-b border-orange-100 bg-gradient-to-r from-orange-50 to-amber-50 px-8 py-6">
+              <div className="flex justify-center">
+                <Link to="/" className="inline-flex items-center gap-3 hover:opacity-80 transition-opacity">
+                  <img src={logo} alt="Zerovaste logo" className="h-14 w-14" />
+                  <span className="text-4xl font-bold">
                     <span className="text-brand-600">Zero</span>
                     <span className="text-slate-900">vaste</span>
                   </span>
                 </Link>
               </div>
+            </div>
+
+            <div className="p-8 sm:p-12">
 
               {/* Success Icon */}
               <div className="mb-6 flex justify-center">
