@@ -36,8 +36,10 @@ services:
     plan: starter
     rootDir: client
     buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
+    startCommand: npm start
     envVars:
+      - key: PORT
+        value: 10000
       - key: VITE_API_URL
         sync: false  # Will be set to API URL after deployment
 
