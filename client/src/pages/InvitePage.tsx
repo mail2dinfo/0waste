@@ -881,11 +881,11 @@ function InvitePage() {
       {/* Success Modal */}
       {showSuccessModal && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 sm:p-8 backdrop-blur-sm transition-opacity"
           onClick={() => setShowSuccessModal(false)}
         >
           <div 
-            className="relative w-full max-w-2xl rounded-3xl bg-white shadow-2xl transform transition-all overflow-hidden"
+            className="relative w-full max-w-2xl max-h-[90vh] rounded-3xl bg-white shadow-2xl transform transition-all overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
@@ -912,7 +912,7 @@ function InvitePage() {
               </div>
             </div>
 
-            <div className="p-8 sm:p-12">
+            <div className="p-8 sm:p-12 overflow-y-auto flex-1">
 
               {/* Success Icon */}
               <div className="mb-6 flex justify-center">
