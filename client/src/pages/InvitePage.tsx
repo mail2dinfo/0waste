@@ -788,108 +788,98 @@ function InvitePage() {
       {/* Success Modal */}
       {showSuccessModal && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 sm:p-8 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2 backdrop-blur-sm transition-opacity"
           onClick={() => setShowSuccessModal(false)}
         >
           <div 
-            className="relative w-full max-w-2xl max-h-[90vh] rounded-3xl bg-white shadow-2xl transform transition-all overflow-hidden flex flex-col"
+            className="relative w-full max-w-xl max-h-[95vh] rounded-2xl bg-white shadow-2xl transform transition-all overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
             <button
               onClick={() => setShowSuccessModal(false)}
-              className="absolute right-4 top-4 z-20 rounded-full bg-white p-2 text-slate-400 shadow-lg border border-slate-200 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+              className="absolute right-2 top-2 z-20 rounded-full bg-white p-1.5 text-slate-400 shadow-md border border-slate-200 hover:bg-slate-100 hover:text-slate-600 transition-colors"
               aria-label="Close"
             >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
-            {/* Header Section with Logo - Fixed at top */}
-            <div className="relative border-b border-orange-100 bg-gradient-to-r from-orange-50 to-amber-50 px-8 py-6">
-              <div className="flex justify-center">
-                <Link to="/" className="inline-flex items-center gap-3 hover:opacity-80 transition-opacity">
-                  <img src={logo} alt="Zerovaste logo" className="h-14 w-14" />
-                  <span className="text-4xl font-bold">
+            {/* Compact Content - All in one section */}
+            <div className="p-4 overflow-y-auto">
+              {/* Logo and Success Icon */}
+              <div className="mb-3 flex items-center justify-center gap-2">
+                <Link to="https://zerovaste.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
+                  <img src={logo} alt="Zerovaste logo" className="h-8 w-8" />
+                  <span className="text-xl font-bold">
                     <span className="text-brand-600">Zero</span>
                     <span className="text-slate-900">vaste</span>
                   </span>
                 </Link>
-              </div>
-            </div>
-
-            <div className="p-8 sm:p-12 overflow-y-auto flex-1">
-
-              {/* Success Icon */}
-              <div className="mb-6 flex justify-center">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100">
-                  <svg className="h-12 w-12 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
+                  <svg className="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
               </div>
 
               {/* Main Message */}
-              <h2 className="mb-4 text-center text-3xl font-bold text-slate-900">
+              <h2 className="mb-3 text-center text-lg font-bold text-slate-900">
                 Thanks for Fighting Against Food Waste! 🎉
               </h2>
 
-              {/* Statistics Section */}
-              <div className="mb-8 rounded-2xl bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200 p-6">
-                <h3 className="mb-4 text-center text-xl font-bold text-red-900">
+              {/* Statistics Section - Compact */}
+              <div className="mb-3 rounded-xl bg-gradient-to-br from-red-50 to-orange-50 border border-red-200 p-3">
+                <h3 className="mb-2 text-center text-sm font-bold text-red-900">
                   The Food Waste Crisis
                 </h3>
-                <div className="space-y-3 text-center">
-                  <div className="text-4xl font-bold text-red-600">
-                    1.3 Billion Tons
-                  </div>
-                  <p className="text-lg font-semibold text-slate-700">
-                    of food is wasted globally every year
-                  </p>
-                  <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-                    <div className="rounded-lg bg-white/80 p-3">
-                      <div className="text-2xl font-bold text-red-600">33%</div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-600">1.3 Billion Tons</div>
+                  <p className="text-xs text-slate-700 mb-2">of food wasted globally every year</p>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="rounded-lg bg-white/80 p-2">
+                      <div className="text-lg font-bold text-red-600">33%</div>
                       <div className="text-slate-600">of all food produced</div>
                     </div>
-                    <div className="rounded-lg bg-white/80 p-3">
-                      <div className="text-2xl font-bold text-red-600">$1 Trillion</div>
+                    <div className="rounded-lg bg-white/80 p-2">
+                      <div className="text-lg font-bold text-red-600">$1 Trillion</div>
                       <div className="text-slate-600">economic loss annually</div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Why Zerovaste Section */}
-              <div className="mb-8 rounded-2xl bg-gradient-to-br from-emerald-50 to-brand-50 border-2 border-emerald-200 p-6">
-                <h3 className="mb-4 text-center text-xl font-bold text-emerald-900">
+              {/* Why Zerovaste Section - Compact */}
+              <div className="mb-3 rounded-xl bg-gradient-to-br from-emerald-50 to-brand-50 border border-emerald-200 p-3">
+                <h3 className="mb-2 text-center text-sm font-bold text-emerald-900">
                   Why Zerovaste?
                 </h3>
-                <ul className="space-y-3 text-left">
-                  <li className="flex items-start gap-3">
-                    <span className="mt-1 text-2xl">✅</span>
-                    <div>
+                <ul className="space-y-1.5 text-left">
+                  <li className="flex items-start gap-2">
+                    <span className="mt-0.5 text-sm">✅</span>
+                    <div className="text-xs">
                       <strong className="text-emerald-900">Smart Planning:</strong>
                       <span className="text-slate-700"> AI-powered food estimation reduces waste by up to 40%</span>
                     </div>
                   </li>
-                  <li className="flex items-start gap-3">
-                    <span className="mt-1 text-2xl">✅</span>
-                    <div>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-0.5 text-sm">✅</span>
+                    <div className="text-xs">
                       <strong className="text-emerald-900">Real-time RSVP:</strong>
                       <span className="text-slate-700"> Accurate headcount prevents over-preparation</span>
                     </div>
                   </li>
-                  <li className="flex items-start gap-3">
-                    <span className="mt-1 text-2xl">✅</span>
-                    <div>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-0.5 text-sm">✅</span>
+                    <div className="text-xs">
                       <strong className="text-emerald-900">Surplus Donation:</strong>
                       <span className="text-slate-700"> Connect excess food to NGOs and communities in need</span>
                     </div>
                   </li>
-                  <li className="flex items-start gap-3">
-                    <span className="mt-1 text-2xl">✅</span>
-                    <div>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-0.5 text-sm">✅</span>
+                    <div className="text-xs">
                       <strong className="text-emerald-900">Impact Tracking:</strong>
                       <span className="text-slate-700"> See your contribution to fighting food waste</span>
                     </div>
@@ -897,16 +887,16 @@ function InvitePage() {
                 </ul>
               </div>
 
-              {/* Call to Action */}
+              {/* Call to Action - Compact */}
               <div className="text-center">
-                <p className="mb-6 text-lg font-semibold text-slate-800">
+                <p className="mb-3 text-xs font-semibold text-slate-800">
                   Join thousands fighting food waste. Use Zerovaste for your next event!
                 </p>
                 <a
                   href="https://zerovaste.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-block rounded-full bg-gradient-to-r from-brand-600 to-amber-600 px-8 py-4 text-lg font-bold text-white shadow-lg hover:from-brand-700 hover:to-amber-700 transition-all transform hover:scale-105"
+                  className="inline-block rounded-full bg-gradient-to-r from-brand-600 to-amber-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg hover:from-brand-700 hover:to-amber-700 transition-all transform hover:scale-105"
                 >
                   Visit Zerovaste.com →
                 </a>
