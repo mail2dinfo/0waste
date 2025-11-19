@@ -84,6 +84,7 @@ function InvitePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     if (!eventId) {
@@ -397,6 +398,7 @@ function InvitePage() {
       const data = await response.json();
       setRsvpId(data.id ?? null);
       setSubmitMessage(t("rsvp.success"));
+      setShowSuccessModal(true);
       const stored: StoredRsvp = {
         id: data.id ?? undefined,
         attending,
@@ -769,9 +771,22 @@ function InvitePage() {
                     {isSubmitting ? t("rsvp.updating") : t("rsvp.submit")}
                   </button>
                   {submitMessage && (
-                    <p className="rounded-full bg-emerald-500/10 px-4 py-2 text-center text-xs font-semibold text-emerald-700">
-                      {submitMessage}
-                    </p>
+                    <div className="space-y-2 rounded-2xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-center">
+                      <p className="text-sm font-semibold text-emerald-800">
+                        Thanks for fighting against food waste!
+                      </p>
+                      <p className="text-xs text-emerald-700">
+                        Please use this portal to fight food wastage:{" "}
+                        <a 
+                          href="https://zerovaste.com" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="font-bold text-emerald-900 underline hover:text-emerald-950"
+                        >
+                          zerovaste.com
+                        </a>
+                      </p>
+                    </div>
                   )}
                   {submitError && (
                     <p className="rounded-full bg-red-100 px-4 py-2 text-center text-xs font-semibold text-red-600">
@@ -862,6 +877,123 @@ function InvitePage() {
           </>
         )}
       </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm transition-opacity"
+          onClick={() => setShowSuccessModal(false)}
+        >
+          <div 
+            className="relative w-full max-w-2xl rounded-3xl bg-white shadow-2xl transform transition-all"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setShowSuccessModal(false)}
+              className="absolute right-4 top-4 rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+              aria-label="Close"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <div className="p-8 sm:p-12">
+              {/* Success Icon */}
+              <div className="mb-6 flex justify-center">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100">
+                  <svg className="h-12 w-12 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Main Message */}
+              <h2 className="mb-4 text-center text-3xl font-bold text-slate-900">
+                Thanks for Fighting Against Food Waste! 🎉
+              </h2>
+
+              {/* Statistics Section */}
+              <div className="mb-8 rounded-2xl bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200 p-6">
+                <h3 className="mb-4 text-center text-xl font-bold text-red-900">
+                  The Food Waste Crisis
+                </h3>
+                <div className="space-y-3 text-center">
+                  <div className="text-4xl font-bold text-red-600">
+                    1.3 Billion Tons
+                  </div>
+                  <p className="text-lg font-semibold text-slate-700">
+                    of food is wasted globally every year
+                  </p>
+                  <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+                    <div className="rounded-lg bg-white/80 p-3">
+                      <div className="text-2xl font-bold text-red-600">33%</div>
+                      <div className="text-slate-600">of all food produced</div>
+                    </div>
+                    <div className="rounded-lg bg-white/80 p-3">
+                      <div className="text-2xl font-bold text-red-600">$1 Trillion</div>
+                      <div className="text-slate-600">economic loss annually</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Why Zerovaste Section */}
+              <div className="mb-8 rounded-2xl bg-gradient-to-br from-emerald-50 to-brand-50 border-2 border-emerald-200 p-6">
+                <h3 className="mb-4 text-center text-xl font-bold text-emerald-900">
+                  Why Zerovaste?
+                </h3>
+                <ul className="space-y-3 text-left">
+                  <li className="flex items-start gap-3">
+                    <span className="mt-1 text-2xl">✅</span>
+                    <div>
+                      <strong className="text-emerald-900">Smart Planning:</strong>
+                      <span className="text-slate-700"> AI-powered food estimation reduces waste by up to 40%</span>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="mt-1 text-2xl">✅</span>
+                    <div>
+                      <strong className="text-emerald-900">Real-time RSVP:</strong>
+                      <span className="text-slate-700"> Accurate headcount prevents over-preparation</span>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="mt-1 text-2xl">✅</span>
+                    <div>
+                      <strong className="text-emerald-900">Surplus Donation:</strong>
+                      <span className="text-slate-700"> Connect excess food to NGOs and communities in need</span>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="mt-1 text-2xl">✅</span>
+                    <div>
+                      <strong className="text-emerald-900">Impact Tracking:</strong>
+                      <span className="text-slate-700"> See your contribution to fighting food waste</span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Call to Action */}
+              <div className="text-center">
+                <p className="mb-6 text-lg font-semibold text-slate-800">
+                  Join thousands fighting food waste. Use Zerovaste for your next event!
+                </p>
+                <a
+                  href="https://zerovaste.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block rounded-full bg-gradient-to-r from-brand-600 to-amber-600 px-8 py-4 text-lg font-bold text-white shadow-lg hover:from-brand-700 hover:to-amber-700 transition-all transform hover:scale-105"
+                >
+                  Visit Zerovaste.com →
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
