@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { useApi } from "../hooks/useApi";
 
-const PRODUCTION_URL = import.meta.env.VITE_FRONTEND_URL || "https://zerowaste-06c0.onrender.com";
+const PRODUCTION_URL = import.meta.env.VITE_FRONTEND_URL || "https://zerovaste-06c0.onrender.com";
 
 // Normalize invite link to use production URL instead of localhost
 function normalizeInviteLink(inviteLink: string | null, eventId: string | null): string | null {

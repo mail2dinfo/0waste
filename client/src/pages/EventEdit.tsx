@@ -86,7 +86,7 @@ function formatInviteLink(inviteLink: string | null, id: string | null) {
     const origin =
       typeof window !== "undefined" && window.location
         ? window.location.origin
-        : import.meta.env.VITE_FRONTEND_URL || "https://zerowaste-06c0.onrender.com";
+        : import.meta.env.VITE_FRONTEND_URL || "https://zerovaste-06c0.onrender.com";
     return `${origin}/invite/${id}`;
   }
   return null;
