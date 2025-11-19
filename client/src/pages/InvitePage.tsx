@@ -891,7 +891,7 @@ function InvitePage() {
             {/* Close button */}
             <button
               onClick={() => setShowSuccessModal(false)}
-              className="absolute right-4 top-4 rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+              className="absolute right-4 top-4 z-10 rounded-full bg-white p-2 text-slate-400 shadow-md hover:bg-slate-100 hover:text-slate-600 transition-colors"
               aria-label="Close"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -900,6 +900,17 @@ function InvitePage() {
             </button>
 
             <div className="p-8 sm:p-12">
+              {/* Zerovaste Logo */}
+              <div className="mb-6 flex justify-center">
+                <Link to="/" className="inline-flex items-center gap-3">
+                  <img src={logo} alt="Zerovaste logo" className="h-12 w-12" />
+                  <span className="text-3xl font-bold">
+                    <span className="text-brand-600">Zero</span>
+                    <span className="text-slate-900">vaste</span>
+                  </span>
+                </Link>
+              </div>
+
               {/* Success Icon */}
               <div className="mb-6 flex justify-center">
                 <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100">
