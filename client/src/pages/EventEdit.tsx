@@ -501,9 +501,21 @@ function EventEdit() {
               <input
                 type="date"
                 value={form.eventDate}
-                onChange={(evt) =>
-                  setForm((prev) => ({ ...prev, eventDate: evt.target.value }))
-                }
+                onChange={(evt) => {
+                  const eventDate = evt.target.value;
+                  // Auto-populate survey cutoff date as one day before event date
+                  let surveyCutoffDate = "";
+                  if (eventDate) {
+                    const cutoffDate = new Date(eventDate);
+                    cutoffDate.setDate(cutoffDate.getDate() - 1);
+                    surveyCutoffDate = cutoffDate.toISOString().split('T')[0];
+                  }
+                  setForm((prev) => ({
+                    ...prev,
+                    eventDate,
+                    surveyCutoffDate,
+                  }));
+                }}
                 className="w-full rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 text-sm text-slate-900 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
               />
             </label>
