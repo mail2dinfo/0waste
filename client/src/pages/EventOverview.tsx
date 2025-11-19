@@ -3,10 +3,8 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useApi } from "../hooks/useApi";
 import { QRCodeSVG } from "qrcode.react";
 
-const APP_ORIGIN =
-  typeof window !== "undefined" && window.location
-    ? window.location.origin
-    : import.meta.env.VITE_FRONTEND_URL || "https://zerovaste-06c0.onrender.com";
+// Always use configured URL to ensure consistency, even if user accesses via different domain
+const APP_ORIGIN = import.meta.env.VITE_FRONTEND_URL || "https://zerovaste-06c0.onrender.com";
 
 const buildInviteLink = (id?: string | null) =>
   id ? `${APP_ORIGIN}/invite/${id}` : `${APP_ORIGIN}/invite/preview`;
