@@ -24,10 +24,10 @@ function Signup() {
     setError(null);
     setSuccess(null);
     
-    // Validate phone number is exactly 10 digits
+    // Normalize phone number (remove non-digits but keep all digits)
     const phoneDigits = form.phone.replace(/\D/g, "");
-    if (phoneDigits.length !== 10) {
-      setError("Please enter a valid 10-digit phone number without country code.");
+    if (phoneDigits.length < 5) {
+      setError("Please enter a valid phone number.");
       return;
     }
     
@@ -115,24 +115,21 @@ function Signup() {
             {t("signup.phoneLabel")}
             <div className="relative">
               <input
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]{10}"
+                type="tel"
+                inputMode="tel"
                 required
                 value={form.phone}
                 onChange={(event) => {
-                  const digitsOnly = event.target.value.replace(/\D/g, "");
-                  const trimmed = digitsOnly.length > 10 ? digitsOnly.slice(-10) : digitsOnly;
-                  setForm((prev) => ({ ...prev, phone: trimmed }));
+                  // Allow only digits, spaces, dashes, and parentheses (no country code)
+                  const cleaned = event.target.value.replace(/[^\d\s\-\(\)]/g, "");
+                  setForm((prev) => ({ ...prev, phone: cleaned }));
                 }}
-                autoComplete="off"
-                data-country-code=""
+                autoComplete="tel"
                 className="w-full rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
-                placeholder="Enter 10-digit phone number"
-                maxLength={10}
+                placeholder="Enter mobile number (e.g., 9876543210)"
               />
             </div>
-            <p className="text-xs text-slate-500 mt-1">Enter phone number without country code (e.g., 9876543210)</p>
+            <p className="text-xs text-slate-500 mt-1">Enter your mobile number without country code</p>
           </label>
           <label className="space-y-2 text-sm font-medium text-slate-700">
             {t("signup.passwordLabel")}

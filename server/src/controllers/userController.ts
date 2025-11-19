@@ -45,10 +45,28 @@ export async function loginHandler(req: Request, res: Response) {
       .status(400)
       .json({ message: "phoneNumber and password are required" });
   }
-  const user = await findUserByPhone(phoneNumber);
-  if (!user || user.passwordHash !== password) {
+  
+  // Normalize phone number: remove spaces, dashes, and parentheses (no country code handling)
+  const normalizedPhone = phoneNumber.trim().replace(/[\s\-\(\)]/g, "");
+  
+  // Try to find user with normalized phone number
+  let user = await findUserByPhone(normalizedPhone);
+  
+  // If not found, try with the original (trimmed) phone number
+  if (!user) {
+    user = await findUserByPhone(phoneNumber.trim());
+  }
+  
+  // Compare passwords (trim both to handle whitespace issues)
+  const providedPassword = password.trim();
+  const storedPassword = user?.passwordHash?.trim() || "";
+  
+  if (!user || storedPassword !== providedPassword) {
+    console.log(`[Login] Failed attempt for phone: ${phoneNumber} (normalized: ${normalizedPhone})`);
     return res.status(401).json({ message: "Invalid credentials" });
   }
+  
+  console.log(`[Login] Success for user: ${user.fullName} (${user.phoneNumber})`);
   return res.json({
     token: "stub-token",
     userId: user.id,

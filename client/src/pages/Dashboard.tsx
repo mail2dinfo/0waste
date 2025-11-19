@@ -161,8 +161,8 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
       welcomeGeneric: "Welcome back, Zerovaste champion!",
     welcomeDescription:
       "Your celebrations are already making a dent in food waste. Review your highlights below and keep building the ZeroVaste movement.",
-    welcomeFirstTime: "Congratulations, I appreciate you are fighting against food waste!",
-    welcomeFirstTimeDescription: "Create your first event and get your stats",
+    welcomeFirstTime: "Welcome {{name}} Congratulations!!! you are fighting against food waste.",
+    welcomeFirstTimeDescription: "Create your first event",
     statCards: {
       eventsTitle: "My events",
       eventsLoading: "Calculating your celebrations",
@@ -261,8 +261,8 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
     welcomeGeneric: "ZeroVaste முன்னோடி, மீண்டும் வரவேற்கிறோம்!",
     welcomeDescription:
       "உங்கள் கொண்டாட்டங்கள் ஏற்கனவே உணவுக் கழிவை குறைக்கும் தாக்கத்தை உருவாக்குகின்றன. கீழே உள்ள முக்கிய தருணங்களை மீண்டும் பார்வையிட்டு ZeroVaste இயக்கத்தை தொடர்ந்து வளர்த்திடுங்கள்.",
-    welcomeFirstTime: "வாழ்த்துக்கள், உணவு வீணாக்கத்திற்கு எதிராக நீங்கள் போராடுவதை நான் பாராட்டுகிறேன்!",
-    welcomeFirstTimeDescription: "உங்கள் முதல் நிகழ்வை உருவாக்கி உங்கள் புள்ளிவிவரங்களைப் பெறுங்கள்",
+    welcomeFirstTime: "Welcome {{name}} Congratulations!!! you are fighting against food waste.",
+    welcomeFirstTimeDescription: "Create your first event",
     statCards: {
       eventsTitle: "என் நிகழ்வுகள்",
       eventsLoading: "உங்கள் கொண்டாட்டங்களை கணக்கிடுகிறது",
@@ -361,8 +361,8 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
     welcomeGeneric: "ZeroVaste चैम्पियन, आपका स्वागत है!",
     welcomeDescription:
       "आपके उत्सव पहले ही खाद्य अपशिष्ट कम कर रहे हैं। नीचे मुख्य झलकियां देखें और ZeroVaste आंदोलन को आगे बढ़ाते रहें।",
-    welcomeFirstTime: "बधाई हो, मैं सराहना करता हूं कि आप खाद्य अपशिष्ट के खिलाफ लड़ रहे हैं!",
-    welcomeFirstTimeDescription: "अपना पहला कार्यक्रम बनाएं और अपने आंकड़े प्राप्त करें",
+    welcomeFirstTime: "Welcome {{name}} Congratulations!!! you are fighting against food waste.",
+    welcomeFirstTimeDescription: "Create your first event",
     statCards: {
       eventsTitle: "मेरे कार्यक्रम",
       eventsLoading: "आपके उत्सवों की गणना हो रही है",
@@ -460,8 +460,8 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
     welcomeGeneric: "ZeroVaste చాంపియన్, తిరిగి స్వాగతం!",
     welcomeDescription:
       "మీ వేడుకలు ఇప్పటికే ఆహార వ్యర్థాన్ని తగ్గిస్తున్నాయి. క్రింది ముఖ్యాంశాలను చూడండి మరియు ZeroVaste ఉద్యమాన్ని కొనసాగించండి.",
-    welcomeFirstTime: "అభినందనలు, మీరు ఆహార వ్యర్థానికి వ్యతిరేకంగా పోరాడుతున్నారని నేను ప్రశంసిస్తున్నాను!",
-    welcomeFirstTimeDescription: "మీ మొదటి ఈవెంట్‌ను సృష్టించి మీ గణాంకాలను పొందండి",
+    welcomeFirstTime: "Welcome {{name}} Congratulations!!! you are fighting against food waste.",
+    welcomeFirstTimeDescription: "Create your first event",
     statCards: {
       eventsTitle: "నా ఈవెంట్లు",
       eventsLoading: "మీ వేడుకలను లెక్కిస్తున్నాం",
@@ -946,7 +946,7 @@ function Dashboard() {
   const isFirstTimeUser = !loading && summary && summary.totals.eventsCount === 0;
   
   const welcomeTitle = isFirstTimeUser
-    ? text.welcomeFirstTime
+    ? text.welcomeFirstTime.replace("{{name}}", displayName || "there")
     : displayName
     ? text.welcomeWithName.replace("{{name}}", displayName)
     : text.welcomeGeneric;
@@ -958,6 +958,69 @@ function Dashboard() {
   const upcomingText = text.upcoming;
   const tableText = text.table;
   const cardText = text.card;
+
+  // Show simplified UI for first-time users
+  if (isFirstTimeUser) {
+    return (
+      <section className="space-y-8">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-500 via-orange-500 to-amber-500 p-12 shadow-2xl">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIvPjwvZz48L2c+PC9zdmc+')] opacity-20"></div>
+          <div className="relative z-10 text-center">
+            <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+              <svg className="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h1 className="mb-4 text-4xl font-bold text-white sm:text-5xl">
+              {welcomeTitle}
+            </h1>
+            <p className="mb-8 text-xl text-white/90">
+              {welcomeSubtitle}
+            </p>
+            <Link
+              to="/events/new"
+              className="inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 text-lg font-bold text-brand-600 shadow-2xl transition-all hover:scale-105 hover:shadow-3xl"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Create your first event
+            </Link>
+          </div>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-3">
+          <div className="rounded-2xl border border-orange-200 bg-white p-6 text-center shadow-sm">
+            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
+              <svg className="h-8 w-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="mb-2 text-lg font-semibold text-slate-900">Smart Planning</h3>
+            <p className="text-sm text-slate-600">AI-powered food estimation reduces waste</p>
+          </div>
+          <div className="rounded-2xl border border-orange-200 bg-white p-6 text-center shadow-sm">
+            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+              <svg className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <h3 className="mb-2 text-lg font-semibold text-slate-900">Real-time RSVP</h3>
+            <p className="text-sm text-slate-600">Accurate headcount prevents over-preparation</p>
+          </div>
+          <div className="rounded-2xl border border-orange-200 bg-white p-6 text-center shadow-sm">
+            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-purple-100">
+              <svg className="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <h3 className="mb-2 text-lg font-semibold text-slate-900">Impact Tracking</h3>
+            <p className="text-sm text-slate-600">See your contribution to fighting food waste</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="space-y-8">
