@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import type { FormEvent } from "react";
 import { ListBulletIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
 import { QRCodeSVG } from "qrcode.react";
-import StatCard from "../components/StatCard";
 import { useApi } from "../hooks/useApi";
 import { useTranslation } from "react-i18next";
 
@@ -70,9 +69,11 @@ type DashboardLocale = {
   plannedFoodUnknown: string;
   guestsUpdating: string;
   inviteReady: string;
-  welcomeWithName: string;
-  welcomeGeneric: string;
-  welcomeDescription: string;
+    welcomeWithName: string;
+    welcomeGeneric: string;
+    welcomeDescription: string;
+    welcomeFirstTime: string;
+    welcomeFirstTimeDescription: string;
   statCards: {
     eventsTitle: string;
     eventsLoading: string;
@@ -160,6 +161,8 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
       welcomeGeneric: "Welcome back, Zerovaste champion!",
     welcomeDescription:
       "Your celebrations are already making a dent in food waste. Review your highlights below and keep building the ZeroVaste movement.",
+    welcomeFirstTime: "Congratulations, I appreciate you are fighting against food waste!",
+    welcomeFirstTimeDescription: "Create your first event and get your stats",
     statCards: {
       eventsTitle: "My events",
       eventsLoading: "Calculating your celebrations",
@@ -258,6 +261,8 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
     welcomeGeneric: "ZeroVaste முன்னோடி, மீண்டும் வரவேற்கிறோம்!",
     welcomeDescription:
       "உங்கள் கொண்டாட்டங்கள் ஏற்கனவே உணவுக் கழிவை குறைக்கும் தாக்கத்தை உருவாக்குகின்றன. கீழே உள்ள முக்கிய தருணங்களை மீண்டும் பார்வையிட்டு ZeroVaste இயக்கத்தை தொடர்ந்து வளர்த்திடுங்கள்.",
+    welcomeFirstTime: "வாழ்த்துக்கள், உணவு வீணாக்கத்திற்கு எதிராக நீங்கள் போராடுவதை நான் பாராட்டுகிறேன்!",
+    welcomeFirstTimeDescription: "உங்கள் முதல் நிகழ்வை உருவாக்கி உங்கள் புள்ளிவிவரங்களைப் பெறுங்கள்",
     statCards: {
       eventsTitle: "என் நிகழ்வுகள்",
       eventsLoading: "உங்கள் கொண்டாட்டங்களை கணக்கிடுகிறது",
@@ -356,6 +361,8 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
     welcomeGeneric: "ZeroVaste चैम्पियन, आपका स्वागत है!",
     welcomeDescription:
       "आपके उत्सव पहले ही खाद्य अपशिष्ट कम कर रहे हैं। नीचे मुख्य झलकियां देखें और ZeroVaste आंदोलन को आगे बढ़ाते रहें।",
+    welcomeFirstTime: "बधाई हो, मैं सराहना करता हूं कि आप खाद्य अपशिष्ट के खिलाफ लड़ रहे हैं!",
+    welcomeFirstTimeDescription: "अपना पहला कार्यक्रम बनाएं और अपने आंकड़े प्राप्त करें",
     statCards: {
       eventsTitle: "मेरे कार्यक्रम",
       eventsLoading: "आपके उत्सवों की गणना हो रही है",
@@ -453,6 +460,8 @@ const dashboardLocales: Record<SupportedLocale, DashboardLocale> = {
     welcomeGeneric: "ZeroVaste చాంపియన్, తిరిగి స్వాగతం!",
     welcomeDescription:
       "మీ వేడుకలు ఇప్పటికే ఆహార వ్యర్థాన్ని తగ్గిస్తున్నాయి. క్రింది ముఖ్యాంశాలను చూడండి మరియు ZeroVaste ఉద్యమాన్ని కొనసాగించండి.",
+    welcomeFirstTime: "అభినందనలు, మీరు ఆహార వ్యర్థానికి వ్యతిరేకంగా పోరాడుతున్నారని నేను ప్రశంసిస్తున్నాను!",
+    welcomeFirstTimeDescription: "మీ మొదటి ఈవెంట్‌ను సృష్టించి మీ గణాంకాలను పొందండి",
     statCards: {
       eventsTitle: "నా ఈవెంట్లు",
       eventsLoading: "మీ వేడుకలను లెక్కిస్తున్నాం",
@@ -934,9 +943,17 @@ function Dashboard() {
     );
   };
 
-  const welcomeTitle = displayName
+  const isFirstTimeUser = !loading && summary && summary.totals.eventsCount === 0;
+  
+  const welcomeTitle = isFirstTimeUser
+    ? text.welcomeFirstTime
+    : displayName
     ? text.welcomeWithName.replace("{{name}}", displayName)
     : text.welcomeGeneric;
+
+  const welcomeSubtitle = isFirstTimeUser
+    ? text.welcomeFirstTimeDescription
+    : null;
 
   const upcomingText = text.upcoming;
   const tableText = text.table;
@@ -948,13 +965,12 @@ function Dashboard() {
         <h1 className="text-3xl font-semibold text-slate-900">
           {welcomeTitle}
         </h1>
+        {welcomeSubtitle && (
+          <p className="mt-3 text-lg text-slate-600">
+            {welcomeSubtitle}
+          </p>
+        )}
       </header>
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {statCards.map((stat) => (
-          <StatCard key={stat.title} {...stat} />
-        ))}
-      </div>
 
       <section className="relative overflow-hidden rounded-3xl border border-orange-100 bg-gradient-to-br from-amber-50 via-white to-sky-50 p-2 shadow-lg shadow-orange-100/60">
         <div className="absolute inset-y-0 right-0 hidden w-56 translate-x-1/4 rounded-full bg-gradient-to-br from-brand-200/40 via-brand-300/30 to-brand-400/20 blur-3xl md:block" />
@@ -972,7 +988,7 @@ function Dashboard() {
               </h2>
               <p className="text-sm text-slate-600">
                 {upcomingEvents.length > 0
-                  ? "Track, unlock, and share your celebration intelligence with a richer visual summary."
+                  ? ""
                   : "Plan your first mindful celebration to unlock tracking, predictions, and premium ZeroVaste reports right here."}
               </p>
             </div>
