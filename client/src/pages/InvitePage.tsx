@@ -455,74 +455,59 @@ function InvitePage() {
   }
 
   return (
-    <div className="min-h-screen bg-orange-50">
-      <div className="mx-auto max-w-3xl space-y-8 px-4 py-12 sm:px-6">
-        <header className="relative overflow-hidden rounded-[2.5rem] border border-orange-100 bg-gradient-to-br from-white via-orange-50 to-amber-100/60 p-8 shadow-lg shadow-orange-100">
-          <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -top-14 -right-20 h-48 w-48 rounded-full bg-brand-500/10 blur-3xl" />
-            <div className="absolute bottom-0 left-1/2 h-32 w-32 -translate-x-1/2 rounded-full bg-amber-400/20 blur-3xl" />
-            <div className="absolute -bottom-16 -left-16 h-44 w-44 rounded-full bg-emerald-400/10 blur-3xl" />
-          </div>
-          <div className="relative grid gap-8 md:grid-cols-[1.1fr_0.9fr] md:items-center">
-            <div className="md:col-span-2">
-              <div className="mb-2 flex items-center justify-center gap-2">
-                <Link to="/" className="inline-flex items-center gap-2">
-                  <img src={logo} alt="Zerovaste logo" className="h-8 w-8" />
-                  <span className="text-3xl font-bold">
-                    <span className="text-brand-600">Zero</span>
-                    <span className="text-slate-900">vaste</span>
-                  </span>
-                </Link>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50">
+      <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6">
+        {/* Zerovaste Branding at Top */}
+        <div className="mb-4 flex items-center justify-center">
+          <Link to="https://zerovaste.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <img src={logo} alt="Zerovaste logo" className="h-10 w-10" />
+            <span className="text-2xl font-bold">
+              <span className="text-brand-600">Zero</span>
+              <span className="text-slate-900">vaste</span>
+            </span>
+            <span className="text-xs text-slate-500">.com</span>
+          </Link>
+        </div>
+
+        {/* Compact Header */}
+        <header className="mb-4 rounded-2xl border border-orange-100 bg-white/80 backdrop-blur-sm p-4 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="mb-1 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-500 to-amber-500 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm">
+                <span aria-hidden>🎉</span>
+                {t("hero.badge")}
               </div>
-            </div>
-            <div className="space-y-5 text-center md:text-left">
-              <div className="inline-flex flex-wrap items-center justify-center gap-3 md:justify-start">
-                <span className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-500 to-amber-500 px-5 py-2 text-[12px] font-bold uppercase tracking-[0.25em] text-white shadow ring-1 ring-white/40">
-                  <span aria-hidden>🎉</span>
-                  {t("hero.badge")}
-                </span>
-              </div>
-              <h1 className="text-4xl font-semibold text-slate-900 sm:text-5xl">
+              <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl truncate">
                 {eventTitle}
               </h1>
-              <p className="text-base font-medium text-slate-700 sm:text-lg">
+              <p className="text-sm text-slate-600 mt-1">
                 {eventDateLabel} • {eventLocation}
               </p>
               {event?.owner?.fullName && (
-                <p className="inline-flex items-center justify-center gap-2 rounded-full border border-white/60 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-brand-600 shadow-sm">
+                <p className="mt-1 inline-flex items-center gap-1 rounded-full border border-brand-200 bg-brand-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-600">
                   {t("hero.hostedBy", { name: event.owner.fullName })}
                 </p>
               )}
-              {/* Invitation message shown above; preferences appear next */}
-            </div>
-            <div className="relative mx-auto w-full max-w-xs md:max-w-sm">
-              <div className="absolute inset-x-6 bottom-6 h-24 rounded-full bg-brand-500/10 blur-2xl" />
-              <img
-                src={inviteHero}
-                alt={t("hero.illustrationAlt")}
-                className="relative z-10 w-full rounded-3xl border border-white/40 bg-white/80 p-4 shadow-xl shadow-orange-200/50"
-              />
             </div>
           </div>
         </header>
-        <hr className="mx-auto my-2 h-px w-24 rounded-full border-0 bg-orange-200" />
         {error && (
-          <section className="rounded-3xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-600 shadow-sm">
+          <section className="rounded-xl border border-red-200 bg-red-50 p-3 text-center text-xs text-red-600 shadow-sm">
             {error}
           </section>
         )}
 
         {!error && event && isSurveyClosed && (
-          <section className="rounded-3xl border border-orange-200 bg-orange-50 p-6 text-center shadow-sm">
-            <div className="space-y-2">
-              <p className="text-base font-semibold text-orange-900">
+          <section className="rounded-xl border border-orange-200 bg-orange-50 p-3 text-center shadow-sm">
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-orange-900">
                 Survey Closed
               </p>
-              <p className="text-sm text-orange-700">
+              <p className="text-xs text-orange-700">
                 The RSVP survey for this event has closed. We're no longer accepting responses.
               </p>
               {event.surveyCutoffDate && (
-                <p className="text-xs text-orange-600">
+                <p className="text-[10px] text-orange-600">
                   Survey closed on {formatDateLabel(event.surveyCutoffDate)}
                 </p>
               )}
@@ -534,15 +519,14 @@ function InvitePage() {
           <>
             <section
               id="rsvp-card"
-              className="space-y-5 rounded-3xl border border-brand-100 bg-white p-6 shadow-sm shadow-brand-100/60"
+              className="rounded-2xl border border-brand-100 bg-white p-4 shadow-sm shadow-brand-100/60"
             >
-              <header className="space-y-1">
-                <h2 className="text-base font-semibold text-slate-900">
+              <header className="mb-3">
+                <h2 className="text-sm font-semibold text-slate-900">
                   {t("rsvp.title")}
                 </h2>
-                <p className="text-xs text-slate-500">{t("rsvp.editNotice")}</p>
               </header>
-              <form className="space-y-6" onSubmit={handleSubmit}>
+              <form className="space-y-4" onSubmit={handleSubmit}>
                 <div className="space-y-3 rounded-2xl bg-orange-50/60 p-4 text-sm text-slate-700">
                   <p className="font-medium text-slate-800">{t("rsvp.question")}</p>
                   <div className="flex flex-wrap items-center gap-2">
@@ -573,58 +557,58 @@ function InvitePage() {
                 </div>
 
                 {attending && (
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <div>
-                      <p className="font-medium text-slate-800">
+                      <p className="mb-2 text-xs font-semibold text-slate-800">
                         {t("rsvp.guestCounts.title")}
                       </p>
-                      <div className="mt-2 grid gap-3 sm:grid-cols-2">
-                        <div className="flex items-center justify-between rounded-2xl border border-orange-100 bg-white p-4 shadow-sm">
-                          <span className="text-sm font-medium text-slate-700">
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        <div className="flex items-center justify-between rounded-xl border border-orange-100 bg-white p-2.5">
+                          <span className="text-xs font-medium text-slate-700">
                             {t("rsvp.guestCounts.adults")}
                           </span>
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
                             <button
                               type="button"
                               onClick={() => adjustAdultCount(-1)}
-                              className="flex h-8 w-8 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100"
+                              className="flex h-7 w-7 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100 text-xs"
                               aria-label={t("rsvp.guestCounts.adults") + " -"}
                             >
                               −
                             </button>
-                            <span className="w-6 text-center font-semibold text-slate-900">
+                            <span className="w-5 text-center text-xs font-semibold text-slate-900">
                               {adultCount}
                             </span>
                             <button
                               type="button"
                               onClick={() => adjustAdultCount(1)}
-                              className="flex h-8 w-8 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100"
+                              className="flex h-7 w-7 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100 text-xs"
                               aria-label={t("rsvp.guestCounts.adults") + " +"}
                             >
                               +
                             </button>
                           </div>
                         </div>
-                        <div className="flex items-center justify-between rounded-2xl border border-orange-100 bg-white p-4 shadow-sm">
-                          <span className="text-sm font-medium text-slate-700">
+                        <div className="flex items-center justify-between rounded-xl border border-orange-100 bg-white p-2.5">
+                          <span className="text-xs font-medium text-slate-700">
                             {t("rsvp.guestCounts.kids")}
                           </span>
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
                             <button
                               type="button"
                               onClick={() => adjustKidCount(-1)}
-                          className="flex h-8 w-8 items-center justify-center rounded-full border border-brand-200 text-brand-600 shadow-sm transition hover:bg-brand-100"
+                              className="flex h-7 w-7 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100 text-xs"
                               aria-label={t("rsvp.guestCounts.kids") + " -"}
                             >
                               −
                             </button>
-                            <span className="w-6 text-center font-semibold text-slate-900">
+                            <span className="w-5 text-center text-xs font-semibold text-slate-900">
                               {kidCount}
                             </span>
                             <button
                               type="button"
                               onClick={() => adjustKidCount(1)}
-                          className="flex h-8 w-8 items-center justify-center rounded-full border border-brand-200 text-brand-600 shadow-sm transition hover:bg-brand-100"
+                              className="flex h-7 w-7 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100 text-xs"
                               aria-label={t("rsvp.guestCounts.kids") + " +"}
                             >
                               +
@@ -634,20 +618,20 @@ function InvitePage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <p className="font-medium text-slate-800">
+                    <div>
+                      <p className="mb-2 text-xs font-semibold text-slate-800">
                         {t("rsvp.arrivalSlot.title")}
                       </p>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-1.5">
                         {arrivalOptions.length > 0 ? (
                           arrivalOptions.map((option) => (
                             <button
                               key={option.value}
                               type="button"
                               onClick={() => selectArrivalSlot(option.value)}
-                              className={`rounded-full border px-4 py-2 text-xs font-semibold transition ${
+                              className={`rounded-full border px-3 py-1 text-[10px] font-semibold transition ${
                                 arrivalSlot === option.value
-                                  ? "border-emerald-500 bg-emerald-500 text-white shadow"
+                                  ? "border-emerald-500 bg-emerald-500 text-white"
                                   : "border-brand-200 bg-white text-brand-600 hover:bg-brand-100"
                               }`}
                             >
@@ -655,44 +639,43 @@ function InvitePage() {
                             </button>
                           ))
                         ) : (
-                          <span className="text-xs text-slate-500">
+                          <span className="text-[10px] text-slate-500">
                             {t("rsvp.arrivalSlot.noOptions")}
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <div className="space-y-4">
-                      <p className="font-medium text-slate-800">
+                    <div>
+                      <p className="mb-2 text-xs font-semibold text-slate-800">
                         {t("rsvp.transport.title")}
                       </p>
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        {/* Car Option */}
-                        <div className="flex items-center justify-between rounded-2xl border border-orange-100 bg-white p-4 shadow-sm">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100">
-                              <svg className="h-6 w-6 text-brand-600" fill="currentColor" viewBox="0 0 24 24">
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        <div className="flex items-center justify-between rounded-xl border border-orange-100 bg-white p-2.5">
+                          <div className="flex items-center gap-2">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100">
+                              <svg className="h-4 w-4 text-brand-600" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
                               </svg>
                             </div>
-                            <span className="text-sm font-medium text-slate-700">Car</span>
+                            <span className="text-xs font-medium text-slate-700">Car</span>
                           </div>
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
                             <button
                               type="button"
                               onClick={() => adjustCarCount(-1)}
-                              className="flex h-8 w-8 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100"
+                              className="flex h-7 w-7 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100 text-xs"
                               aria-label="Car count -"
                             >
                               −
                             </button>
-                            <span className="w-6 text-center font-semibold text-slate-900">
+                            <span className="w-5 text-center text-xs font-semibold text-slate-900">
                               {carCount}
                             </span>
                             <button
                               type="button"
                               onClick={() => adjustCarCount(1)}
-                              className="flex h-8 w-8 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100"
+                              className="flex h-7 w-7 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100 text-xs"
                               aria-label="Car count +"
                             >
                               +
@@ -700,34 +683,33 @@ function InvitePage() {
                           </div>
                         </div>
 
-                        {/* Bike Option */}
-                        <div className="flex items-center justify-between rounded-2xl border border-orange-100 bg-white p-4 shadow-sm">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
-                              <svg className="h-6 w-6 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-center justify-between rounded-xl border border-orange-100 bg-white p-2.5">
+                          <div className="flex items-center gap-2">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100">
+                              <svg className="h-4 w-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M19 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM5 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm5.5-1.5c-.83 0-1.5-.67-1.5-1.5S9.67 5.5 10.5 5.5 12 6.17 12 7s-.67 1.5-1.5 1.5zm4.5 6.5c-1.5 0-4.5.83-4.5 2.5V19h9v-1.5c0-1.67-3-2.5-4.5-2.5z"/>
                                 <circle cx="6.5" cy="11.5" r="1.5"/>
                                 <circle cx="17.5" cy="11.5" r="1.5"/>
                               </svg>
                             </div>
-                            <span className="text-sm font-medium text-slate-700">Bike</span>
+                            <span className="text-xs font-medium text-slate-700">Bike</span>
                           </div>
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
                             <button
                               type="button"
                               onClick={() => adjustBikeCount(-1)}
-                              className="flex h-8 w-8 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100"
+                              className="flex h-7 w-7 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100 text-xs"
                               aria-label="Bike count -"
                             >
                               −
                             </button>
-                            <span className="w-6 text-center font-semibold text-slate-900">
+                            <span className="w-5 text-center text-xs font-semibold text-slate-900">
                               {bikeCount}
                             </span>
                             <button
                               type="button"
                               onClick={() => adjustBikeCount(1)}
-                              className="flex h-8 w-8 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100"
+                              className="flex h-7 w-7 items-center justify-center rounded-full border border-brand-200 text-brand-600 transition hover:bg-brand-100 text-xs"
                               aria-label="Bike count +"
                             >
                               +
@@ -737,17 +719,17 @@ function InvitePage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <p className="font-medium text-slate-800">
+                    <div>
+                      <p className="mb-2 text-xs font-semibold text-slate-800">
                         {t("rsvp.reminders.title")}
                       </p>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-1.5">
                         {reminderOptions.map((option) => (
                           <button
                             key={option.value}
                             type="button"
                             onClick={() => toggleReminder(option.value)}
-                            className={`rounded-full border px-4 py-2 text-xs font-semibold transition ${
+                            className={`rounded-full border px-3 py-1 text-[10px] font-semibold transition ${
                               reminderPreference.includes(option.value)
                                 ? "border-emerald-500 bg-emerald-500 text-white"
                                 : "border-brand-200 bg-white text-brand-600 hover:bg-brand-100"
@@ -762,10 +744,10 @@ function InvitePage() {
                   </div>
                 )}
 
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <button
                     type="submit"
-                    className="w-full rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+                    className="w-full rounded-full bg-brand-600 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-white shadow hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-400"
                     disabled={!canSubmit || isSubmitting}
                   >
                     {isSubmitting ? t("rsvp.updating") : t("rsvp.submit")}
@@ -798,81 +780,6 @@ function InvitePage() {
                   </p>
                 </div>
               </form>
-            </section>
-
-            <section className="space-y-4 rounded-3xl border border-orange-100 bg-white p-6 shadow-sm shadow-orange-100/60">
-              <header>
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-brand-600">
-                  {t("schedule.title")}
-                </h2>
-                <p className="mt-1 text-xs text-slate-500">
-                  {t("schedule.subtitle")}
-                </p>
-              </header>
-              <ul className="space-y-3">
-                {schedule.length > 0 ? (
-                  schedule.map((slot, index) => (
-                    <li
-                      key={slot.id ?? `${slot.label}-${index}`}
-                      className="rounded-2xl border border-orange-100 bg-orange-50 p-4"
-                    >
-                      <p className="text-sm font-semibold text-slate-900">
-                        {slot.label ?? t("schedule.itemLabel", { index: index + 1 })} • {formatDateLabel(slot.date)}
-                      </p>
-                      <p className="mt-1 text-xs uppercase tracking-wide text-slate-500">
-                        {t("schedule.details", {
-                          servings: slot.servingsPerDay ?? 0,
-                          categories:
-                            Array.isArray(slot.categories) && slot.categories.length
-                              ? slot.categories.join(", ")
-                              : t("schedule.categoriesFallback"),
-                        })}
-                      </p>
-                      {slot.sessionsDescription && (
-                        <p className="mt-2 text-xs text-slate-600">
-                          {slot.sessionsDescription}
-                        </p>
-                      )}
-                      {slot.menuNotes && (
-                        <p className="mt-2 text-xs text-slate-600">
-                          {t("schedule.menuNotes", { notes: slot.menuNotes })}
-                        </p>
-                      )}
-                    </li>
-                  ))
-                ) : (
-                  <li className="rounded-2xl border border-dashed border-orange-200 bg-orange-50 p-4 text-xs text-slate-500">
-                    {t("schedule.empty")}
-                  </li>
-                )}
-              </ul>
-            </section>
-
-            {event.notes && (
-              <section className="rounded-3xl border border-orange-100 bg-white p-6 text-sm text-slate-700 shadow-sm shadow-orange-100/60">
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-brand-600">
-                  {t("notes.title")}
-                </h2>
-                <p className="mt-2 whitespace-pre-line">{event.notes}</p>
-              </section>
-            )}
-
-            <section className="rounded-3xl border border-brand-100 bg-brand-50 p-6 text-center text-sm text-brand-700 shadow-sm shadow-brand-100/60">
-              <p className="font-semibold text-brand-800">
-                {t("cta.title")}
-              </p>
-              <p className="mt-2">
-                {t("cta.subtitle")}
-              </p>
-              <p className="mt-4 text-xs uppercase tracking-wide text-brand-600">
-                {t("cta.poweredBy")}
-              </p>
-              <Link
-                to="/"
-                className="mt-3 inline-flex rounded-full border border-brand-200 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-brand-600 hover:bg-brand-50"
-              >
-                {t("cta.link")}
-              </Link>
             </section>
           </>
         )}
