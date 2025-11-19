@@ -963,26 +963,30 @@ function Dashboard() {
   if (isFirstTimeUser) {
     return (
       <section className="space-y-8">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-500 via-orange-500 to-amber-500 p-12 shadow-2xl">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48Y2lyY2xlIGN4PSIzMCIgY3k9IjMwIiByPSIzMCIvPjwvZz48L2c+PC9zdmc+')] opacity-20"></div>
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-orange-50 to-amber-50 p-12 shadow-xl border border-orange-100">
+          {/* Decorative background elements */}
+          <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-gradient-to-br from-brand-200/30 to-orange-200/30 blur-3xl"></div>
+          <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-gradient-to-br from-amber-200/30 to-yellow-200/30 blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-gradient-to-br from-emerald-100/20 to-teal-100/20 blur-3xl"></div>
+          
           <div className="relative z-10 text-center">
-            <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-              <svg className="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <div className="mb-8 inline-flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-orange-400 shadow-lg">
+              <svg className="h-14 w-14 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h1 className="mb-4 text-4xl font-bold text-white sm:text-5xl">
-              {welcomeTitle}
+            <h1 className="mb-4 text-6xl font-bold bg-gradient-to-r from-brand-600 via-orange-600 to-amber-600 bg-clip-text text-transparent sm:text-7xl">
+              Welcome {displayName || "there"}
             </h1>
-            <p className="mb-8 text-xl text-white/90">
-              {welcomeSubtitle}
+            <p className="mb-10 text-3xl font-semibold text-slate-700 sm:text-4xl">
+              Congratulations!!! you are fighting against food waste.
             </p>
             <Link
               to="/events/new"
-              className="inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 text-lg font-bold text-brand-600 shadow-2xl transition-all hover:scale-105 hover:shadow-3xl"
+              className="inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-brand-500 to-orange-500 px-10 py-5 text-lg font-bold text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl hover:from-brand-600 hover:to-orange-600"
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
               </svg>
               Create your first event
             </Link>
