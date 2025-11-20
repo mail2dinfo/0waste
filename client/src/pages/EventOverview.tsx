@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import type { FormEvent } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useApi } from "../hooks/useApi";
 import { QRCodeSVG } from "qrcode.react";
@@ -212,6 +213,15 @@ function EventOverview() {
   const copyTimeoutRef = useRef<number | null>(null);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied">("idle");
   const [expandedSchedules, setExpandedSchedules] = useState<Set<number>>(new Set([0]));
+  
+  // Payment state
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [reportPricing, setReportPricing] = useState<{ currencyCode: string; amount: number } | null>(null);
+  const [pricingError, setPricingError] = useState<string | null>(null);
+  const [upiSettings, setUpiSettings] = useState<{ upiId: string; upiName: string; qrCodeImage?: string | null } | null>(null);
+  const [upiId, setUpiId] = useState("");
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<"idle" | "processing" | "success">("idle");
 
   useEffect(() => {
     return () => {
@@ -220,6 +230,144 @@ function EventOverview() {
       }
     };
   }, []);
+
+  // Fetch pricing and UPI settings
+  useEffect(() => {
+    let ignore = false;
+
+    const fetchPricing = (countryCode: string) => {
+      api
+        .get<{ currencyCode: string; amount: number }>(
+          `/report-pricing/${countryCode}`
+        )
+        .then((response) => {
+          if (ignore) return;
+          setReportPricing(response.data);
+          setPricingError(null);
+        })
+        .catch((err) => {
+          console.error(err);
+          if (ignore) return;
+          setReportPricing(null);
+          setPricingError("Pricing unavailable right now. Please try again later.");
+        });
+    };
+
+    const syncPricing = () => {
+      const storedCountry =
+        window.localStorage.getItem("nowasteCountry") || "IN";
+      fetchPricing(storedCountry.toUpperCase());
+    };
+
+    // Fetch UPI settings
+    api
+      .get<{ upiId: string; upiName: string; qrCodeImage?: string | null }>("/settings/upi")
+      .then((response) => {
+        if (ignore) return;
+        setUpiSettings(response.data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch UPI settings:", err);
+        if (ignore) return;
+        setUpiSettings({ upiId: "zerovaste@upi", upiName: "Zerovaste", qrCodeImage: null });
+      });
+
+    syncPricing();
+    window.addEventListener("nowaste-locale-changed", syncPricing);
+    return () => {
+      ignore = true;
+      window.removeEventListener("nowaste-locale-changed", syncPricing);
+    };
+  }, [api]);
+
+  // Format currency
+  const formatCurrency = useCallback((amount: number, currencyCode: string = "INR") => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: currencyCode,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  }, []);
+
+  const formattedPrice = reportPricing
+    ? formatCurrency(reportPricing.amount, reportPricing.currencyCode)
+    : null;
+
+  // Payment handlers
+  const resetPaymentState = useCallback(() => {
+    setUpiId("");
+    setPaymentError(null);
+    setPaymentStatus("idle");
+  }, []);
+
+  const handlePayClick = useCallback(() => {
+    resetPaymentState();
+    setShowPaymentModal(true);
+    if (!reportPricing) {
+      setPaymentError(pricingError ?? "Pricing unavailable right now. Please try again later.");
+    }
+  }, [reportPricing, pricingError, resetPaymentState]);
+
+  const closePaymentModal = useCallback(() => {
+    setShowPaymentModal(false);
+    resetPaymentState();
+  }, [resetPaymentState]);
+
+  const handlePaymentSubmit = async (submitEvent: FormEvent<HTMLFormElement>) => {
+    submitEvent.preventDefault();
+    if (!eventId) {
+      return;
+    }
+    if (!reportPricing) {
+      setPaymentError(pricingError ?? "Pricing unavailable right now. Please try again later.");
+      return;
+    }
+
+    if (paymentStatus === "processing") {
+      return;
+    }
+
+    // Manual UPI flow: just ensure the user entered a transaction reference
+    if (!upiId.trim()) {
+      setPaymentError("Enter the UPI transaction ID / reference after you pay.");
+      return;
+    }
+
+    setPaymentStatus("processing");
+    setPaymentError(null);
+
+    try {
+      const payload: Record<string, unknown> = {
+        amount: reportPricing.amount,
+        currencyCode: reportPricing.currencyCode,
+        method: "upi",
+        upiId: upiSettings?.upiId || "zerovaste@upi",
+        reference: upiId.trim(),
+      };
+
+      await api.post(`/events/${eventId}/payments`, payload);
+
+      setPaymentStatus("success");
+      
+      // Reload event data to get updated payment status
+      if (remoteEvent) {
+        api
+          .get(`/events/${eventId}`)
+          .then((response) => {
+            setRemoteEvent(response.data);
+          })
+          .catch((err) => {
+            console.error("Failed to reload event", err);
+          });
+      }
+    } catch (error) {
+      console.error("Payment failed", error);
+      const fallbackMessage = "We couldn't process the payment. Please try again.";
+      const serverMessage = (error as any)?.response?.data?.message;
+      setPaymentError(typeof serverMessage === "string" ? serverMessage : fallbackMessage);
+      setPaymentStatus("idle");
+    }
+  };
 
   const copyInviteLink = (link: string) => {
     if (!link) return;
@@ -911,13 +1059,11 @@ function EventOverview() {
                       <p className="text-sm text-slate-600">Unlock detailed analytics and insights for your event</p>
                       <button
                         type="button"
-                        onClick={() => {
-                          // Payment handler - can be connected to payment flow later
-                          alert("Payment functionality will be connected soon. Please contact support to unlock stats.");
-                        }}
-                        className="mt-4 inline-flex items-center justify-center rounded-full bg-brand-500 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-brand-600 transition-colors"
+                        onClick={handlePayClick}
+                        disabled={paymentStatus === "processing"}
+                        className="mt-4 inline-flex items-center justify-center rounded-full bg-brand-500 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-brand-600 transition-colors disabled:cursor-not-allowed disabled:bg-slate-400"
                       >
-                        Pay ₹99
+                        {formattedPrice ? `Pay ${formattedPrice}` : "Pay ₹99"}
                       </button>
                     </div>
                   </div>
@@ -1021,6 +1167,144 @@ function EventOverview() {
             </section>
           </section>
         </div>
+
+        {/* Payment Modal */}
+        {showPaymentModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 px-4 py-8">
+            <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl shadow-slate-900/20">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">
+                    Unlock premium report
+                  </p>
+                  <h3 className="mt-1 text-xl font-semibold text-slate-900">
+                    {remoteEvent?.title || "Event Report"}
+                  </h3>
+                  {formattedPrice && (
+                    <p className="mt-1 text-sm text-slate-600">
+                      Pay {formattedPrice} once to access ZeroVaste insights for this celebration.
+                    </p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={closePaymentModal}
+                  className="rounded-full border border-slate-200 p-2 text-slate-500 transition hover:bg-slate-100"
+                >
+                  ×
+                </button>
+              </div>
+
+              {paymentStatus === "success" ? (
+                <div className="mt-6 space-y-4">
+                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
+                    Payment received! The detailed ZeroVaste report is now unlocked.
+                  </div>
+                  <button
+                    type="button"
+                    onClick={closePaymentModal}
+                    className="w-full rounded-full bg-brand-500 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow hover:bg-brand-600"
+                  >
+                    Continue
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handlePaymentSubmit} className="mt-6 space-y-5">
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-slate-500">Amount</p>
+                    <p className="mt-1 text-lg font-semibold text-slate-900">
+                      {formattedPrice ?? "₹99"}
+                    </p>
+                  </div>
+
+                  {paymentError && (
+                    <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                      {paymentError}
+                    </p>
+                  )}
+
+                  <div className="space-y-4 rounded-2xl border border-orange-100 bg-orange-50/80 p-4 text-sm text-slate-700">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">
+                      Step 1 — Pay via UPI
+                    </p>
+                    <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+                      <div className="flex-shrink-0 rounded-xl border-2 border-white bg-white p-3 shadow-sm">
+                        {upiSettings?.qrCodeImage ? (
+                          <img
+                            src={upiSettings.qrCodeImage}
+                            alt="UPI QR Code"
+                            className="h-40 w-40 object-contain"
+                          />
+                        ) : (
+                          <QRCodeSVG
+                            value={`upi://pay?pa=${upiSettings?.upiId || "zerovaste@upi"}&pn=${encodeURIComponent(upiSettings?.upiName || "Zerovaste")}&am=${reportPricing?.amount ?? 99}&cu=INR&tn=Event Report Payment`}
+                            size={160}
+                            fgColor="#1f2937"
+                            bgColor="#ffffff"
+                            level="M"
+                            includeMargin
+                          />
+                        )}
+                      </div>
+                      <div className="flex-1 space-y-2">
+                        <p>
+                          Scan the QR code with your UPI app (GPay, PhonePe, Paytm…) or send{" "}
+                          <span className="font-semibold">
+                            {formattedPrice ?? "₹99"}
+                          </span>{" "}
+                          to <span className="font-semibold text-brand-600">{upiSettings?.upiId || "zerovaste@upi"}</span>.
+                        </p>
+                        <div className="rounded-lg border border-orange-200 bg-white p-2 text-center">
+                          <p className="text-xs font-medium text-slate-600">UPI ID</p>
+                          <p className="text-sm font-bold text-brand-600">{upiSettings?.upiId || "zerovaste@upi"}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs uppercase tracking-wide text-slate-500">
+                      Step 2 — UPI transaction ID / reference
+                    </label>
+                    <input
+                      type="text"
+                      value={upiId}
+                      disabled={paymentStatus === "processing"}
+                      onChange={(event) => setUpiId(event.target.value)}
+                      className="w-full rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
+                      placeholder="Paste the UPI reference / UTR after paying"
+                    />
+                    <p className="text-[11px] text-slate-500">
+                      After you pay, copy the reference/UTR from your UPI app and paste it here so you can track this payment.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={closePaymentModal}
+                      disabled={paymentStatus === "processing"}
+                      className="rounded-full border border-slate-200 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-slate-600 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={paymentStatus === "processing"}
+                      className="rounded-full bg-brand-500 px-5 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-slate-400"
+                    >
+                      {paymentStatus === "processing"
+                        ? "Processing…"
+                        : formattedPrice
+                        ? `Pay ${formattedPrice}`
+                        : "Pay now"}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
