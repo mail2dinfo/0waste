@@ -909,6 +909,16 @@ function EventOverview() {
                       </div>
                       <p className="text-lg font-semibold text-slate-900">Pay ₹99 to get the stats</p>
                       <p className="text-sm text-slate-600">Unlock detailed analytics and insights for your event</p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          // Payment handler - can be connected to payment flow later
+                          alert("Payment functionality will be connected soon. Please contact support to unlock stats.");
+                        }}
+                        className="mt-4 inline-flex items-center justify-center rounded-full bg-brand-500 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-brand-600 transition-colors"
+                      >
+                        Pay ₹99
+                      </button>
                     </div>
                   </div>
                 )}

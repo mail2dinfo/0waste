@@ -993,6 +993,57 @@ function Dashboard() {
           </div>
         </div>
 
+        {/* Step-by-Step Guide */}
+        <div className="rounded-3xl border border-orange-200 bg-white p-8 shadow-lg">
+          <h2 className="mb-6 text-center text-2xl font-bold text-slate-900">How it works</h2>
+          <div className="grid gap-6 md:grid-cols-3">
+            {/* Step 1: Create Event */}
+            <div className="relative flex flex-col items-center text-center">
+              <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-orange-500 text-2xl font-bold text-white shadow-lg">
+                1
+              </div>
+              <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-100">
+                <svg className="h-6 w-6 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <h3 className="mb-2 text-lg font-semibold text-slate-900">Create Event</h3>
+              <p className="text-sm text-slate-600">Set up your celebration details, date, and venue</p>
+              {summary?.totals.eventsCount === 0 && (
+                <div className="absolute -top-2 -right-2 h-4 w-4 animate-pulse rounded-full bg-brand-500"></div>
+              )}
+            </div>
+
+            {/* Step 2: Share Invitation */}
+            <div className="relative flex flex-col items-center text-center">
+              <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-2xl font-bold text-white shadow-lg">
+                2
+              </div>
+              <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
+                <svg className="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+              </div>
+              <h3 className="mb-2 text-lg font-semibold text-slate-900">Share QR Code</h3>
+              <p className="text-sm text-slate-600">Send invitation link via WhatsApp or QR code to guests</p>
+            </div>
+
+            {/* Step 3: Get RSVPs */}
+            <div className="relative flex flex-col items-center text-center">
+              <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 text-2xl font-bold text-white shadow-lg">
+                3
+              </div>
+              <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+                <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <h3 className="mb-2 text-lg font-semibold text-slate-900">Get RSVPs</h3>
+              <p className="text-sm text-slate-600">Track guest responses and finalize headcount</p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid gap-6 md:grid-cols-3">
           <div className="rounded-2xl border border-orange-200 bg-white p-6 text-center shadow-sm">
             <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
