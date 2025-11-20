@@ -536,8 +536,9 @@ function EventOverview() {
             {/* 60/40 Split: Schedules (60%) and Invitation Toolkit (40%) */}
             <section className="grid gap-6 lg:grid-cols-[3fr_2fr]">
               {/* Left Side: Schedules (60%) */}
-              <div className="space-y-4">
-                {scheduleSnapshot.length > 0 ? (
+              <div className="space-y-4 relative">
+                <div className={!hasPaidReport ? 'filter blur-sm pointer-events-none' : ''}>
+                  {scheduleSnapshot.length > 0 ? (
                   scheduleSnapshot.map((entry, index) => {
                     const timelineSlots = typeof entry.sessionsDescription === "string"
                       ? entry.sessionsDescription.split("\n").map((slot: string) => slot.trim()).filter(Boolean)
@@ -891,9 +892,24 @@ function EventOverview() {
                       </div>
                     );
                   })
-                ) : (
-                  <div className="rounded-3xl border border-dashed border-orange-200 bg-orange-50 px-4 py-6 text-center text-sm text-slate-500">
-                    No schedule captured yet. Return to the event planner to add days and servings.
+                  ) : (
+                    <div className="rounded-3xl border border-dashed border-orange-200 bg-orange-50 px-4 py-6 text-center text-sm text-slate-500">
+                      No schedule captured yet. Return to the event planner to add days and servings.
+                    </div>
+                  )}
+                </div>
+                {/* Payment Overlay - Only show when not paid */}
+                {!hasPaidReport && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-3xl z-10 pointer-events-auto">
+                    <div className="text-center space-y-4 p-8">
+                      <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand-500/10 mb-4">
+                        <svg className="w-8 h-8 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                      </div>
+                      <p className="text-lg font-semibold text-slate-900">Pay ₹99 to get the stats</p>
+                      <p className="text-sm text-slate-600">Unlock detailed analytics and insights for your event</p>
+                    </div>
                   </div>
                 )}
               </div>
