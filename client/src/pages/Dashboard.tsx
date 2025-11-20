@@ -1270,13 +1270,9 @@ function Dashboard() {
                             </button>
                           )}
                           {event.reportStatus === "paid" && (
-                            <button
-                              type="button"
-                              onClick={() => handleViewReportClick(event.id)}
-                              className="rounded-full bg-emerald-500 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow hover:bg-emerald-600"
-                            >
-                              {tableText.actions.viewReport}
-                            </button>
+                            <div className="rounded-full bg-emerald-500 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow">
+                              Paid
+                            </div>
                           )}
                         </div>
                       </td>
@@ -1362,15 +1358,9 @@ function Dashboard() {
                 <div className="mt-5 space-y-3 text-xs font-semibold uppercase tracking-wide text-brand-600">
                   {event.reportStatus === "paid" ? (
                     <>
-                      <button
-                        className="flex w-full items-center justify-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-white shadow hover:bg-emerald-600"
-                        onClick={() => handleViewReportClick(event.id)}
-                      >
-                        <span>{cardText.viewReportButton}</span>
-                        <span className="text-[11px] uppercase tracking-wide text-white/80">
-                          {cardText.viewReportBadge}
-                        </span>
-                      </button>
+                      <div className="flex w-full items-center justify-center rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-white shadow">
+                        Paid
+                      </div>
                       <p className="text-center text-[11px] text-slate-500">
                         {cardText.impactNote}
                       </p>
