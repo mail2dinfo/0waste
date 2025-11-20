@@ -360,6 +360,9 @@ function EventOverview() {
             console.error("Failed to reload event", err);
           });
       }
+
+      // Dispatch payment success event to refresh events list
+      window.dispatchEvent(new CustomEvent("nowaste-payment-success"));
     } catch (error) {
       console.error("Payment failed", error);
       const fallbackMessage = "We couldn't process the payment. Please try again.";

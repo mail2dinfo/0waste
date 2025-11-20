@@ -43,6 +43,7 @@ type EventListItem = {
     kids?: number;
     staff?: number;
   } | null;
+  reportStatus?: "paid" | "pending" | "unpaid";
 };
 
 type SupportedLocale = "en" | "ta" | "hi" | "te" | "kn";
@@ -326,30 +327,50 @@ function Events() {
     [text.status]
   );
 
-  useEffect(() => {
-    let ignore = false;
+  const loadEvents = useCallback(() => {
     setLoading(true);
     setError(null);
     api
       .get<EventListItem[]>("/events")
       .then((response) => {
-        if (ignore) return;
         setEvents(response.data);
       })
       .catch((err) => {
-        if (ignore) return;
         console.error(err);
         setError(text.error);
       })
       .finally(() => {
-        if (ignore) return;
         setLoading(false);
       });
+  }, [api, text.error]);
+
+  useEffect(() => {
+    let ignore = false;
+    loadEvents();
+
+    // Listen for payment success events
+    const handlePaymentSuccess = () => {
+      if (!ignore) {
+        loadEvents();
+      }
+    };
+
+    window.addEventListener("nowaste-payment-success", handlePaymentSuccess);
+    
+    // Also check on focus (when user returns to tab)
+    const handleFocus = () => {
+      if (!ignore) {
+        loadEvents();
+      }
+    };
+    window.addEventListener("focus", handleFocus);
 
     return () => {
       ignore = true;
+      window.removeEventListener("nowaste-payment-success", handlePaymentSuccess);
+      window.removeEventListener("focus", handleFocus);
     };
-  }, [api, text.error]);
+  }, [loadEvents]);
 
   useEffect(() => {
     if (error && error !== text.error) {
@@ -518,9 +539,22 @@ function Events() {
                     {text.actions.predictionLog}
                   </Link>
                 </div>
+                {/* Payment Status Button */}
+                {event.reportStatus === "paid" ? (
+                  <div className="flex items-center justify-center rounded-full bg-emerald-500 px-4 py-2 text-white shadow">
+                    Paid
+                  </div>
+                ) : (
+                  <Link
+                    to={`/events/${event.id}/overview`}
+                    className="flex items-center justify-center rounded-full bg-brand-500 px-4 py-2 text-white shadow hover:bg-brand-600"
+                  >
+                    Pay ₹99
+                  </Link>
+                )}
                 <Link
                   to={`/events/${event.id}/edit`}
-                  className="flex items-center justify-center rounded-full bg-brand-500 px-4 py-2 text-white shadow hover:bg-brand-600"
+                  className="flex items-center justify-center rounded-full border border-brand-200 px-4 py-2 text-brand-600 hover:bg-brand-50"
                 >
                   {text.actions.editEvent}
                 </Link>
