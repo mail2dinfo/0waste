@@ -824,7 +824,7 @@ function EventOverview() {
                                       <td className="py-3 px-3 text-right font-semibold text-slate-900">{plannedAdults}</td>
                                       <td className="py-3 px-3 text-right font-semibold text-emerald-600">{expectedAdults}</td>
                                       <td className={`py-3 px-3 text-right font-bold ${expectedAdults - plannedAdults >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                                        {expectedAdults - plannedAdults >= 0 ? '+' : ''}{expectedAdults - plannedAdults}
+                                        {expectedAdults - plannedAdults >= 0 ? '+' : ''}{Math.abs(expectedAdults - plannedAdults)}
                             </td>
                                     </tr>
                                     <tr>
@@ -832,7 +832,7 @@ function EventOverview() {
                                       <td className="py-3 px-3 text-right font-semibold text-slate-900">{plannedKids}</td>
                                       <td className="py-3 px-3 text-right font-semibold text-emerald-600">{expectedKids}</td>
                                       <td className={`py-3 px-3 text-right font-bold ${expectedKids - plannedKids >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                                        {expectedKids - plannedKids >= 0 ? '+' : ''}{expectedKids - plannedKids}
+                                        {expectedKids - plannedKids >= 0 ? '+' : ''}{Math.abs(expectedKids - plannedKids)}
                             </td>
                                     </tr>
                                     <tr className="border-t-2 border-orange-200 bg-orange-50/50">
@@ -840,7 +840,7 @@ function EventOverview() {
                                       <td className="py-3 px-3 text-right font-bold text-slate-900">{plannedTotal}</td>
                                       <td className="py-3 px-3 text-right font-bold text-emerald-600">{expectedTotal}</td>
                                       <td className={`py-3 px-3 text-right font-bold text-lg ${expectedTotal - plannedTotal >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                                        {expectedTotal - plannedTotal >= 0 ? '+' : ''}{expectedTotal - plannedTotal}
+                                        {expectedTotal - plannedTotal >= 0 ? '+' : ''}{Math.abs(expectedTotal - plannedTotal)}
                             </td>
                           </tr>
                     </tbody>
