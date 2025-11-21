@@ -11,16 +11,8 @@ import { NwReportPayment } from "../models/NwReportPayment.js";
 import { NwSettings } from "../models/NwSettings.js";
 import { NwChatMessage } from "../models/NwChatMessage.js";
 
-const defaultRenderConfig = {
-  host: "dpg-d4dmojemcj7s73edtop0-a",
-  database: "zerovaste",
-  username: "zerovaste_user",
-  password: "TDN6XLUg84Xzb0u4lDkeZiIsYrEWFI27",
-  port: 5432,
-  ssl: true,
-};
-
 function buildSequelize(): Sequelize {
+  // Use DATABASE_URL if provided (e.g., Render PostgreSQL connection string)
   if (env.databaseUrl) {
     return new Sequelize(env.databaseUrl, {
       logging: env.databaseLogging ? console.log : false,
@@ -42,16 +34,21 @@ function buildSequelize(): Sequelize {
     });
   }
 
-  const hostConfig = env.dbHost
-    ? {
-      host: env.dbHost,
-      database: env.dbName,
-      username: env.dbUser,
-      password: env.dbPassword,
-      port: env.dbPort,
-      ssl: env.dbSsl,
-    }
-    : defaultRenderConfig;
+  // Use individual DB config from environment variables
+  if (!env.dbHost) {
+    throw new Error(
+      "Database configuration missing. Please set DB_HOST or DATABASE_URL environment variable."
+    );
+  }
+
+  const hostConfig = {
+    host: env.dbHost,
+    database: env.dbName,
+    username: env.dbUser,
+    password: env.dbPassword,
+    port: env.dbPort,
+    ssl: env.dbSsl,
+  };
 
   return new Sequelize({
     database: hostConfig.database,

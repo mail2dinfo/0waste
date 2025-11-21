@@ -34,7 +34,7 @@ export class NwUser extends BaseModel<NwUser> {
   @Column(DataType.STRING)
   declare role: "admin" | "product_owner";
 
-  @HasMany(() => getNwEvent())
+  @HasMany(() => getNwEvent(), { foreignKey: "ownerId" })
   declare events?: any[];
 }
 

@@ -672,11 +672,6 @@ function EventOverview() {
                   </p>
                 </div>
                 <div className="flex flex-col items-end gap-3 text-xs font-semibold uppercase tracking-wide text-brand-600">
-                  {inviteLink && (
-                    <code className="rounded-full bg-brand-500/10 px-4 py-2 text-[11px] font-semibold text-brand-600 shadow-inner shadow-orange-200/60">
-                      {inviteLink}
-                    </code>
-                  )}
                   <span className="rounded-full border border-brand-200 bg-white/70 px-4 py-2 text-[11px]">
                     Schedule iterations: {scheduleSnapshot.length}
                   </span>
@@ -1051,7 +1046,7 @@ function EventOverview() {
                 </div>
                 {/* Payment Overlay - Only show when not paid */}
                 {!hasPaidReport && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-3xl z-10 pointer-events-auto">
+                  <div className="absolute inset-0 flex items-start justify-center bg-white/90 backdrop-blur-sm rounded-3xl z-10 pointer-events-auto pt-16">
                     <div className="text-center space-y-4 p-8">
                       <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand-500/10 mb-4">
                         <svg className="w-8 h-8 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1358,9 +1353,6 @@ function EventOverview() {
                   Pay {event.reportPrice}
                 </button>
               )}
-              <code className="rounded-full bg-brand-500/10 px-4 py-2 text-[11px] font-semibold text-brand-600 shadow-inner shadow-orange-200/60">
-                {inviteLink}
-              </code>
             </div>
           </div>
         </header>

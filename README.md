@@ -18,6 +18,24 @@ This repository bootstraps the Nowaste platform by mirroring the `investo` proje
 - **Communication**: Future integration points for WhatsApp / email invite automation.
 - **AI Stub**: Rule-based estimator in both Node (API) and Python (microservice) to be swapped with ML in Phase 2.
 
+## 🚀 Quick Setup
+
+**Run this command to automatically set up your environment:**
+
+```bash
+node scripts/setup.js
+```
+
+This creates `client/.env.local` and `server/.env.local` files automatically.
+
+**Then:**
+1. Update `server/.env.local` with your Render PostgreSQL database password
+   - Get password from Render dashboard → Database → Internal Database URL
+2. Start backend: `cd server && npm run dev`
+3. Start frontend: `cd client && npm run dev` (in a new terminal)
+
+**📚 For detailed step-by-step instructions, see [SETUP.md](SETUP.md)**
+
 ## Using the Client
 
 ```bash
@@ -33,9 +51,10 @@ The UI follows Investo's layout conventions with a dashboard, events list, event
 ```bash
 cd server
 npm install
-copy ..\docs\server.env.sample .env   # adjust values to reuse Investo database with nw_* tables
 npm run dev
 ```
+
+**Note:** Make sure you have created `server/.env.local` with your database credentials (see Environment Setup above).
 
 Key endpoints:
 

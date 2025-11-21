@@ -51,6 +51,7 @@ export class NwEvent extends BaseModel<NwEvent> {
   @Column(DataType.TEXT)
   declare notes: string | null;
 
+  @AllowNull(false)
   @ForeignKey(() => getNwUser())
   @Column(DataType.UUID)
   declare ownerId: string;
@@ -84,16 +85,16 @@ export class NwEvent extends BaseModel<NwEvent> {
     }
     | null;
 
-  @HasMany(() => getNwGuest())
+  @HasMany(() => getNwGuest(), { foreignKey: "eventId" })
   declare guests?: any[];
 
-  @HasMany(() => getNwFoodItem())
+  @HasMany(() => getNwFoodItem(), { foreignKey: "eventId" })
   declare menu?: any[];
 
-  @HasMany(() => getNwPrediction())
+  @HasMany(() => getNwPrediction(), { foreignKey: "eventId" })
   declare predictions?: any[];
 
-  @HasMany(() => getNwInviteRsvp())
+  @HasMany(() => getNwInviteRsvp(), { foreignKey: "eventId" })
   declare inviteRsvps?: any[];
 }
 

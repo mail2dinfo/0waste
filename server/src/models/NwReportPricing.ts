@@ -40,3 +40,5 @@ export class NwReportPricing extends BaseModel<NwReportPricing> {
 
 
 
+
+

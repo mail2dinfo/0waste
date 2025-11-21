@@ -1,4 +1,9 @@
 import "dotenv/config";
+import { config } from "dotenv";
+import { resolve } from "path";
+
+// Load .env.local file if it exists (for local development)
+config({ path: resolve(process.cwd(), ".env.local") });
 
 const frontendUrlEnv = process.env.FRONTEND_URL ?? "http://localhost:5173";
 const normalizedFrontendUrl = frontendUrlEnv.endsWith("/")
