@@ -54,4 +54,23 @@ export class NwInviteRsvp extends BaseModel<NwInviteRsvp> {
   @AllowNull(true)
   @Column({ type: DataType.INTEGER, defaultValue: 0 })
   declare bikeCount: number;
+
+  // Legacy fields - kept for backward compatibility
+  @AllowNull(true)
+  @Column(DataType.JSONB)
+  declare scheduleIds: string[] | null;
+
+  // New field: schedule-specific responses
+  @AllowNull(true)
+  @Column(DataType.JSONB)
+  declare scheduleResponses: Record<string, {
+    attending: boolean;
+    adults: number;
+    kids: number;
+    arrivalSlot: string | null;
+    transportMode: string | null;
+    reminderPreference: string[] | null;
+    carCount: number;
+    bikeCount: number;
+  }> | null;
 }

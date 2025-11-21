@@ -198,6 +198,15 @@ interface InviteRsvpSummary {
   transportModes: Array<{ value: string; label: string; count: number }>;
   reminders: Array<{ value: string; label: string; count: number }>;
   lastResponseAt: string | null;
+  scheduleBreakdown?: Record<string, {
+    adults: number;
+    kids: number;
+    guestsCommitted: number;
+    totalCars: number;
+    totalBikes: number;
+    responses: number;
+    arrivalSlots?: Array<{ value: string; label: string; count: number }>;
+  }>;
 }
 
 function EventOverview() {
@@ -661,9 +670,6 @@ function EventOverview() {
             <header className="rounded-[32px] border border-orange-200 bg-white/90 p-8 shadow-xl shadow-orange-200/60 backdrop-blur">
               <div className="flex flex-wrap items-center justify-between gap-6">
                 <div className="space-y-2">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-brand-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-brand-600">
-                    {remoteEvent.status ?? "Draft"}
-                  </span>
                   <h1 className="text-3xl font-bold text-slate-900">
                     {remoteEvent.title}
                   </h1>
@@ -693,12 +699,139 @@ function EventOverview() {
                       ? (entry.categories as string[])
                       : [];
                     const isExpanded = expandedSchedules.has(index);
+                    const scheduleId = entry.id ?? `schedule-${index}`;
+                    const scheduleBreakdown = rsvpSummary?.scheduleBreakdown?.[scheduleId];
+                    
+                    // Use schedule-specific analytics if available, otherwise use event-level totals
                     const plannedAdults = expectedSnapshot.adults ?? 0;
                     const plannedKids = expectedSnapshot.kids ?? 0;
                     const plannedTotal = plannedAdults + plannedKids;
-                    const expectedAdults = rsvpSummary?.totals.adults ?? 0;
-                    const expectedKids = rsvpSummary?.totals.kids ?? 0;
+                    const expectedAdults = scheduleBreakdown?.adults ?? rsvpSummary?.totals.adults ?? 0;
+                    const expectedKids = scheduleBreakdown?.kids ?? rsvpSummary?.totals.kids ?? 0;
                     const expectedTotal = expectedAdults + expectedKids;
+                    const scheduleResponses = scheduleBreakdown?.responses ?? 0;
+                    // Schedule-specific parking counts
+                    const scheduleCars = scheduleBreakdown?.totalCars ?? rsvpSummary?.totals?.totalCars ?? 0;
+                    const scheduleBikes = scheduleBreakdown?.totalBikes ?? rsvpSummary?.totals?.totalBikes ?? 0;
+                    
+                    // Extract all possible hourly slots from the timeline
+                    const extractTimelineSlots = (timeline: string): string[] => {
+                      if (!timeline || !timeline.trim()) return [];
+                      
+                      const results = new Set<string>();
+                      const pushWindow = (startHour24: number, endHour24: number) => {
+                        const toLabel = (h: number) => {
+                          const period = h >= 12 ? "PM" : "AM";
+                          const hour12 = ((h + 11) % 12) + 1;
+                          return `${hour12}:00 ${period}`;
+                        };
+                        results.add(`${toLabel(startHour24)}–${toLabel(endHour24)}`);
+                      };
+                      
+                      const expandRange = (startHour: number, startPeriod: "AM" | "PM", endHour: number, endPeriod: "AM" | "PM") => {
+                        const to24 = (h: number, p: "AM" | "PM") => {
+                          if (h === 12) {
+                            return p === "AM" ? 0 : 12;
+                          }
+                          const base = h % 12;
+                          return p === "PM" ? base + 12 : base;
+                        };
+                        let start = to24(startHour, startPeriod);
+                        let end = to24(endHour, endPeriod);
+                        
+                        if (endHour === 12 && endPeriod === "AM") {
+                          end = 24;
+                        }
+                        if (end <= start && end !== 24) {
+                          end = 24;
+                        }
+                        
+                        for (let h = start; h < end; h += 1) {
+                          const endHour24 = Math.min(h + 1, end === 24 ? 24 : end);
+                          if (endHour24 <= 24) {
+                            pushWindow(h, endHour24);
+                          }
+                        }
+                      };
+                      
+                      const trimmed = timeline.trim();
+                      const m = trimmed.match(/^(\d{1,2})\s*(AM|PM)\s+to\s+(\d{1,2})\s*(AM|PM)$/i);
+                      if (m) {
+                        const sh = parseInt(m[1]!, 10);
+                        const sp = (m[2]!.toUpperCase() as "AM" | "PM");
+                        const eh = parseInt(m[3]!, 10);
+                        const ep = (m[4]!.toUpperCase() as "AM" | "PM");
+                        if (sh >= 1 && sh <= 12 && eh >= 1 && eh <= 12) {
+                          expandRange(sh, sp, eh, ep);
+                        }
+                      }
+                      
+                      return Array.from(results).sort((a, b) => {
+                        const parseStart = (label: string) => {
+                          const m = label.match(/^(\d{1,2}):00\s*(AM|PM)/i);
+                          if (!m) return 0;
+                          let h = parseInt(m[1]!, 10) % 12;
+                          const p = m[2]!.toUpperCase();
+                          if (p === "PM") {
+                            if (h === 0) h = 12;
+                            h += 12;
+                            if (h === 24) h = 0;
+                          } else {
+                            if (h === 12) h = 0;
+                          }
+                          return h;
+                        };
+                        return parseStart(a) - parseStart(b);
+                      });
+                    };
+                    
+                    // Get all possible slots from timeline
+                    const timelineDescription = entry.sessionsDescription || "";
+                    const allPossibleSlots = extractTimelineSlots(timelineDescription);
+                    
+                    // Get RSVP data for arrival slots
+                    const rsvpArrivalSlots = scheduleBreakdown?.arrivalSlots ?? [];
+                    const rsvpSlotMap = new Map(rsvpArrivalSlots.map(slot => [slot.value, slot.count]));
+                    
+                    // Merge: show all timeline slots with actual RSVP counts (default to 0)
+                    const allScheduleArrivalSlots = allPossibleSlots.length > 0 
+                      ? allPossibleSlots.map(slotLabel => {
+                          // Find matching RSVP slot by label or value
+                          const rsvpSlot = rsvpArrivalSlots.find(rs => 
+                            rs.label === slotLabel || rs.value === slotLabel
+                          );
+                          return {
+                            value: slotLabel,
+                            label: slotLabel,
+                            count: rsvpSlot?.count ?? 0,
+                          };
+                        })
+                      : rsvpArrivalSlots;
+                    
+                    // Sort by count descending (peak first) and show only top slots with customers
+                    const slotsWithCustomers = allScheduleArrivalSlots
+                      .filter(slot => slot.count > 0)
+                      .sort((a, b) => b.count - a.count); // Descending order
+                    
+                    const slotsWithoutCustomers = allScheduleArrivalSlots
+                      .filter(slot => slot.count === 0);
+                    
+                    // Combine: top slots with customers first, then slots without customers
+                    const scheduleArrivalSlots = [...slotsWithCustomers, ...slotsWithoutCustomers];
+                    
+                    const scheduleMaxArrivalCount = scheduleArrivalSlots.reduce((acc, slot) => Math.max(acc, slot.count), 0);
+                    const schedulePeakArrivalSlot = scheduleArrivalSlots.length > 0 && scheduleArrivalSlots[0].count > 0
+                      ? scheduleArrivalSlots[0]
+                      : null;
+                    
+                    // Show top 3 slots with customers, or all if less than 3
+                    const topSlotsToShow = slotsWithCustomers.length > 0 
+                      ? slotsWithCustomers.slice(0, 3)
+                      : [];
+                    // Show all slots (sorted) if we want to show everything, or just top 3
+                    const scheduleArrivalSlotsToDisplay = topSlotsToShow.length > 0 
+                      ? topSlotsToShow 
+                      : scheduleArrivalSlots;
 
                     return (
                       <div key={`${entry.id ?? index}`} className="rounded-3xl border border-orange-200 bg-white/90 shadow-lg shadow-orange-200/60 overflow-hidden">
@@ -755,7 +888,7 @@ function EventOverview() {
                             {/* Schedule Details */}
                             <div className="grid gap-4 text-sm text-slate-700 md:grid-cols-3">
                               <div>
-                                <p className="text-xs uppercase tracking-wide text-slate-500 mb-2">Serving timeline</p>
+                                <p className="text-xs uppercase tracking-wide text-slate-500 mb-2">Event timeline</p>
                                 <div className="flex flex-wrap gap-2">
                                   {timelineSlots.length > 0 ? (
                                     timelineSlots.map((slot) => (
@@ -800,9 +933,16 @@ function EventOverview() {
 
                             {/* Analytics: Planned vs Expected */}
                             <div className="rounded-2xl border border-orange-100 bg-white p-6">
-                              <h4 className="text-sm font-semibold uppercase tracking-wide text-brand-600 mb-4">
-                                Planned vs Expected
-                              </h4>
+                              <div className="flex items-center justify-between mb-4">
+                                <h4 className="text-sm font-semibold uppercase tracking-wide text-brand-600">
+                                  Planned vs Expected
+                                </h4>
+                                {scheduleBreakdown && (
+                                  <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
+                                    {scheduleResponses} RSVP{scheduleResponses === 1 ? '' : 's'} for this schedule
+                                  </span>
+                                )}
+                              </div>
                               <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
                                   <thead>
@@ -850,54 +990,62 @@ function EventOverview() {
                                 <h4 className="text-sm font-semibold uppercase tracking-wide text-brand-600 mb-4">
                                   Guest Arrival Peak Time Slot
                                 </h4>
-                                {arrivalSlots.length > 0 && peakArrivalSlot ? (
-                                  <div className="space-y-4">
-                                    <div className="rounded-xl bg-gradient-to-br from-brand-50 to-brand-100/50 p-6 border border-brand-200/50">
-                                      <p className="text-xs uppercase tracking-wide text-slate-500 mb-3 font-semibold">Peak arrival</p>
-                                      <div className="flex items-center gap-3">
-                                        <p className="text-sm font-medium text-slate-900">{peakArrivalSlot.label}</p>
-                                        <span className="text-slate-400">-</span>
-                                        <p className="text-sm font-medium text-slate-900">
-                                          {formatCount(peakArrivalSlot.count)} Customers
+                                {scheduleArrivalSlotsToDisplay.length > 0 && schedulePeakArrivalSlot ? (
+                                  <div className="space-y-3">
+                                    {scheduleArrivalSlotsToDisplay.map((slot, index) => {
+                                      const isPeak = index === 0 && slot.count > 0; // First slot with customers is peak
+                                      const widthPercent = scheduleMaxArrivalCount
+                                        ? Math.max(10, Math.round((slot.count / scheduleMaxArrivalCount) * 100))
+                                        : 0;
+                                      return (
+                                        <div key={slot.value} className={`rounded-xl border p-4 ${
+                                          isPeak 
+                                            ? 'bg-gradient-to-br from-brand-50 to-brand-100/50 border-brand-200/50' 
+                                            : 'bg-white border-orange-100'
+                                        }`}>
+                                          <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-sm font-semibold text-slate-900">{slot.label}</span>
+                                              <span className="text-slate-400">-</span>
+                                              <span className="text-sm font-semibold text-slate-900">
+                                                {formatCount(slot.count)} Customer{slot.count === 1 ? '' : 's'}
+                                              </span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              {isPeak ? (
+                                                <>
+                                                  <span className="inline-flex items-center justify-center rounded-full bg-brand-500 text-white w-6 h-6 text-sm font-bold">
+                                                    ↑
+                                                  </span>
+                                                  <span className="text-xs font-semibold uppercase tracking-wide text-brand-600">
+                                                    Peak time
+                                                  </span>
+                                                </>
+                                              ) : slot.count > 0 ? (
+                                                <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                                                  Mild Time
+                                                </span>
+                                              ) : null}
+                                            </div>
+                                          </div>
+                                          {slot.count > 0 && (
+                                            <div className="h-2 w-full rounded-full bg-orange-50">
+                                              <div
+                                                className={`h-full rounded-full transition-all ${
+                                                  isPeak ? 'bg-brand-500' : 'bg-brand-300'
+                                                }`}
+                                                style={{ width: `${widthPercent}%` }}
+                                              />
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                    {topSlotsToShow.length > 0 && slotsWithCustomers.length > 3 && (
+                                      <div className="rounded-xl bg-slate-50 border border-slate-200 p-3 text-center">
+                                        <p className="text-xs text-slate-500">
+                                          + {formatCount(slotsWithCustomers.length - 3)} more time slot{slotsWithCustomers.length - 3 === 1 ? '' : 's'} with customers
                                         </p>
-                                        <span className="inline-flex items-center justify-center rounded-full bg-brand-500 text-white w-6 h-6 text-sm font-bold">
-                                          ↑
-                                        </span>
-                                        <span className="text-xs font-semibold uppercase tracking-wide text-brand-600">
-                                          Peak time
-                                        </span>
-                      </div>
-                  </div>
-                                    {arrivalSlots.length > 1 && (
-                                      <div className="space-y-2">
-                                        <p className="text-xs uppercase tracking-wide text-slate-500 font-semibold mb-3">All time slots</p>
-                                        {arrivalSlots.map((slot) => {
-                          const widthPercent = maxArrivalCount
-                                            ? Math.max(10, Math.round((slot.count / maxArrivalCount) * 100))
-                            : 0;
-                                          const isPeak = slot.label === peakArrivalSlot?.label;
-                          return (
-                                            <div key={slot.value} className="space-y-1.5">
-                              <div className="flex items-center justify-between text-xs">
-                                                <div className="flex items-center gap-2">
-                                <span className="font-medium text-slate-700">{slot.label}</span>
-                                                  {isPeak && (
-                                                    <span className="inline-flex items-center rounded-full bg-brand-500 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-                                                      Peak
-                                                    </span>
-                                                  )}
-                                                </div>
-                                                <span className="text-brand-600 font-semibold">{formatCount(slot.count)}</span>
-                              </div>
-                              <div className="h-2 w-full rounded-full bg-orange-50">
-                                <div
-                                                  className={`h-full rounded-full transition-all ${isPeak ? 'bg-brand-500' : 'bg-brand-300'}`}
-                                  style={{ width: `${widthPercent}%` }}
-                                />
-                              </div>
-                            </div>
-                          );
-                                        })}
                                       </div>
                                     )}
                                   </div>
@@ -912,35 +1060,131 @@ function EventOverview() {
 
                               {/* Parking Recommendation */}
                               <div className="rounded-2xl border border-orange-100 bg-white p-5">
-                                <h4 className="text-sm font-semibold uppercase tracking-wide text-brand-600 mb-3">
+                                <h4 className="text-sm font-semibold uppercase tracking-wide text-brand-600 mb-4">
                                   Parking Recommendation
                                 </h4>
-                                <div className="space-y-3">
-                                  <div className="rounded-xl bg-emerald-50 p-4">
-                                    <p className="text-xs uppercase tracking-wide text-slate-500 mb-2">Parking request</p>
-                                    <div className="space-y-2">
-                                      <p className="text-sm font-medium text-slate-900">
-                                        {formatCount(totalCars)} {totalCars === 1 ? "Car" : "Cars"} {totalCars === 1 ? "is" : "are"} expected to come.
-                                      </p>
-                                      <p className="text-sm font-medium text-slate-900">
-                                        {formatCount(totalBikes)} {totalBikes === 1 ? "Bike" : "Bikes"} {totalBikes === 1 ? "is" : "are"} expected to come.
-                    </p>
-                  </div>
-                </div>
-                                  {totalCars > 0 && parkingSlotsNeeded !== null && (
-                                    <div className="rounded-xl bg-orange-50 p-3">
-                                      <p className="text-xs text-slate-600">
-                                        <span className="font-semibold">Recommended slots:</span> {formatCount(parkingSlotsNeeded)} (assumes 3 guests per car)
-                  </p>
-                </div>
-                                  )}
-                                  {totalCars === 0 && totalBikes === 0 && (
-                                    <div className="rounded-xl bg-orange-50 p-3">
-                                      <p className="text-xs text-slate-500 text-center">
-                                        No cars or bikes captured yet. Guests can specify their transportation when RSVPing.
-                                      </p>
+                                <div className="space-y-4">
+                                  <div className="rounded-xl bg-gradient-to-br from-emerald-50 via-emerald-100/30 to-emerald-50 border border-emerald-200/50 p-5">
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-700 mb-4">
+                                      How many are expecting via Car, Bike?
+                                    </p>
+                                    <div className="grid gap-3">
+                                      {/* Cars */}
+                                      {scheduleCars > 0 && (() => {
+                                        const estimatedGuestsPerCar = expectedTotal > 0 && scheduleCars > 0 ? Math.ceil(expectedTotal / scheduleCars) : 3;
+                                        const estimatedGuestsViaCar = scheduleCars * estimatedGuestsPerCar;
+                                        return (
+                                          <div className="flex items-center gap-4 rounded-xl bg-white shadow-sm border-2 border-brand-200 p-4 hover:border-brand-300 transition">
+                                            <div className="flex-shrink-0">
+                                              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-100 to-brand-200 shadow-inner">
+                                                <svg className="h-12 w-12 text-brand-600" fill="currentColor" viewBox="0 0 24 24">
+                                                  <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                                                </svg>
+                                              </div>
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                              <div className="flex items-baseline gap-2 mb-1">
+                                                <span className="text-3xl font-bold text-slate-900">
+                                                  {formatCount(scheduleCars)}
+                                                </span>
+                                                <span className="text-base font-semibold text-slate-700">
+                                                  {scheduleCars === 1 ? "Car" : "Cars"}
+                                                </span>
+                                              </div>
+                                              <div className="flex items-center gap-2 mt-2">
+                                                <span className="text-xs font-medium text-slate-500">Expecting:</span>
+                                                <span className="text-lg font-bold text-emerald-600">
+                                                  {formatCount(estimatedGuestsViaCar)}
+                                                </span>
+                                                <span className="text-xs font-medium text-emerald-600">
+                                                  guest{estimatedGuestsViaCar === 1 ? "" : "s"} (~{formatCount(estimatedGuestsPerCar)} per car)
+                                                </span>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        );
+                                      })()}
+                                      
+                                      {/* Bikes */}
+                                      {scheduleBikes > 0 && (() => {
+                                        const estimatedGuestsPerBike = expectedTotal > 0 && scheduleBikes > 0 ? Math.ceil(expectedTotal / scheduleBikes) : 1;
+                                        const estimatedGuestsViaBike = scheduleBikes * estimatedGuestsPerBike;
+                                        return (
+                                          <div className="flex items-center gap-4 rounded-xl bg-white shadow-sm border-2 border-emerald-200 p-4 hover:border-emerald-300 transition">
+                                            <div className="flex-shrink-0">
+                                              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-200 shadow-inner">
+                                                <svg className="h-12 w-12 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
+                                                  <path d="M19 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM5 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm5.5-1.5c-.83 0-1.5-.67-1.5-1.5S9.67 5.5 10.5 5.5 12 6.17 12 7s-.67 1.5-1.5 1.5zm4.5 6.5c-1.5 0-4.5.83-4.5 2.5V19h9v-1.5c0-1.67-3-2.5-4.5-2.5z"/>
+                                                  <circle cx="6.5" cy="11.5" r="1.5"/>
+                                                  <circle cx="17.5" cy="11.5" r="1.5"/>
+                                                </svg>
+                                              </div>
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                              <div className="flex items-baseline gap-2 mb-1">
+                                                <span className="text-3xl font-bold text-slate-900">
+                                                  {formatCount(scheduleBikes)}
+                                                </span>
+                                                <span className="text-base font-semibold text-slate-700">
+                                                  {scheduleBikes === 1 ? "Bike" : "Bikes"}
+                                                </span>
+                                              </div>
+                                              <div className="flex items-center gap-2 mt-2">
+                                                <span className="text-xs font-medium text-slate-500">Expecting:</span>
+                                                <span className="text-lg font-bold text-emerald-600">
+                                                  {formatCount(estimatedGuestsViaBike)}
+                                                </span>
+                                                <span className="text-xs font-medium text-emerald-600">
+                                                  guest{estimatedGuestsViaBike === 1 ? "" : "s"} (~{formatCount(estimatedGuestsPerBike)} per bike)
+                                                </span>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        );
+                                      })()}
+                                      
+                                      {scheduleCars === 0 && scheduleBikes === 0 && (
+                                        <div className="rounded-xl bg-white border-2 border-dashed border-slate-200 p-8 text-center">
+                                          <svg className="h-16 w-16 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                          </svg>
+                                          <p className="text-sm font-medium text-slate-600 mb-1">No parking requests yet</p>
+                                          <p className="text-xs text-slate-500">
+                                            Guests can specify their transportation when RSVPing
+                                          </p>
+                                        </div>
+                                      )}
                                     </div>
-                                  )}
+                                  </div>
+                                  
+                                  {scheduleCars > 0 && (() => {
+                                    const scheduleParkingSlots = Math.max(1, Math.ceil(scheduleCars / 3));
+                                    const estimatedGuestsWithCars = scheduleCars * 3;
+                                    return (
+                                      <div className="rounded-xl bg-gradient-to-r from-orange-50 via-orange-100/50 to-orange-50 border border-orange-200 p-4">
+                                        <div className="flex items-start gap-3">
+                                          <div className="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-full bg-orange-500/10">
+                                            <svg className="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                          </div>
+                                          <div className="flex-1">
+                                            <p className="text-xs font-bold text-slate-900 mb-1.5 uppercase tracking-wide">
+                                              Recommended Parking Slots
+                                            </p>
+                                            <div className="space-y-1">
+                                              <p className="text-sm font-semibold text-orange-700">
+                                                {formatCount(scheduleParkingSlots)} parking slot{scheduleParkingSlots === 1 ? "" : "s"} needed
+                                              </p>
+                                              <p className="text-xs text-slate-600">
+                                                Based on {formatCount(scheduleCars)} car{scheduleCars === 1 ? "" : "s"} (assuming 3 guests per car, ~{formatCount(estimatedGuestsWithCars)} total guests)
+                                              </p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })()}
                                 </div>
                               </div>
 
@@ -955,18 +1199,25 @@ function EventOverview() {
                                     <div className="rounded-xl bg-emerald-50 p-4">
                                       <p className="text-xs uppercase tracking-wide text-slate-500 mb-2">Expected meals</p>
                                       <p className="text-2xl font-bold text-emerald-700">
-                                        {formatCount(liveGuestsCommitted ?? expectedTotal)}
+                                        {formatCount(expectedTotal)}
                                       </p>
                                       <p className="text-xs text-slate-600 mt-1">
-                                        {liveGuestsCommitted !== null && liveGuestsCommitted > 0 ? (
+                                        {scheduleBreakdown ? (
+                                          <>
+                                            Based on <span className="font-semibold">{formatCount(scheduleResponses)} RSVP{scheduleResponses === 1 ? '' : 's'}</span> for this schedule
+                                            {expectedAdults > 0 || expectedKids > 0 && (
+                                              <> • {formatCount(expectedAdults)} adults, {formatCount(expectedKids)} kids</>
+                                            )}
+                                          </>
+                                        ) : scheduleResponses === 0 ? (
+                                          <>Based on planned guest count (no RSVPs for this schedule yet)</>
+                                        ) : (
                                           <>
                                             Based on <span className="font-semibold">{formatCount(rsvpSummary?.totals?.attendingYes ?? 0)} RSVP{rsvpSummary?.totals?.attendingYes === 1 ? '' : 's'}</span> confirmed
                                             {liveAdults !== null && liveKids !== null && (
                                               <> • {formatCount(liveAdults)} adults, {formatCount(liveKids)} kids</>
                                             )}
                                           </>
-                                        ) : (
-                                          <>Based on planned guest count (no RSVPs yet)</>
                                         )}
                       </p>
                     </div>

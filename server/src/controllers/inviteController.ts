@@ -17,6 +17,8 @@ export async function createInviteRsvpHandler(req: Request, res: Response) {
     notes,
     carCount,
     bikeCount,
+    scheduleIds,
+    scheduleResponses,
   } = req.body ?? {};
 
   if (typeof attending !== "boolean") {
@@ -37,6 +39,8 @@ export async function createInviteRsvpHandler(req: Request, res: Response) {
       notes,
       carCount,
       bikeCount,
+      scheduleIds: Array.isArray(scheduleIds) ? scheduleIds : undefined,
+      scheduleResponses: scheduleResponses && typeof scheduleResponses === "object" ? scheduleResponses : undefined,
     });
 
     if (!rsvp) {

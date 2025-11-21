@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState, useEffect } from "react";
 import clsx from "clsx";
 import { useNavigate } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
@@ -107,12 +107,10 @@ const createScheduleEntry = (index: number): ScheduleEntry => ({
   categories: [],
 });
 
-const servingTimelineOptions = [
-  "6-10 AM",
-  "11 AM-2 PM",
-  "3-6 PM",
-  "7-10 PM",
-  "Late night",
+const eventTimelineOptions = [
+  "5 AM to 12 PM",
+  "12 PM to 6 PM",
+  "6 PM to 12 PM",
 ];
 
 const templates: EventTemplate[] = [
@@ -258,6 +256,74 @@ function EventForm() {
   const visibleSurveyQuestions = useMemo(() => {
     return [];
   }, []);
+
+  // Auto-populate Schedule 1 when entering Schedule step (step 2) if event date is set
+  useEffect(() => {
+    // Only run when we're on Schedule step (step 2) and have an event date and name
+    if (activeStep === 2 && form.eventDate && form.schedule.length > 0) {
+      setForm((prev) => {
+        const firstSchedule = prev.schedule[0];
+        if (!firstSchedule) return prev;
+        
+        // Check if we need to populate - date is empty OR label is still default "Day 1"
+        const currentLabel = (firstSchedule.label || '').trim();
+        // Check if label matches default pattern: "Day 1", "Day 0", or any "Day X" pattern
+        // More comprehensive check to catch all default label variations
+        const isDefaultLabel = !currentLabel || 
+          currentLabel === "Day 1" || 
+          currentLabel === "Day 0" || 
+          currentLabel.match(/^Day\s+\d+$/) !== null ||
+          currentLabel.startsWith("Day ");
+        const needsDate = !firstSchedule.date || !firstSchedule.date.trim();
+        
+        // Only update if date is missing or label is still default
+        if (!needsDate && !isDefaultLabel) {
+          return prev; // No changes needed - already populated
+        }
+        
+        // Format a default label based on event date and name
+        const eventDateObj = new Date(prev.eventDate);
+        if (isNaN(eventDateObj.getTime())) return prev; // Invalid date
+        
+        const dateLabel = eventDateObj.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric',
+          year: 'numeric'
+        });
+        
+        // Use event name if available, otherwise use generic "Event"
+        const eventName = (prev.name && prev.name.trim()) || '';
+        const defaultLabel = eventName
+          ? `${eventName} - ${dateLabel}`
+          : `Event - ${dateLabel}`;
+        
+        return {
+          ...prev,
+          schedule: prev.schedule.map((entry, index) => {
+            if (index === 0) {
+              const updates: Partial<ScheduleEntry> = {};
+              
+              // Always set date if empty
+              if (needsDate) {
+                updates.date = prev.eventDate;
+              }
+              
+              // Auto-populate label if it's still default
+              if (isDefaultLabel) {
+                updates.label = defaultLabel;
+              }
+              
+              return {
+                ...entry,
+                ...updates,
+              };
+            }
+            return entry;
+          }),
+        };
+      });
+    }
+  }, [activeStep, form.eventDate, form.name]); // Trigger when entering Schedule step or when event date/name changes
 
   const isCurrentStepValid = () => {
     switch (activeStep) {
@@ -631,20 +697,14 @@ function EventForm() {
                     </div>
                     <div className="space-y-2 text-xs font-medium text-slate-700">
                       <p className="tracking-wide">
-                        Serving timeline (select time windows)
+                        Event timeline (select time window)
                       </p>
                       <div className="flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-wide">
-                        {servingTimelineOptions.map((slot) => {
-                          const selectedSlots = (entry.sessionsDescription || "")
-                            ? entry.sessionsDescription
-                                .split("\n")
-                                .map((value) => value.trim())
-                                .filter(Boolean)
-                            : [];
-                          const isSelected = selectedSlots.includes(slot);
+                        {eventTimelineOptions.map((window) => {
+                          const isSelected = entry.sessionsDescription === window;
                           return (
                             <button
-                              key={`${entry.id}-${slot}`}
+                              key={`${entry.id}-${window}`}
                               type="button"
                               onClick={() =>
                                 setForm((prev) => ({
@@ -653,18 +713,9 @@ function EventForm() {
                                     if (item.id !== entry.id) {
                                       return item;
                                     }
-                                    const current = (item.sessionsDescription || "")
-                                      ? item.sessionsDescription
-                                          .split("\n")
-                                          .map((value) => value.trim())
-                                          .filter(Boolean)
-                                      : [];
-                                    const next = current.includes(slot)
-                                      ? current.filter((value) => value !== slot)
-                                      : [...current, slot];
                                     return {
                                       ...item,
-                                      sessionsDescription: next.join("\n"),
+                                      sessionsDescription: isSelected ? "" : window,
                                     };
                                   }),
                                 }))
@@ -678,7 +729,7 @@ function EventForm() {
                               {isSelected && (
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17l-3.88-3.88L3.7 13.71 9 19l12-12-1.41-1.41z"/></svg>
                               )}
-                              {slot}
+                              {window}
                             </button>
                           );
                         })}
@@ -1005,21 +1056,15 @@ function EventForm() {
 
                         <dl className="mt-5 grid gap-4 text-sm text-slate-700 md:grid-cols-3">
                           <div>
-                            <dt className="text-xs uppercase tracking-wide text-slate-500">Serving timeline</dt>
+                            <dt className="text-xs uppercase tracking-wide text-slate-500">Event timeline</dt>
                             <dd className="mt-2 flex flex-wrap gap-2">
                               {entry.sessionsDescription && entry.sessionsDescription.trim() ? (
-                                entry.sessionsDescription
-                                  .split("\n")
-                                  .map((slot) => slot.trim())
-                                  .filter(Boolean)
-                                  .map((slot) => (
-                                    <span
-                                      key={`${entry.id}-${slot}`}
-                                      className="inline-flex items-center rounded-full bg-brand-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand-600"
-                                    >
-                                      {slot}
-                                    </span>
-                                  ))
+                                <span
+                                  key={`${entry.id}-${entry.sessionsDescription}`}
+                                  className="inline-flex items-center rounded-full bg-brand-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand-600"
+                                >
+                                  {entry.sessionsDescription}
+                                </span>
                               ) : (
                                 <span className="rounded-full border border-dashed border-orange-200 px-3 py-1 text-[11px] uppercase tracking-wide text-orange-300">
                                   No timeline added
