@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useApi } from "../hooks/useApi";
 import { useTranslation } from "react-i18next";
 
@@ -41,28 +41,55 @@ type AdminDashboardData = {
 
 function AdminDashboard() {
   const api = useApi();
+  const navigate = useNavigate();
   const { t } = useTranslation("common");
   const [data, setData] = useState<AdminDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Refs for scrolling to event sections
+  const paidEventsRef = useRef<HTMLDivElement>(null);
+  const unpaidEventsRef = useRef<HTMLDivElement>(null);
+  const inProgressEventsRef = useRef<HTMLDivElement>(null);
+
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.get<AdminDashboardData>("/admin/dashboard");
+      setData(response.data);
+    } catch (err) {
+      console.error("Failed to fetch admin dashboard:", err);
+      setError("Failed to load admin dashboard. Please refresh.");
+    } finally {
+      setLoading(false);
+    }
+  }, [api]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await api.get<AdminDashboardData>("/admin/dashboard");
-        setData(response.data);
-      } catch (err) {
-        console.error("Failed to fetch admin dashboard:", err);
-        setError("Failed to load admin dashboard. Please refresh.");
-      } finally {
-        setLoading(false);
+    fetchData();
+
+    // Listen for payment success events to refresh the dashboard
+    const handlePaymentSuccess = () => {
+      fetchData();
+    };
+
+    window.addEventListener("nowaste-payment-success", handlePaymentSuccess);
+
+    // Also refresh when the page becomes visible (user switches back to tab)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchData();
       }
     };
 
-    fetchData();
-  }, [api]);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("nowaste-payment-success", handlePaymentSuccess);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [fetchData]);
 
   if (loading) {
     return (
@@ -95,6 +122,10 @@ function AdminDashboard() {
     });
   };
 
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -102,12 +133,21 @@ function AdminDashboard() {
           <h1 className="text-3xl font-bold text-slate-900">Admin Dashboard</h1>
           <p className="mt-2 text-slate-600">Overview of Zerovaste platform</p>
         </div>
-        <Link
-          to="/admin/upi-settings"
-          className="rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow hover:bg-brand-600"
-        >
-          Manage UPI Settings
-        </Link>
+        <div className="flex gap-3">
+          <button
+            onClick={() => fetchData()}
+            className="rounded-full bg-slate-500 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow hover:bg-slate-600"
+            disabled={loading}
+          >
+            {loading ? "Refreshing..." : "Refresh"}
+          </button>
+          <Link
+            to="/admin/upi-settings"
+            className="rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow hover:bg-brand-600"
+          >
+            Manage UPI Settings
+          </Link>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -124,19 +164,52 @@ function AdminDashboard() {
             {data.stats.totalEvents}
           </div>
         </div>
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
+        <div 
+          className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm cursor-pointer transition-all hover:bg-emerald-100 hover:shadow-md"
+          onClick={() => scrollToSection(paidEventsRef)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              scrollToSection(paidEventsRef);
+            }
+          }}
+        >
           <div className="text-sm font-medium text-emerald-700">Paid Events</div>
           <div className="mt-2 text-3xl font-bold text-emerald-700">
             {data.stats.paidEvents}
           </div>
         </div>
-        <div className="rounded-2xl border border-orange-200 bg-orange-50 p-6 shadow-sm">
+        <div 
+          className="rounded-2xl border border-orange-200 bg-orange-50 p-6 shadow-sm cursor-pointer transition-all hover:bg-orange-100 hover:shadow-md"
+          onClick={() => scrollToSection(unpaidEventsRef)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              scrollToSection(unpaidEventsRef);
+            }
+          }}
+        >
           <div className="text-sm font-medium text-orange-700">Unpaid Events</div>
           <div className="mt-2 text-3xl font-bold text-orange-700">
             {data.stats.unpaidEvents}
           </div>
         </div>
-        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-6 shadow-sm">
+        <div 
+          className="rounded-2xl border border-blue-200 bg-blue-50 p-6 shadow-sm cursor-pointer transition-all hover:bg-blue-100 hover:shadow-md"
+          onClick={() => scrollToSection(inProgressEventsRef)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              scrollToSection(inProgressEventsRef);
+            }
+          }}
+        >
           <div className="text-sm font-medium text-blue-700">Survey In Progress</div>
           <div className="mt-2 text-3xl font-bold text-blue-700">
             {data.stats.eventsInProgress}
@@ -147,7 +220,7 @@ function AdminDashboard() {
       {/* Event Lists */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Paid Events */}
-        <div className="rounded-2xl border border-emerald-200 bg-white p-6 shadow-sm">
+        <div ref={paidEventsRef} className="rounded-2xl border border-emerald-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900">
             Paid Events ({data.events.paidEvents.length})
           </h2>
@@ -158,7 +231,16 @@ function AdminDashboard() {
               data.events.paidEvents.map((event) => (
                 <div
                   key={event.id}
-                  className="rounded-lg border border-emerald-100 bg-emerald-50 p-3"
+                  className="rounded-lg border border-emerald-100 bg-emerald-50 p-3 cursor-pointer transition-all hover:bg-emerald-100 hover:shadow-sm"
+                  onClick={() => navigate(`/events/${event.id}/overview`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      navigate(`/events/${event.id}/overview`);
+                    }
+                  }}
                 >
                   <div className="font-medium text-slate-900">{event.title}</div>
                   <div className="mt-1 text-xs text-slate-600">
@@ -176,7 +258,7 @@ function AdminDashboard() {
         </div>
 
         {/* Unpaid Events */}
-        <div className="rounded-2xl border border-orange-200 bg-white p-6 shadow-sm">
+        <div ref={unpaidEventsRef} className="rounded-2xl border border-orange-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900">
             Unpaid Events ({data.events.unpaidEvents.length})
           </h2>
@@ -187,7 +269,16 @@ function AdminDashboard() {
               data.events.unpaidEvents.map((event) => (
                 <div
                   key={event.id}
-                  className="rounded-lg border border-orange-100 bg-orange-50 p-3"
+                  className="rounded-lg border border-orange-100 bg-orange-50 p-3 cursor-pointer transition-all hover:bg-orange-100 hover:shadow-sm"
+                  onClick={() => navigate(`/events/${event.id}/overview`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      navigate(`/events/${event.id}/overview`);
+                    }
+                  }}
                 >
                   <div className="font-medium text-slate-900">{event.title}</div>
                   <div className="mt-1 text-xs text-slate-600">
@@ -205,7 +296,7 @@ function AdminDashboard() {
         </div>
 
         {/* Survey In Progress */}
-        <div className="rounded-2xl border border-blue-200 bg-white p-6 shadow-sm">
+        <div ref={inProgressEventsRef} className="rounded-2xl border border-blue-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900">
             Survey In Progress ({data.events.inProgressEvents.length})
           </h2>
@@ -216,7 +307,16 @@ function AdminDashboard() {
               data.events.inProgressEvents.map((event) => (
                 <div
                   key={event.id}
-                  className="rounded-lg border border-blue-100 bg-blue-50 p-3"
+                  className="rounded-lg border border-blue-100 bg-blue-50 p-3 cursor-pointer transition-all hover:bg-blue-100 hover:shadow-sm"
+                  onClick={() => navigate(`/events/${event.id}/overview`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      navigate(`/events/${event.id}/overview`);
+                    }
+                  }}
                 >
                   <div className="font-medium text-slate-900">{event.title}</div>
                   <div className="mt-1 text-xs text-slate-600">

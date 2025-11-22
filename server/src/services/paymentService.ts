@@ -51,6 +51,10 @@ export async function recordReportPayment(
   });
 
   if (existing) {
+    // Ensure the event's reportStatus is set to "paid" even if it was already paid
+    if (event.reportStatus !== "paid") {
+      await event.update({ reportStatus: "paid" });
+    }
     return { payment: existing, created: false } as const;
   }
 
@@ -108,6 +112,9 @@ export async function recordReportPayment(
     status: "success",
     paymentDetails,
   } as any);
+
+  // Update the event's reportStatus to "paid"
+  await event.update({ reportStatus: "paid" });
 
   return { payment, created: true } as const;
 }

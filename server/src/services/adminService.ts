@@ -36,6 +36,28 @@ export async function getAdminStats() {
 }
 
 export async function getAdminEventLists() {
+  // First, sync events that have successful payments but wrong reportStatus
+  // Find all successful payments and get their unique eventIds
+  const successfulPayments = await NwReportPayment.findAll({
+    where: { status: "success" },
+    attributes: ["eventId"],
+  });
+
+  const paidEventIds = [...new Set(successfulPayments.map((p) => p.eventId))];
+
+  // Update events that have successful payments but reportStatus is not "paid"
+  if (paidEventIds.length > 0) {
+    await NwEvent.update(
+      { reportStatus: "paid" },
+      {
+        where: {
+          id: { [Op.in]: paidEventIds },
+          reportStatus: { [Op.ne]: "paid" },
+        },
+      }
+    );
+  }
+
   const [paidEvents, unpaidEvents, inProgressEvents] = await Promise.all([
     NwEvent.findAll({
       where: { reportStatus: "paid" },
