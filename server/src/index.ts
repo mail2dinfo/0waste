@@ -18,23 +18,36 @@ async function bootstrap() {
   const app = express();
   const allowedOrigins = new Set(env.frontendOrigins);
 
+  // Helper function to check if origin is allowed
+  const isOriginAllowed = (origin: string | undefined): boolean => {
+    if (!origin) {
+      return true;
+    }
+    if (allowedOrigins.has(origin)) {
+      return true;
+    }
+    // Allow localhost for development
+    if (/^http:\/\/localhost:\d+$/.test(origin)) {
+      allowedOrigins.add(origin);
+      return true;
+    }
+    // Allow Render domains (onrender.com)
+    if (/^https:\/\/.*\.onrender\.com$/.test(origin)) {
+      allowedOrigins.add(origin);
+      return true;
+    }
+    // Allow zerovaste.com domains
+    if (/^https:\/\/(www\.)?zerovaste\.com$/.test(origin)) {
+      allowedOrigins.add(origin);
+      return true;
+    }
+    return false;
+  };
+
   app.use(
     cors({
       origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-        if (!origin) {
-          return callback(null, true);
-        }
-        if (allowedOrigins.has(origin)) {
-          return callback(null, true);
-        }
-        // Allow localhost for development
-        if (/^http:\/\/localhost:\d+$/.test(origin)) {
-          allowedOrigins.add(origin);
-          return callback(null, true);
-        }
-        // Allow Render domains (onrender.com)
-        if (/^https:\/\/.*\.onrender\.com$/.test(origin)) {
-          allowedOrigins.add(origin);
+        if (isOriginAllowed(origin)) {
           return callback(null, true);
         }
         return callback(new Error(`Origin ${origin} not permitted by CORS`));
@@ -60,12 +73,24 @@ async function bootstrap() {
 
   const server = createServer(app);
   
-  // Initialize WebSocket chat server
-  chatServer.initialize(server);
+  // Initialize WebSocket chat server with origin verification
+  chatServer.initialize(server, isOriginAllowed);
 
   server.listen(env.port, () => {
     console.log(`Nowaste API listening on port ${env.port}`);
-    console.log(`WebSocket chat server ready on ws://localhost:${env.port}/chat`);
+    
+    // Construct WebSocket URL - use backend URL if available, otherwise localhost
+    let wsUrl: string;
+    if (env.backendUrl) {
+      // Convert http/https to ws/wss
+      const wsProtocol = env.backendUrl.startsWith("https") ? "wss" : "ws";
+      const wsHost = env.backendUrl.replace(/^https?:\/\//, "");
+      wsUrl = `${wsProtocol}://${wsHost}/chat`;
+    } else {
+      // Fallback to localhost for development
+      wsUrl = `ws://localhost:${env.port}/chat`;
+    }
+    console.log(`WebSocket chat server ready on ${wsUrl}`);
   });
 
   // Schedule daily job to check and update event statuses based on cutoff dates

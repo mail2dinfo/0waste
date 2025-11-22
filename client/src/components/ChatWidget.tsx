@@ -3,7 +3,8 @@ import { createPortal } from "react-dom";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 // Remove /api from URL for WebSocket since it's mounted on the server root
-const WS_BASE_URL = API_BASE_URL.replace(/\/api$/, "").replace(/^https/, "wss").replace(/^http/, "ws");
+// Convert http/https to ws/wss for WebSocket protocol
+const WS_BASE_URL = API_BASE_URL.replace(/\/api$/, "").replace(/^https:\/\//, "wss://").replace(/^http:\/\//, "ws://");
 const WS_URL = `${WS_BASE_URL}/chat`;
 
 interface ChatMessage {

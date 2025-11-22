@@ -33,11 +33,18 @@ const defaultInviteBaseUrl = process.env.INVITE_BASE_URL
   ? process.env.INVITE_BASE_URL
   : `${normalizedFrontendUrl}/invite`;
 
+// Backend URL for WebSocket - use API_URL if provided, otherwise construct from environment
+const backendUrlEnv = process.env.API_URL || process.env.BACKEND_URL;
+const normalizedBackendUrl = backendUrlEnv
+  ? (backendUrlEnv.endsWith("/") ? backendUrlEnv.slice(0, -1) : backendUrlEnv)
+  : null;
+
 export const env = {
   nodeEnv: process.env.NODE_ENV ?? "development",
   port: Number(process.env.PORT ?? 4000),
   frontendUrl: normalizedFrontendUrl,
   frontendOrigins,
+  backendUrl: normalizedBackendUrl,
   databaseUrl: process.env.DATABASE_URL,
   dbHost: process.env.DB_HOST,
   dbName: process.env.DB_NAME ?? "investo",

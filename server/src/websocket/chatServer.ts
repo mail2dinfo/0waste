@@ -13,11 +13,22 @@ class ChatServer {
   private wss: WebSocketServer | null = null;
   private clients: Map<string, ChatClient> = new Map();
   private adminClients: Set<string> = new Set();
+  private isOriginAllowed: ((origin: string | undefined) => boolean) | null = null;
 
-  initialize(server: any) {
+  initialize(server: any, originChecker?: (origin: string | undefined) => boolean) {
+    this.isOriginAllowed = originChecker || null;
+    
     this.wss = new WebSocketServer({ 
       server,
-      path: "/chat"
+      path: "/chat",
+      verifyClient: (info: { origin: string; secure: boolean; req: IncomingMessage }) => {
+        // Verify origin if checker is provided
+        if (this.isOriginAllowed) {
+          return this.isOriginAllowed(info.origin);
+        }
+        // If no checker provided, allow all (for backward compatibility)
+        return true;
+      }
     });
 
     this.wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
