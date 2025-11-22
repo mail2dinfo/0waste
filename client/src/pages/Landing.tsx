@@ -24,19 +24,19 @@ const supportedLanguages = [
 
 const features = [
   {
-    title: "Smart RSVP tracking",
+    title: "Predict Guests",
     description:
-      "Collect headcount in real time with custom invite links and reminders.",
+      "Track arrival time slots and RSVPs in real-time. Know exactly when and how many guests will arrive.",
   },
   {
-    title: "Food intelligence",
+    title: "Plan Food Precisely",
     description:
-      "Estimate portions for adults and kids with AI-ready prediction models.",
+      "Use arrival analytics to estimate portions accurately. Prepare the right amount at the right time.",
   },
   {
-    title: "Waste to worth",
+    title: "Stop Waste Before It Happens",
     description:
-      "Route surplus food to partner NGOs and showcase your impact dashboard.",
+      "Prevent over-preparation with data-driven planning. Stop food waste before it occurs, not after.",
   },
 ];
 
@@ -45,48 +45,54 @@ const rotatingEvents = [
     title: "Megha & Arjun Wedding",
     date: "December 18",
     location: "Goa",
-    savings: "₹42,000",
-    savingsText: "worth of food saved",
+    plannedGuests: 850,
+    actualGuests: 650,
+    savedGuests: 200,
     type: "Wedding",
   },
   {
     title: "Rajesh Housewarming",
     date: "December 19",
     location: "Hyderabad",
-    savings: "₹35,000",
-    savingsText: "Saved by Zerovaste",
+    plannedGuests: 500,
+    actualGuests: 380,
+    savedGuests: 120,
     type: "Housewarming",
   },
   {
     title: "Corporate Annual Meet",
     date: "December 20",
     location: "Delhi",
-    savings: "₹68,000",
-    savingsText: "worth of food saved",
+    plannedGuests: 1200,
+    actualGuests: 950,
+    savedGuests: 250,
     type: "Corporate",
   },
   {
     title: "Community Kitchen Feast",
     date: "December 21",
     location: "Chennai",
-    savings: "₹28,500",
-    savingsText: "Saved by Zerovaste",
+    plannedGuests: 400,
+    actualGuests: 320,
+    savedGuests: 80,
     type: "Community Gathering",
   },
   {
     title: "Priya & Vikram Reception",
     date: "December 22",
     location: "Jaipur",
-    savings: "₹55,000",
-    savingsText: "worth of food saved",
+    plannedGuests: 600,
+    actualGuests: 480,
+    savedGuests: 120,
     type: "Reception",
   },
   {
     title: "Temple Festival Lunch",
     date: "December 23",
     location: "Coimbatore",
-    savings: "₹19,000",
-    savingsText: "Saved by Zerovaste",
+    plannedGuests: 300,
+    actualGuests: 240,
+    savedGuests: 60,
     type: "Community Gathering",
   },
 ];
@@ -223,18 +229,16 @@ function Landing() {
           <div className="absolute bottom-[-100px] left-[20%] h-56 w-56 rounded-full bg-orange-200/40 blur-3xl"></div>
         </div>
         <section className="grid gap-8 lg:grid-cols-2 items-start">
-          <div className="space-y-3">
-            <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl leading-tight">
-              Plan your events with{" "}
-              <span className="font-bold">
-                <span className="text-brand-600">Zero</span>
-                <span className="text-slate-900">vaste</span>
-              </span>
-            </h1>
-            <p className="text-lg text-slate-600">
-              Zerovaste helps you estimate food portions, collect RSVPs, and
-              donate leftovers seamlessly. Spend less, feed more, and protect
-              the planet—one celebration at a time.
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-tight">
+                Predict Guest{" "}
+                <span className="text-brand-600">!</span>{" "}
+                <span className="text-brand-600">Plan Food.</span>
+              </h1>
+            </div>
+            <p className="text-lg sm:text-xl text-slate-600 leading-relaxed">
+              Use <span className="font-semibold text-brand-600">guest arrival analytics</span> to predict attendance and plan food preparation precisely. Stop food waste <span className="font-semibold">before it occurs</span>—not after.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -252,20 +256,20 @@ function Landing() {
             </div>
             <div className="mt-12 grid grid-cols-3 gap-3">
               <div className="rounded-2xl border border-orange-200 bg-white p-4 text-center shadow-sm">
-                <div className="text-2xl font-bold text-brand-600">3,200 kg</div>
-                <div className="mt-1 text-xs font-medium text-brand-600">Food saved</div>
+                <div className="text-2xl font-bold text-brand-600">40%</div>
+                <div className="mt-1 text-xs font-medium text-brand-600">Waste prevented</div>
               </div>
               <div className="rounded-2xl border border-orange-200 bg-white p-4 text-center shadow-sm">
-                <div className="text-2xl font-bold text-brand-600">₹7,80,000</div>
-                <div className="mt-1 text-xs font-medium text-brand-600">Estimated saved</div>
+                <div className="text-2xl font-bold text-brand-600">Real-time</div>
+                <div className="mt-1 text-xs font-medium text-brand-600">Arrival analytics</div>
               </div>
               <div className="rounded-2xl border border-orange-200 bg-white p-4 text-center shadow-sm">
-                <div className="text-2xl font-bold text-brand-600">120+</div>
-                <div className="mt-1 text-xs font-medium text-brand-600">Events planned</div>
+                <div className="text-2xl font-bold text-brand-600">Precise</div>
+                <div className="mt-1 text-xs font-medium text-brand-600">Food planning</div>
               </div>
             </div>
             <p className="text-xs uppercase tracking-wide text-slate-500">
-              Trusted by wedding planners, corporates, and community kitchens.
+              Stop waste before it happens. Plan smarter with arrival analytics.
             </p>
           </div>
           <div className="relative">
@@ -281,19 +285,63 @@ function Landing() {
                       <p className="mt-1 text-xs text-white/90">
                         {currentEvent.date} • {currentEvent.location}
                       </p>
-                      <div className="mt-4 rounded-2xl bg-white/10 p-4 text-center">
-                        <p className="text-lg font-bold text-white">
-                          {currentEvent.savings}
-                        </p>
-                        <p className="mt-1 text-xs text-white/90">
-                          {currentEvent.savingsText}
-                        </p>
+                      
+                      {/* Visual Analytics Card */}
+                      <div className="mt-4 rounded-2xl bg-white/10 p-4 backdrop-blur-sm">
+                        <div className="space-y-3">
+                          {/* Planned vs Actual Comparison */}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-white/80">Planned</span>
+                              <span className="font-bold">{currentEvent.plannedGuests} Guests</span>
+                            </div>
+                            <div className="h-3 bg-white/20 rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-white/40 rounded-full transition-all duration-500"
+                                style={{ width: '100%' }}
+                              />
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 text-xs text-white/90">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
+                            </svg>
+                            <span>Via Analytics</span>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-white/80">Actual</span>
+                              <span className="font-bold text-green-200">{currentEvent.actualGuests} Guests</span>
+                            </div>
+                            <div className="h-3 bg-white/20 rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-green-300/60 rounded-full transition-all duration-500"
+                                style={{ width: `${(currentEvent.actualGuests / currentEvent.plannedGuests) * 100}%` }}
+                              />
+                            </div>
+                          </div>
+                          
+                          {/* Saved Highlight */}
+                          <div className="mt-3 pt-3 border-t border-white/20">
+                            <div className="flex items-center justify-center gap-2">
+                              <div className="flex items-center gap-1.5">
+                                <svg className="w-5 h-5 text-green-200" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                                <span className="text-lg font-bold text-green-200">
+                                  {currentEvent.savedGuests} Meals Saved
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <div className="mt-6 rounded-2xl border border-orange-100 bg-orange-50 p-4">
                       <p className="text-sm font-semibold text-brand-700">
-                        “Zerovaste guided our entire menu planning. We donated 30 kg of
-                        surplus food after the event.”
+                        "Arrival analytics helped us plan food precisely. We prevented 40% waste by knowing exactly when guests would arrive."
                       </p>
                       <p className="mt-3 text-xs text-slate-500">
                         Kavya Sharma • Event Planner, Bengaluru
@@ -322,55 +370,72 @@ function Landing() {
         </section>
 
         <section className="mt-16">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
+              Predict Guest{" "}
+              <span className="text-brand-600">!</span>{" "}
+              <span className="text-brand-600">Plan Food.</span>
+            </h2>
+            <p className="mt-3 text-slate-600">Simple steps to predict guests and plan food precisely</p>
+          </div>
           <div className="grid gap-6 rounded-3xl bg-white/80 p-6 shadow-lg shadow-orange-100/70 backdrop-blur-sm sm:grid-cols-3">
-            <article className="flex items-start gap-4 rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-brand-700">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 3h10a2 2 0 0 1 2 2v2H5V5a2 2 0 0 1 2-2zm12 6v8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9h14zm-9 3h6v2H10v-2z"/></svg>
+            <article className="flex flex-col items-center text-center rounded-2xl border border-orange-100 bg-white p-6 shadow-sm">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-700 mb-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M7 3h10a2 2 0 0 1 2 2v2H5V5a2 2 0 0 1 2-2zm12 6v8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9h14zm-9 3h6v2H10v-2z"/></svg>
               </div>
-              <div>
-                <h3 className="text-base font-semibold text-slate-900">Plan your event</h3>
-                <p className="mt-1 text-sm text-slate-600">Create your event and estimate food portions in minutes.</p>
-              </div>
+              <h3 className="text-base font-semibold text-slate-900 mb-2">1. Create Event</h3>
+              <p className="text-sm text-slate-600">Set up your event and share invite links with guests.</p>
             </article>
-            <article className="flex items-start gap-4 rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-brand-700">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M4 5h16v2H4V5zm0 12h16v2H4v-2zm2-8h2v6H6V9zm4 0h2v6h-2V9zm4 0h2v6h-2V9zm4 0h2v6h-2V9z"/></svg>
+            <article className="flex flex-col items-center text-center rounded-2xl border border-orange-100 bg-white p-6 shadow-sm">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-700 mb-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
               </div>
-              <div>
-                <h3 className="text-base font-semibold text-slate-900">Create & share barcode</h3>
-                <p className="mt-1 text-sm text-slate-600">Auto-generate a QR/barcode and share it with guests.</p>
-                <div className="mt-3 rounded-lg border border-dashed border-slate-300 p-3">
-                  <div className="mx-auto h-12 w-40 bg-[repeating-linear-gradient(90deg,#0f172a_0_2px,transparent_2px_6px)]"></div>
-                </div>
-              </div>
+              <h3 className="text-base font-semibold text-slate-900 mb-2">2. Track Arrivals</h3>
+              <p className="text-sm text-slate-600">Guests RSVP with arrival time slots. Get real-time analytics.</p>
             </article>
-            <article className="flex items-start gap-4 rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-brand-700">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h4v8H3v-8zm7-6h4v14h-4V7zm7 3h4v11h-4V10z"/></svg>
+            <article className="flex flex-col items-center text-center rounded-2xl border border-orange-100 bg-white p-6 shadow-sm">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-700 mb-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h4v8H3v-8zm7-6h4v14h-4V7zm7 3h4v11h-4V10z"/></svg>
               </div>
-              <div>
-                <h3 className="text-base font-semibold text-slate-900">Get live analytics</h3>
-                <p className="mt-1 text-sm text-slate-600">Track RSVPs and food needs in real time as guests scan.</p>
-              </div>
+              <h3 className="text-base font-semibold text-slate-900 mb-2">3. Plan Precisely</h3>
+              <p className="text-sm text-slate-600">Use arrival analytics to plan food preparation. Stop waste before it happens.</p>
             </article>
           </div>
         </section>
 
-        <section className="mt-16 grid gap-6 rounded-3xl bg-white p-10 shadow-lg shadow-orange-100/70 sm:grid-cols-3">
-          {features.map((feature) => (
-            <article key={feature.title} className="space-y-3">
-              <div className="h-10 w-10 rounded-full bg-brand-100" />
-              <h3 className="text-lg font-semibold text-slate-900">
-                {feature.title}
-              </h3>
-              <p className="text-sm text-slate-600">{feature.description}</p>
-            </article>
-          ))}
+        <section className="mt-16 rounded-3xl bg-gradient-to-br from-brand-50 to-orange-50 p-10 shadow-lg shadow-orange-100/70">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
+              Predict Guest{" "}
+              <span className="text-brand-600">!</span>{" "}
+              <span className="text-brand-600">Plan Food.</span>
+            </h2>
+            <p className="mt-3 text-slate-600">Use arrival analytics to predict guests and plan food precisely</p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-3">
+            {features.map((feature, index) => (
+              <article key={feature.title} className="space-y-3 rounded-2xl bg-white p-6 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-brand-700 font-bold">
+                    {index + 1}
+                  </div>
+                  <h3 className="text-lg font-semibold text-slate-900">
+                    {feature.title}
+                  </h3>
+                </div>
+                <p className="text-sm text-slate-600">{feature.description}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
-        <section className="mt-16 rounded-3xl border border-orange-100 bg-gradient-to-r from-orange-50 to-brand-50 p-8 text-center shadow-md">
-          <h3 className="text-2xl font-bold text-slate-900">Ready to reduce food waste?</h3>
-          <p className="mt-2 text-slate-600">Start planning with Zerovaste today and see your impact instantly.</p>
+        <section className="mt-16 rounded-3xl border border-orange-100 bg-gradient-to-r from-orange-50 to-brand-50 p-10 text-center shadow-md">
+          <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
+            Predict Guest{" "}
+            <span className="text-brand-600">!</span>{" "}
+            <span className="text-brand-600">Plan Food.</span>
+          </h3>
+          <p className="mt-4 text-lg text-slate-600">Start planning with Zerovaste today. Use arrival analytics to prevent waste before it happens.</p>
           <div className="mt-5">
             <Link
               to="/signup"
