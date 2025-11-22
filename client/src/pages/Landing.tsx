@@ -279,60 +279,80 @@ function Landing() {
                 const currentEvent = rotatingEvents[currentEventIndex];
                 return (
                   <>
-                    <div className="rounded-2xl bg-gradient-to-br from-brand-500 via-brand-400 to-brand-500 p-5 text-white">
-                      <p className="text-xs uppercase tracking-wide">{currentEvent.type}</p>
-                      <p className="mt-3 text-xl font-semibold">{currentEvent.title}</p>
-                      <p className="mt-1 text-xs text-white/90">
+                    <div className="rounded-2xl bg-gradient-to-br from-brand-600 via-brand-500 to-brand-600 p-6 text-white shadow-xl">
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-xs font-bold uppercase tracking-wider bg-white/20 px-3 py-1 rounded-full">{currentEvent.type}</p>
+                        <div className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></div>
+                      </div>
+                      <p className="text-2xl font-bold">{currentEvent.title}</p>
+                      <p className="mt-2 text-sm text-white/90 font-medium">
                         {currentEvent.date} • {currentEvent.location}
                       </p>
                       
-                      {/* Visual Analytics Card */}
-                      <div className="mt-4 rounded-2xl bg-white/10 p-4 backdrop-blur-sm">
-                        <div className="space-y-3">
-                          {/* Planned vs Actual Comparison */}
+                      {/* Visual Analytics Card - Enhanced */}
+                      <div className="mt-5 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 p-5 shadow-lg">
+                        <div className="space-y-4">
+                          {/* Planned */}
                           <div className="space-y-2">
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-white/80">Planned</span>
-                              <span className="font-bold">{currentEvent.plannedGuests} Guests</span>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-semibold text-white/90">Planned</span>
+                              <span className="text-lg font-bold text-white bg-white/20 px-3 py-1 rounded-lg">
+                                {currentEvent.plannedGuests} Guests
+                              </span>
                             </div>
-                            <div className="h-3 bg-white/20 rounded-full overflow-hidden">
+                            <div className="h-4 bg-white/25 rounded-full overflow-hidden shadow-inner">
                               <div 
-                                className="h-full bg-white/40 rounded-full transition-all duration-500"
+                                className="h-full bg-gradient-to-r from-white/50 to-white/40 rounded-full transition-all duration-500 shadow-sm"
                                 style={{ width: '100%' }}
                               />
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-2 text-xs text-white/90">
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
-                            </svg>
-                            <span>Via Analytics</span>
+                          {/* Via Analytics Arrow */}
+                          <div className="flex items-center justify-center gap-2 py-2">
+                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/40 to-white/40"></div>
+                            <div className="flex items-center gap-2 bg-white/20 px-3 py-1.5 rounded-full">
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
+                              </svg>
+                              <span className="text-xs font-bold text-white">Via Analytics</span>
+                            </div>
+                            <div className="flex-1 h-px bg-gradient-to-l from-transparent via-white/40 to-white/40"></div>
                           </div>
                           
+                          {/* Actual */}
                           <div className="space-y-2">
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-white/80">Actual</span>
-                              <span className="font-bold text-green-200">{currentEvent.actualGuests} Guests</span>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-semibold text-white/90">Actual</span>
+                              <span className="text-lg font-bold text-green-200 bg-green-500/30 px-3 py-1 rounded-lg border border-green-300/30">
+                                {currentEvent.actualGuests} Guests
+                              </span>
                             </div>
-                            <div className="h-3 bg-white/20 rounded-full overflow-hidden">
+                            <div className="h-4 bg-white/25 rounded-full overflow-hidden shadow-inner">
                               <div 
-                                className="h-full bg-green-300/60 rounded-full transition-all duration-500"
+                                className="h-full bg-gradient-to-r from-green-400 to-green-300 rounded-full transition-all duration-500 shadow-md"
                                 style={{ width: `${(currentEvent.actualGuests / currentEvent.plannedGuests) * 100}%` }}
                               />
                             </div>
                           </div>
                           
-                          {/* Saved Highlight */}
-                          <div className="mt-3 pt-3 border-t border-white/20">
-                            <div className="flex items-center justify-center gap-2">
-                              <div className="flex items-center gap-1.5">
-                                <svg className="w-5 h-5 text-green-200" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                                <span className="text-lg font-bold text-green-200">
-                                  {currentEvent.savedGuests} Meals Saved
-                                </span>
+                          {/* Saved Highlight - Eye-catching */}
+                          <div className="mt-4 pt-4 border-t-2 border-white/30">
+                            <div className="bg-gradient-to-r from-green-500/40 to-emerald-500/40 rounded-xl p-4 border-2 border-green-300/50 shadow-lg">
+                              <div className="flex items-center justify-center gap-3">
+                                <div className="bg-green-400 rounded-full p-2 shadow-lg">
+                                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                                <div className="text-center">
+                                  <p className="text-2xl font-extrabold text-white drop-shadow-lg">
+                                    {currentEvent.savedGuests} Meals
+                                  </p>
+                                  <p className="text-sm font-bold text-green-100 uppercase tracking-wide">
+                                    Saved!
+                                  </p>
+                                </div>
                               </div>
                             </div>
                           </div>
