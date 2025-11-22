@@ -390,10 +390,10 @@ function Events() {
   }, [events]);
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-4 sm:space-y-6 px-4 sm:px-0">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="space-y-2">
-          <h1 className="text-3xl font-semibold text-slate-900">{text.title}</h1>
+          <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900">{text.title}</h1>
           <p className="text-sm text-slate-500">{text.description}</p>
           {events.length > 0 && !loading && (
             <dl className="flex flex-wrap gap-4 text-xs font-semibold uppercase tracking-wide text-brand-600">
@@ -410,26 +410,26 @@ function Events() {
         </div>
         <Link
           to="/events/new"
-          className="rounded-full bg-brand-500 px-5 py-2 text-sm font-semibold text-white shadow transition hover:bg-brand-600"
+          className="rounded-full bg-brand-500 px-4 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-white shadow transition hover:bg-brand-600"
         >
           {text.createButton}
         </Link>
       </header>
 
       {loading && (
-        <div className="rounded-3xl border border-orange-100 bg-white p-6 text-sm text-slate-600 shadow-sm">
+        <div className="rounded-2xl sm:rounded-3xl border border-orange-100 bg-white p-4 sm:p-6 text-sm text-slate-600 shadow-sm">
           {text.loading}
         </div>
       )}
 
       {error && !loading && (
-        <div className="rounded-3xl border border-red-200 bg-red-50 p-6 text-sm text-red-600 shadow-sm">
+        <div className="rounded-2xl sm:rounded-3xl border border-red-200 bg-red-50 p-4 sm:p-6 text-sm text-red-600 shadow-sm">
           {error}
         </div>
       )}
 
       {!loading && !error && events.length === 0 && (
-        <div className="rounded-3xl border border-dashed border-brand-200 bg-brand-50/50 p-8 text-center text-sm text-slate-600 shadow-sm">
+        <div className="rounded-2xl sm:rounded-3xl border border-dashed border-brand-200 bg-brand-50/50 p-6 sm:p-8 text-center text-sm text-slate-600 shadow-sm">
           <p className="text-lg font-semibold text-slate-900">
             {text.emptyTitle}
           </p>
@@ -438,14 +438,14 @@ function Events() {
           </p>
           <Link
             to="/events/new"
-            className="mt-5 inline-flex items-center justify-center rounded-full bg-brand-500 px-6 py-2 text-sm font-semibold text-white shadow hover:bg-brand-600"
+            className="mt-4 sm:mt-5 inline-flex items-center justify-center rounded-full bg-brand-500 px-5 sm:px-6 py-2 text-xs sm:text-sm font-semibold text-white shadow hover:bg-brand-600"
           >
             {text.emptyCta}
           </Link>
         </div>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 xl:grid-cols-3">
         {events.map((event) => {
           const expected = event.expectedSnapshot ?? {};
           const totalGuests =
@@ -459,7 +459,7 @@ function Events() {
           return (
             <article
               key={event.id}
-              className="flex h-full flex-col justify-between rounded-3xl border border-orange-100 bg-white p-6 shadow-sm shadow-orange-100/60 transition hover:-translate-y-1 hover:shadow-lg hover:shadow-orange-100/80"
+              className="flex h-full flex-col justify-between rounded-2xl sm:rounded-3xl border border-orange-100 bg-white p-4 sm:p-6 shadow-sm shadow-orange-100/60 transition hover:-translate-y-1 hover:shadow-lg hover:shadow-orange-100/80"
             >
               <div className="space-y-4">
                 <div className="space-y-1">
@@ -494,14 +494,6 @@ function Events() {
                     <div className="flex items-center justify-between">
                       <dt className="font-semibold text-slate-800">{text.metrics.predictions}</dt>
                       <dd>{predictions}</dd>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <dt className="font-semibold text-slate-800">{text.metrics.plannedFood}</dt>
-                      <dd>
-                        {event.plannedFoodKg !== null
-                          ? `${event.plannedFoodKg} ${text.metrics.plannedFoodUnit}`
-                          : text.metrics.plannedFoodUnknown}
-                      </dd>
                     </div>
                   </dl>
 

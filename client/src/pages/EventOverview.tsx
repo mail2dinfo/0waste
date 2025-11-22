@@ -658,7 +658,7 @@ function EventOverview() {
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-100 py-12">
-        <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 sm:gap-8 lg:gap-10 px-4 sm:px-6">
           <section className="space-y-8">
             <button
               type="button"
@@ -686,7 +686,7 @@ function EventOverview() {
             </header>
 
             {/* 60/40 Split: Schedules (60%) and Invitation Toolkit (40%) */}
-            <section className="grid gap-6 lg:grid-cols-[3fr_2fr]">
+            <section className="grid gap-4 sm:gap-6 lg:grid-cols-[3fr_2fr]">
               {/* Left Side: Schedules (60%) */}
               <div className="space-y-4 relative">
                 <div className={!hasPaidReport ? 'filter blur-sm pointer-events-none' : ''}>
@@ -1369,7 +1369,7 @@ function EventOverview() {
               </aside>
             </section>
 
-            <section className="space-y-4 rounded-3xl border border-orange-100 bg-white p-8 shadow-sm shadow-orange-100/70">
+            <section className="space-y-4 rounded-2xl sm:rounded-3xl border border-orange-100 bg-white p-4 sm:p-6 lg:p-8 shadow-sm shadow-orange-100/70">
               <h2 className="text-lg font-semibold text-slate-900">
                 Donation & sharing preferences
               </h2>
@@ -1420,7 +1420,7 @@ function EventOverview() {
         {/* Payment Modal */}
         {showPaymentModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 px-4 py-8">
-            <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl shadow-slate-900/20">
+            <div className="w-full max-w-lg rounded-2xl sm:rounded-3xl bg-white p-4 sm:p-6 shadow-2xl shadow-slate-900/20 mx-4 sm:mx-auto">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">
@@ -1625,7 +1625,7 @@ function EventOverview() {
           ))}
         </div>
 
-        <section className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+        <section className="grid gap-4 sm:gap-6 lg:grid-cols-[1.5fr_1fr]">
           <article className="space-y-6 rounded-3xl border border-orange-200 bg-white/90 p-8 shadow-lg shadow-orange-200/60">
             <header>
               <p className="text-xs uppercase tracking-wide text-brand-600">Event pulse</p>
@@ -1688,7 +1688,7 @@ function EventOverview() {
           </aside>
         </section>
 
-        <section className="space-y-6 rounded-3xl border border-orange-200 bg-white/90 p-8 shadow-lg shadow-orange-200/60">
+        <section className="space-y-4 sm:space-y-6 rounded-2xl sm:rounded-3xl border border-orange-200 bg-white/90 p-4 sm:p-6 lg:p-8 shadow-lg shadow-orange-200/60">
           <header className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-wide text-brand-600">Guest taste intelligence</p>
@@ -1727,7 +1727,7 @@ function EventOverview() {
           )}
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+        <section className="grid gap-4 sm:gap-6 lg:grid-cols-[1.4fr_1fr]">
           <article className="space-y-4 rounded-3xl border border-orange-200 bg-white/90 p-8 shadow-lg shadow-orange-200/60">
             <header>
               <p className="text-xs uppercase tracking-wide text-brand-600">Plan vs actuals</p>

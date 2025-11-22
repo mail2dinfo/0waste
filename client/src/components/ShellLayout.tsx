@@ -133,18 +133,18 @@ function ShellLayout() {
   return (
     <div className="min-h-screen bg-orange-50 text-slate-900">
       <header className="border-b border-orange-200 bg-white/80 backdrop-blur">
-        <div className="mx-auto max-w-6xl px-6 py-3">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-2 sm:py-3">
           {/* Top row: logo left, country/language right */}
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <Link to="/dashboard" className="flex items-center gap-2">
-              <img src={logo} alt="Zerovaste logo" className="h-7 w-7" />
-              <span className="text-2xl font-bold">
+          <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+            <Link to="/dashboard" className="flex items-center gap-1.5 sm:gap-2">
+              <img src={logo} alt="Zerovaste logo" className="h-6 w-6 sm:h-7 sm:w-7" />
+              <span className="text-xl sm:text-2xl font-bold">
                 <span className="text-brand-600">Zero</span>
                 <span className="text-slate-900">vaste</span>
               </span>
             </Link>
-            <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold tracking-wide text-brand-600">
-              <div className="flex items-center gap-1.5 text-[10px] font-semibold tracking-wide text-slate-600">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[9px] sm:text-[10px] font-semibold tracking-wide text-brand-600">
+              <div className="flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[10px] font-semibold tracking-wide text-slate-600">
                 <label className="flex items-center gap-1 text-[10px]">
                   <span>{t("countryLabel")}</span>
                   <select
@@ -177,9 +177,9 @@ function ShellLayout() {
             </div>
           </div>
           {/* Second row: nav centered, auth actions on the right */}
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm font-medium">
-            <div className="flex-1 flex justify-center">
-              <nav className="flex flex-wrap.items-center gap-2">
+          <div className="mt-2 sm:mt-3 flex flex-wrap items-center justify-between gap-2 sm:gap-3 text-xs sm:text-sm font-medium">
+            <div className="flex-1 flex justify-center min-w-0">
+              <nav className="flex flex-wrap items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1">
                 {translatedNavItems.map((item) => (
                   <NavLink
                     key={item.path}
@@ -187,7 +187,7 @@ function ShellLayout() {
                     end={item.exact ?? false}
                     className={({ isActive }) =>
                       clsx(
-                        "rounded-full px-4 py-2 transition-colors",
+                        "rounded-full px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm transition-colors whitespace-nowrap",
                         isActive
                           ? "bg-brand-500 text-white shadow"
                           : "text-slate-600 hover:bg-brand-100 hover:text-brand-700"
@@ -199,22 +199,22 @@ function ShellLayout() {
                 ))}
               </nav>
             </div>
-            <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-brand-600">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] font-semibold text-brand-600">
               {auth.userId && (
-                <div className="mr-2">
+                <div className="mr-1 sm:mr-2">
                   <ChatWidget />
                 </div>
               )}
               {auth.userId ? (
                 <>
                   {auth.name && (
-                    <span className="rounded-full bg-brand-100 px-4 py-1.5 text-[11px] font-semibold normal-case text-brand-700">
+                    <span className="hidden sm:inline rounded-full bg-brand-100 px-3 sm:px-4 py-1 sm:py-1.5 text-[10px] sm:text-[11px] font-semibold normal-case text-brand-700">
                       {t("greeting", { name: auth.name })}
                     </span>
                   )}
                   <button
                     onClick={handleLogout}
-                    className="rounded-full border border-brand-200 px-4 py-1.5 text-[11px] font-semibold text-brand-600 transition hover:bg-brand-50"
+                    className="rounded-full border border-brand-200 px-3 sm:px-4 py-1 sm:py-1.5 text-[10px] sm:text-[11px] font-semibold text-brand-600 transition hover:bg-brand-50"
                   >
                     {t("auth.logout")}
                   </button>

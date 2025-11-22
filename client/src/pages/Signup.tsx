@@ -10,9 +10,7 @@ function Signup() {
   const { t } = useTranslation("auth");
   const [form, setForm] = useState({
     fullName: "",
-    email: "",
     phone: "",
-    password: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,9 +33,7 @@ function Signup() {
     try {
       await api.post("/users", {
         fullName: form.fullName.trim(),
-        email: form.email.trim(),
         phoneNumber: phoneDigits,
-        password: form.password,
       });
       setSuccess(t("signup.successMessage"));
       localStorage.setItem("nowasteUserName", form.fullName.trim());
@@ -53,7 +49,7 @@ function Signup() {
         if (axiosError.response?.data?.message) {
           setError(axiosError.response.data.message);
         } else if (axiosError.response?.status === 409) {
-          setError("Email or phone number is already registered. Please use a different email or phone number.");
+          setError("Phone number is already registered. Please login instead.");
         } else if (axiosError.response?.status === 400) {
           setError(axiosError.response.data?.message || "Please check all fields are filled correctly.");
         } else {
@@ -68,9 +64,9 @@ function Signup() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-orange-50 px-4 py-12">
-      <div className="w-full max-w-2xl rounded-3xl border border-orange-100 bg-white p-10 shadow-xl shadow-orange-200/50">
-        <div className="mb-8 space-y-3 text-center">
+    <div className="flex min-h-screen items-center justify-center bg-orange-50 px-4 py-8 sm:py-12">
+      <div className="w-full max-w-2xl rounded-2xl sm:rounded-3xl border border-orange-100 bg-white p-6 sm:p-8 lg:p-10 shadow-xl shadow-orange-200/50">
+        <div className="mb-6 sm:mb-8 space-y-3 text-center">
           <Link to="/" className="inline-flex flex-col items-center gap-2">
             <img src={logo} alt="Zerovaste logo" className="h-10 w-10" />
             <span className="text-xl font-bold">
@@ -78,15 +74,15 @@ function Signup() {
               <span className="text-slate-900">vaste</span>
             </span>
           </Link>
-          <h1 className="text-3xl font-semibold text-slate-900">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900">
             {t("signup.title")}
           </h1>
           <p className="mt-2 text-sm text-slate-500">
             {t("signup.subtitle")}
           </p>
         </div>
-        <form onSubmit={handleSubmit} className="grid gap-6 sm:grid-cols-2 sm:gap-8">
-          <label className="space-y-2 text-sm font-medium text-slate-700">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <label className="block space-y-2 text-sm font-medium text-slate-700">
             {t("signup.fullNameLabel")}
             <input
               required
@@ -95,24 +91,11 @@ function Signup() {
                 setForm((prev) => ({ ...prev, fullName: event.target.value }))
               }
               className="w-full rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
-              placeholder={t("signup.fullNamePlaceholder")}
+              placeholder={t("signup.fullNamePlaceholder") || "Enter your full name"}
             />
           </label>
-          <label className="space-y-2 text-sm font-medium text-slate-700">
-            {t("signup.emailLabel")}
-            <input
-              type="email"
-              required
-              value={form.email}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, email: event.target.value }))
-              }
-              className="w-full rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
-              placeholder={t("signup.emailPlaceholder")}
-            />
-          </label>
-          <label className="space-y-2 text-sm font-medium text-slate-700">
-            {t("signup.phoneLabel")}
+          <label className="block space-y-2 text-sm font-medium text-slate-700">
+            {t("signup.phoneLabel") || "Mobile Number"}
             <div className="relative">
               <input
                 type="tel"
@@ -131,20 +114,7 @@ function Signup() {
             </div>
             <p className="text-xs text-slate-500 mt-1">Enter your mobile number without country code</p>
           </label>
-          <label className="space-y-2 text-sm font-medium text-slate-700">
-            {t("signup.passwordLabel")}
-            <input
-              type="password"
-              required
-              value={form.password}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, password: event.target.value }))
-              }
-              className="w-full rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
-              placeholder={t("signup.passwordPlaceholder")}
-            />
-          </label>
-          <div className="sm:col-span-2">
+          <div>
             <button
               type="submit"
               disabled={isSubmitting}

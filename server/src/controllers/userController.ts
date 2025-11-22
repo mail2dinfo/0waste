@@ -9,41 +9,53 @@ import {
 } from "../services/userService.js";
 
 export async function createUserHandler(req: Request, res: Response) {
-  const { fullName, email, phoneNumber, password } = req.body ?? {};
-  if (!fullName || !email || !phoneNumber || !password) {
+  const { fullName, phoneNumber } = req.body ?? {};
+  if (!fullName || !phoneNumber) {
     return res
       .status(400)
       .json({
-        message: "fullName, email, phoneNumber, and password are required",
+        message: "fullName and phoneNumber are required",
       });
   }
+  
+  // Normalize phone number: remove spaces, dashes, and parentheses
+  const normalizedPhone = phoneNumber.trim().replace(/[\s\-\(\)]/g, "");
+  
   try {
+    // Check if user already exists with this phone number
+    const existingUser = await findUserByPhone(normalizedPhone);
+    if (existingUser) {
+      return res
+        .status(409)
+        .json({ message: "Phone number is already registered. Please login instead." });
+    }
+    
     const user = await createUser({
-      fullName,
-      email,
-      phoneNumber,
-      passwordHash: password,
+      fullName: fullName.trim(),
+      phoneNumber: normalizedPhone,
+      email: null, // Email is optional
+      passwordHash: null, // No password needed
       role: "product_owner",
     });
     return res
       .status(201)
-      .json({ id: user.id, email: user.email, fullName, role: user.role });
+      .json({ id: user.id, fullName: user.fullName, phoneNumber: user.phoneNumber, role: user.role });
   } catch (error) {
     if (error instanceof UniqueConstraintError) {
       return res
         .status(409)
-        .json({ message: "Email or phone is already registered." });
+        .json({ message: "Phone number is already registered." });
     }
     throw error;
   }
 }
 
 export async function loginHandler(req: Request, res: Response) {
-  const { phoneNumber, password } = req.body ?? {};
-  if (!phoneNumber || !password) {
+  const { phoneNumber } = req.body ?? {};
+  if (!phoneNumber) {
     return res
       .status(400)
-      .json({ message: "phoneNumber and password are required" });
+      .json({ message: "phoneNumber is required" });
   }
   
   // Normalize phone number: remove spaces, dashes, and parentheses (no country code handling)
@@ -57,13 +69,9 @@ export async function loginHandler(req: Request, res: Response) {
     user = await findUserByPhone(phoneNumber.trim());
   }
   
-  // Compare passwords (trim both to handle whitespace issues)
-  const providedPassword = password.trim();
-  const storedPassword = user?.passwordHash?.trim() || "";
-  
-  if (!user || storedPassword !== providedPassword) {
-    console.log(`[Login] Failed attempt for phone: ${phoneNumber} (normalized: ${normalizedPhone})`);
-    return res.status(401).json({ message: "Invalid credentials" });
+  if (!user) {
+    console.log(`[Login] User not found for phone: ${phoneNumber} (normalized: ${normalizedPhone})`);
+    return res.status(404).json({ message: "Phone number not registered. Please sign up first." });
   }
   
   console.log(`[Login] Success for user: ${user.fullName} (${user.phoneNumber})`);

@@ -963,7 +963,7 @@ function Dashboard() {
   if (isFirstTimeUser) {
     return (
       <section className="space-y-8">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-orange-50 to-amber-50 p-12 shadow-xl border border-orange-100">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white via-orange-50 to-amber-50 p-6 sm:p-8 lg:p-12 shadow-xl border border-orange-100">
           {/* Decorative background elements */}
           <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-gradient-to-br from-brand-200/30 to-orange-200/30 blur-3xl"></div>
           <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-gradient-to-br from-amber-200/30 to-yellow-200/30 blur-3xl"></div>
@@ -994,9 +994,9 @@ function Dashboard() {
         </div>
 
         {/* Step-by-Step Guide */}
-        <div className="rounded-3xl border border-orange-200 bg-white p-8 shadow-lg">
-          <h2 className="mb-6 text-center text-2xl font-bold text-slate-900">How it works</h2>
-          <div className="grid gap-6 md:grid-cols-3">
+        <div className="rounded-2xl sm:rounded-3xl border border-orange-200 bg-white p-4 sm:p-6 lg:p-8 shadow-lg">
+          <h2 className="mb-4 sm:mb-6 text-center text-xl sm:text-2xl font-bold text-slate-900">How it works</h2>
+          <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 md:grid-cols-3">
             {/* Step 1: Create Event */}
             <div className="relative flex flex-col items-center text-center">
               <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-orange-500 text-2xl font-bold text-white shadow-lg">
@@ -1079,7 +1079,7 @@ function Dashboard() {
 
   return (
     <section className="space-y-8">
-      <header className="rounded-3xl bg-white p-8 shadow-sm shadow-orange-100/80">
+      <header className="rounded-2xl sm:rounded-3xl bg-white p-4 sm:p-6 lg:p-8 shadow-sm shadow-orange-100/80">
         <h1 className="text-3xl font-semibold text-slate-900">
           {welcomeTitle}
         </h1>
@@ -1090,16 +1090,16 @@ function Dashboard() {
         )}
       </header>
 
-      <section className="relative overflow-hidden rounded-3xl border border-orange-100 bg-gradient-to-br from-amber-50 via-white to-sky-50 p-2 shadow-lg shadow-orange-100/60">
+      <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-orange-100 bg-gradient-to-br from-amber-50 via-white to-sky-50 p-2 sm:p-4 shadow-lg shadow-orange-100/60">
         <div className="absolute inset-y-0 right-0 hidden w-56 translate-x-1/4 rounded-full bg-gradient-to-br from-brand-200/40 via-brand-300/30 to-brand-400/20 blur-3xl md:block" />
-        <div className="relative space-y-6 rounded-[26px] border border-white/60 bg-white/80 p-8 backdrop-blur-md">
-          <header className="flex flex-wrap items-center justify-between gap-6">
+        <div className="relative space-y-4 sm:space-y-6 rounded-2xl sm:rounded-[26px] border border-white/60 bg-white/80 p-4 sm:p-6 lg:p-8 backdrop-blur-md">
+          <header className="flex flex-wrap items-center justify-between gap-3 sm:gap-6">
             <div className="max-w-2xl space-y-2">
               <span className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand-600">
                 <span className="h-2 w-2 rounded-full bg-brand-500" />
                 {upcomingText.sectionLabel}
               </span>
-              <h2 className="text-3xl.font-semibold text-slate-900">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900">
                 {upcomingEvents.length > 0
                   ? upcomingText.headingWithEvents
                   : upcomingText.headingWithoutEvents}
@@ -1192,67 +1192,60 @@ function Dashboard() {
           )}
 
           {!loading && !error && upcomingEvents.length > 0 && viewMode === "list" && (
-            <div className="overflow-hidden rounded-2xl border border-white/70 shadow-inner shadow-orange-100/40">
-              <table className="min-w-full divide-y divide-orange-100/60 text-sm backdrop-blur">
-                <thead className="bg-gradient-to-r from-brand-50 via-white to-brand-50 text-brand-700">
-                  <tr>
-                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide">
-                      {tableText.columns.event}
-                    </th>
-                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide">
-                      {tableText.columns.date}
-                    </th>
-                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide">
-                      {tableText.columns.plannedFood}
-                    </th>
-                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide">
-                      {tableText.columns.expectedGuests}
-                    </th>
-                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide">
-                      {tableText.columns.status}
-                    </th>
-                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide">
-                      {tableText.columns.actions}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-orange-100/60 bg-white/90">
-                  {upcomingEvents.map((event, index) => (
-                    <tr
-                      key={event.id}
-                      className={`transition ${
-                        index % 2 === 0 ? "bg-white/95" : "bg-orange-50/30"
-                      } hover:bg-brand-50/40`}
-                    >
-                      <td className="px-5 py-4">
-                        <div className="space-y-0.5">
-                          <p className="text-sm.font-semibold text-slate-900">
-                            {event.title}
-                          </p>
-                          <p className="text-[11px] uppercase tracking-wide text-slate-500">
-                            {formatDate(event.eventDate)} • {event.location}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="px-5 py-4 text-slate-700">
-                        {formatDate(event.eventDate)}
-                      </td>
-                      <td className="px-5 py-4 text-slate-700">
-                        {event.plannedFoodKg !== null
-                          ? `${event.plannedFoodKg} ${text.plannedFoodUnit}`
-                          : text.plannedFoodUnknown}
-                      </td>
-                      <td className="px-5 py-4 text-slate-700">
-                        {event.expectedGuests ?? text.guestsUpdating}
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-brand-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand-600">
-                          <span className="h-2 w-2 rounded-full bg-brand-500" />
-                          {event.statusLabel}
-                        </span>
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="flex flex-wrap gap-2">
+            <div className="overflow-x-auto -mx-4 sm:mx-0 rounded-2xl border border-white/70 shadow-inner shadow-orange-100/40">
+              <div className="inline-block min-w-full align-middle">
+                <table className="min-w-full divide-y divide-orange-100/60 text-sm backdrop-blur">
+                  <thead className="bg-gradient-to-r from-brand-50 via-white to-brand-50 text-brand-700">
+                    <tr>
+                      <th className="px-3 sm:px-5 py-3 sm:py-4 text-left text-[10px] sm:text-xs font-semibold uppercase tracking-wide">
+                        {tableText.columns.event}
+                      </th>
+                      <th className="px-3 sm:px-5 py-3 sm:py-4 text-left text-[10px] sm:text-xs font-semibold uppercase tracking-wide hidden sm:table-cell">
+                        {tableText.columns.date}
+                      </th>
+                      <th className="px-3 sm:px-5 py-3 sm:py-4 text-left text-[10px] sm:text-xs font-semibold uppercase tracking-wide">
+                        {tableText.columns.expectedGuests}
+                      </th>
+                      <th className="px-3 sm:px-5 py-3 sm:py-4 text-left text-[10px] sm:text-xs font-semibold uppercase tracking-wide">
+                        {tableText.columns.status}
+                      </th>
+                      <th className="px-3 sm:px-5 py-3 sm:py-4 text-left text-[10px] sm:text-xs font-semibold uppercase tracking-wide">
+                        {tableText.columns.actions}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-orange-100/60 bg-white/90">
+                    {upcomingEvents.map((event, index) => (
+                      <tr
+                        key={event.id}
+                        className={`transition ${
+                          index % 2 === 0 ? "bg-white/95" : "bg-orange-50/30"
+                        } hover:bg-brand-50/40`}
+                      >
+                        <td className="px-3 sm:px-5 py-3 sm:py-4">
+                          <div className="space-y-0.5">
+                            <p className="text-xs sm:text-sm font-semibold text-slate-900">
+                              {event.title}
+                            </p>
+                            <p className="text-[10px] sm:text-[11px] uppercase tracking-wide text-slate-500">
+                              {formatDate(event.eventDate)} • {event.location}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="px-3 sm:px-5 py-3 sm:py-4 text-slate-700 hidden sm:table-cell">
+                          {formatDate(event.eventDate)}
+                        </td>
+                        <td className="px-3 sm:px-5 py-3 sm:py-4 text-slate-700 text-xs sm:text-sm">
+                          {event.expectedGuests ?? text.guestsUpdating}
+                        </td>
+                        <td className="px-3 sm:px-5 py-3 sm:py-4">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-brand-500/10 px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wide text-brand-600">
+                            <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-brand-500" />
+                            {event.statusLabel}
+                          </span>
+                        </td>
+                        <td className="px-3 sm:px-5 py-3 sm:py-4">
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2">
                           <Link
                             to={`/events/${event.id}/overview`}
                             className="rounded-full border border-brand-200 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand-600 transition hover:bg-brand-50"
@@ -1280,11 +1273,12 @@ function Dashboard() {
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           )}
 
           {!loading && !error && upcomingEvents.length > 0 && viewMode === "card" && (
-            <ul className="grid gap-6 md:grid-cols-2">
+            <ul className="grid gap-4 sm:gap-6 sm:grid-cols-2">
               {upcomingEvents.map((event) => (
               <li
                 key={event.id}
@@ -1324,14 +1318,6 @@ function Dashboard() {
                       {cardText.statsTitle}
                     </p>
                     <dl className="mt-3 grid gap-2 text-sm text-slate-800">
-                      <div className="flex items-center justify-between">
-                        <dt>{cardText.plannedFoodLabel}</dt>
-                        <dd className="font-semibold">
-                          {event.plannedFoodKg !== null
-                            ? `${event.plannedFoodKg} ${text.plannedFoodUnit}`
-                            : text.plannedFoodUnknown}
-                        </dd>
-                      </div>
                       <div className="flex items-center justify-between">
                         <dt>{cardText.guestsLabel}</dt>
                         <dd className="font-semibold">
@@ -1425,7 +1411,7 @@ function Dashboard() {
 
       {activePayment && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 px-4 py-8">
-          <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl shadow-slate-900/20">
+          <div className="w-full max-w-lg rounded-2xl sm:rounded-3xl bg-white p-4 sm:p-6 shadow-2xl shadow-slate-900/20 mx-4 sm:mx-auto">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">

@@ -84,3 +84,53 @@ export async function ensureUserRoleColumn() {
   }
 }
 
+export async function ensureEmailColumnNullable() {
+  try {
+    // Check if email column has NOT NULL constraint by querying the database directly
+    const [results] = await sequelize.query(`
+      SELECT 
+        column_name, 
+        is_nullable 
+      FROM information_schema.columns 
+      WHERE table_name = 'nw_users' 
+      AND column_name = 'email';
+    `) as Array<Array<{ column_name: string; is_nullable: string }>>;
+    
+    if (results && results.length > 0 && results[0].is_nullable === 'NO') {
+      // Email column exists but is NOT NULL, need to make it nullable
+      await sequelize.query(
+        'ALTER TABLE "nw_users" ALTER COLUMN "email" DROP NOT NULL;'
+      );
+      console.log("Updated email column to allow NULL values");
+    }
+  } catch (error) {
+    console.error("Failed to update email column to allow NULL", error);
+    // Don't throw - allow server to continue even if migration fails
+  }
+}
+
+export async function ensurePasswordHashColumnNullable() {
+  try {
+    // Check if passwordHash column has NOT NULL constraint by querying the database directly
+    const [results] = await sequelize.query(`
+      SELECT 
+        column_name, 
+        is_nullable 
+      FROM information_schema.columns 
+      WHERE table_name = 'nw_users' 
+      AND column_name = 'passwordHash';
+    `) as Array<Array<{ column_name: string; is_nullable: string }>>;
+    
+    if (results && results.length > 0 && results[0].is_nullable === 'NO') {
+      // passwordHash column exists but is NOT NULL, need to make it nullable
+      await sequelize.query(
+        'ALTER TABLE "nw_users" ALTER COLUMN "passwordHash" DROP NOT NULL;'
+      );
+      console.log("Updated passwordHash column to allow NULL values");
+    }
+  } catch (error) {
+    console.error("Failed to update passwordHash column to allow NULL", error);
+    // Don't throw - allow server to continue even if migration fails
+  }
+}
+

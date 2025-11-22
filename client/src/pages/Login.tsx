@@ -9,7 +9,6 @@ function Login() {
   const api = useApi();
   const { t } = useTranslation("auth");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [password, setPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,7 +22,6 @@ function Login() {
     try {
       const { data } = await api.post("/users/login", {
         phoneNumber: phoneNumber.trim(),
-        password,
       });
       if (data?.fullName) {
         localStorage.setItem("nowasteUserName", data.fullName);
@@ -48,8 +46,8 @@ function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-orange-50 px-4 py-12">
-      <div className="w-full max-w-md space-y-8 rounded-3xl border border-orange-100 bg-white p-8 shadow-xl shadow-orange-200/50">
+    <div className="flex min-h-screen items-center justify-center bg-orange-50 px-4 py-8 sm:py-12">
+      <div className="w-full max-w-md space-y-6 sm:space-y-8 rounded-2xl sm:rounded-3xl border border-orange-100 bg-white p-6 sm:p-8 shadow-xl shadow-orange-200/50">
         <div className="space-y-3 text-center">
           <Link to="/" className="inline-flex flex-col items-center gap-2">
             <img src={logo} alt="Zerovaste logo" className="h-10 w-10" />
@@ -68,9 +66,10 @@ function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <label className="block space-y-2 text-sm font-medium text-slate-700">
-            {t("login.mobileLabel")}
+            {t("login.mobileLabel") || "Mobile Number"}
             <input
               type="tel"
+              inputMode="tel"
               required
               value={phoneNumber}
               onChange={(event) => {
@@ -78,20 +77,11 @@ function Login() {
                 const cleaned = event.target.value.replace(/[^\d\s\-\(\)]/g, "");
                 setPhoneNumber(cleaned);
               }}
+              autoComplete="tel"
               className="w-full rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
               placeholder={t("login.mobilePlaceholder") || "Enter mobile number"}
             />
-          </label>
-          <label className="block space-y-2 text-sm font-medium text-slate-700">
-            {t("login.passwordLabel")}
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="w-full rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
-              placeholder={t("login.passwordPlaceholder")}
-            />
+            <p className="text-xs text-slate-500 mt-1">Enter your registered mobile number</p>
           </label>
           <button
             type="submit"

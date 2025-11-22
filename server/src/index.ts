@@ -6,7 +6,7 @@ import { assertEnv, env } from "./config/env.js";
 import { sequelize } from "./db/sequelize.js";
 import { registerRoutes } from "./routes/index.js";
 import { requestLogger } from "./middleware/requestLogger.js";
-import { ensureDefaultAdmin } from "./services/userService.js";
+import { ensureDefaultAdmin, ensureEmailColumnNullable, ensurePasswordHashColumnNullable } from "./services/userService.js";
 import { ensureDefaultReportPricing } from "./services/reportPricingService.js";
 import { ensureDefaultSettings } from "./services/settingsService.js";
 import { chatServer } from "./websocket/chatServer.js";
@@ -75,6 +75,10 @@ async function bootstrap() {
     console.log("Database schema sync disabled (set DB_SYNC=true to enable)");
   }
 
+  // Ensure email and passwordHash columns allow NULL (migration for existing databases)
+  await ensureEmailColumnNullable();
+  await ensurePasswordHashColumnNullable();
+  
   await ensureDefaultAdmin();
   await ensureDefaultReportPricing();
   await ensureDefaultSettings();

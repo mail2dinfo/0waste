@@ -16,18 +16,19 @@ export class NwUser extends BaseModel<NwUser> {
   @Column(DataType.STRING)
   declare fullName: string;
 
+  @AllowNull(true)
+  @Unique
+  @Column(DataType.STRING)
+  declare email: string | null;
+
   @AllowNull(false)
   @Unique
   @Column(DataType.STRING)
-  declare email: string;
+  declare phoneNumber: string;
 
   @AllowNull(true)
   @Column(DataType.STRING)
-  declare phoneNumber: string | null;
-
-  @AllowNull(false)
-  @Column(DataType.STRING)
-  declare passwordHash: string;
+  declare passwordHash: string | null;
 
   @AllowNull(false)
   @Default("product_owner")

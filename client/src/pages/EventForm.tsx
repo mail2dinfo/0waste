@@ -230,6 +230,12 @@ function EventForm() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [createdEvent, setCreatedEvent] = useState<any>(null);
+  
+  // Authentication modal state
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authForm, setAuthForm] = useState({ fullName: "", phone: "" });
+  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const [form, setForm] = useState<FormState>({
     name: "",
@@ -256,6 +262,89 @@ function EventForm() {
   const visibleSurveyQuestions = useMemo(() => {
     return [];
   }, []);
+
+  // Check authentication on mount
+  useEffect(() => {
+    const userId = window.localStorage.getItem("nowasteUserId");
+    if (!userId) {
+      // User is not logged in, show modal to create account
+      setShowAuthModal(true);
+    }
+  }, []);
+
+  // Handle account creation
+  const handleCreateAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isCreatingAccount) return;
+    
+    setAuthError(null);
+    
+    // Normalize phone number
+    const phoneDigits = authForm.phone.replace(/\D/g, "");
+    if (phoneDigits.length < 5) {
+      setAuthError("Please enter a valid phone number.");
+      return;
+    }
+    
+    if (!authForm.fullName.trim()) {
+      setAuthError("Please enter your name.");
+      return;
+    }
+    
+    setIsCreatingAccount(true);
+    try {
+      // Create account
+      const signupResponse = await api.post("/users", {
+        fullName: authForm.fullName.trim(),
+        phoneNumber: phoneDigits,
+      });
+      
+      const userId = signupResponse.data.id;
+      const fullName = signupResponse.data.fullName;
+      
+      // Store user info
+      localStorage.setItem("nowasteUserId", userId);
+      localStorage.setItem("nowasteUserName", fullName);
+      api.defaults.headers.common["x-user-id"] = userId;
+      
+      // Close modal and reset form
+      setShowAuthModal(false);
+      setAuthForm({ fullName: "", phone: "" });
+      
+      // Dispatch auth change event to update ShellLayout
+      window.dispatchEvent(new Event("nowaste-auth-changed"));
+    } catch (err: any) {
+      console.error("Create account error:", err);
+      if (err.response?.status === 409) {
+        // User already exists, try to login
+        try {
+          const loginResponse = await api.post("/users/login", {
+            phoneNumber: phoneDigits,
+          });
+          
+          const userId = loginResponse.data.userId;
+          const fullName = loginResponse.data.fullName;
+          
+          localStorage.setItem("nowasteUserId", userId);
+          localStorage.setItem("nowasteUserName", fullName);
+          api.defaults.headers.common["x-user-id"] = userId;
+          
+          // Close modal and reset form
+          setShowAuthModal(false);
+          setAuthForm({ fullName: "", phone: "" });
+          
+          // Dispatch auth change event to update ShellLayout
+          window.dispatchEvent(new Event("nowaste-auth-changed"));
+        } catch (loginErr: any) {
+          setAuthError(loginErr.response?.data?.message || "Failed to login. Please try again.");
+        }
+      } else {
+        setAuthError(err.response?.data?.message || "Failed to create account. Please try again.");
+      }
+    } finally {
+      setIsCreatingAccount(false);
+    }
+  };
 
   // Auto-populate Schedule 1 when entering Schedule step (step 2) if event date is set
   useEffect(() => {
@@ -454,7 +543,7 @@ function EventForm() {
                 always tweak schedule, menu, and surveys later.
               </p>
             </header>
-            <div className="grid gap-5 lg:grid-cols-3">
+            <div className="grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {templates.map((template) => {
                 const isActive = selectedTemplateId === template.id;
                 return (
@@ -462,7 +551,7 @@ function EventForm() {
                     key={template.id}
                     type="button"
                     onClick={() => applyTemplate(template)}
-                    className={`group relative overflow-hidden rounded-[28px] border p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${
+                    className={`group relative overflow-hidden rounded-2xl sm:rounded-[28px] border p-4 sm:p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${
                       isActive
                         ? "border-brand-400 bg-gradient-to-br from-brand-50 via-white to-brand-50/60 text-slate-800 ring-2 ring-brand-500/40"
                         : "border-orange-100 bg-white text-slate-700 shadow-orange-100/40 hover:border-brand-200"
@@ -589,7 +678,7 @@ function EventForm() {
       case 2:
         return (
           <section className="space-y-8">
-            <div className="space-y-5 rounded-3xl border border-orange-100 bg-white p-6 shadow-sm shadow-orange-100/60">
+            <div className="space-y-4 sm:space-y-5 rounded-2xl sm:rounded-3xl border border-orange-100 bg-white p-4 sm:p-6 shadow-sm shadow-orange-100/60">
               <header className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-100 text-brand-700">
@@ -607,12 +696,6 @@ function EventForm() {
                   <span className="rounded-full bg-brand-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-brand-700">
                     {form.schedule.length} day{form.schedule.length === 1 ? "" : "s"}
                   </span>
-                  <span className="rounded-full bg-brand-500 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow">
-                    Total servings: {form.schedule.reduce(
-                      (total, entry) => total + Number(entry.servingsPerDay || 0),
-                      0
-                    )}
-                  </span>
                 </div>
               </header>
 
@@ -620,7 +703,7 @@ function EventForm() {
                 {form.schedule.map((entry, index) => (
                   <div
                     key={entry.id}
-                    className="space-y-5 rounded-[28px] border border-orange-100 bg-white p-5 shadow-sm shadow-orange-100/80"
+                    className="space-y-4 sm:space-y-5 rounded-2xl sm:rounded-[28px] border border-orange-100 bg-white p-4 sm:p-5 shadow-sm shadow-orange-100/80"
                   >
                     <header className="flex flex-wrap items-center justify-between gap-3">
                       <div className="flex items-center gap-2">
@@ -629,12 +712,9 @@ function EventForm() {
                         </span>
                         <p className="text-xs text-slate-500">Configure schedule details</p>
                       </div>
-                      <span className="rounded-full bg-brand-500 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow">
-                        {entry.servingsPerDay} serving{entry.servingsPerDay === 1 ? "" : "s"}
-                      </span>
                     </header>
 
-                    <div className="grid gap-4 md:grid-cols-3">
+                    <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
                       <label className="space-y-1 text-xs font-medium text-slate-700">
                         Label
                         <input
@@ -664,29 +744,6 @@ function EventForm() {
                               schedule: prev.schedule.map((item) =>
                                 item.id === entry.id
                                   ? { ...item, date: event.target.value }
-                                  : item
-                              ),
-                            }))
-                          }
-                          className="w-full rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 text-sm text-slate-900 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
-                        />
-                      </label>
-                      <label className="space-y-1 text-xs font-medium text-slate-700">
-                        Servings this day
-                        <input
-                          type="number"
-                          min={1}
-                          max={6}
-                          value={entry.servingsPerDay}
-                          onChange={(event) =>
-                            setForm((prev) => ({
-                              ...prev,
-                              schedule: prev.schedule.map((item) =>
-                                item.id === entry.id
-                                  ? {
-                                      ...item,
-                                      servingsPerDay: Number(event.target.value),
-                                    }
                                   : item
                               ),
                             }))
@@ -818,7 +875,7 @@ function EventForm() {
                 ))}
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-start">
                 <button
                   type="button"
                   onClick={() =>
@@ -929,7 +986,7 @@ function EventForm() {
               </div>
             </header>
             <div className="grid gap-6">
-              <article className="space-y-8 rounded-[28px] border border-orange-200 bg-white p-8 shadow-lg shadow-orange-100/80">
+              <article className="space-y-6 sm:space-y-8 rounded-2xl sm:rounded-[28px] border border-orange-200 bg-white p-4 sm:p-6 lg:p-8 shadow-lg shadow-orange-100/80">
                 <header className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-100 text-brand-700">
@@ -945,7 +1002,7 @@ function EventForm() {
                 </header>
 
                 <section className="grid gap-6 md:grid-cols-2">
-                  <div className="space-y-4 rounded-3xl border border-orange-100 bg-gradient-to-br from-orange-50 via-white to-orange-100/30 p-6">
+                  <div className="space-y-4 rounded-2xl sm:rounded-3xl border border-orange-100 bg-gradient-to-br from-orange-50 via-white to-orange-100/30 p-4 sm:p-6">
                     <div className="flex items-center justify-between">
                       <h4 className="text-sm font-semibold uppercase tracking-wide text-brand-600">Core details</h4>
                       <button
@@ -978,7 +1035,7 @@ function EventForm() {
                     </div>
                   </div>
 
-                  <div className="space-y-4 rounded-3xl border border-orange-100 bg-white p-6 shadow-inner shadow-orange-100/70">
+                  <div className="space-y-4 rounded-2xl sm:rounded-3xl border border-orange-100 bg-white p-4 sm:p-6 shadow-inner shadow-orange-100/70">
                     <div className="flex items-center justify-between">
                       <h4 className="text-sm font-semibold uppercase tracking-wide text-brand-600">Expected guests</h4>
                       <button
@@ -1009,7 +1066,7 @@ function EventForm() {
                   </div>
                 </section>
 
-                <section className="space-y-5 rounded-3xl border border-brand-100 bg-gradient-to-bl from-white via-orange-50 to-white p-6">
+                <section className="space-y-4 sm:space-y-5 rounded-2xl sm:rounded-3xl border border-brand-100 bg-gradient-to-bl from-white via-orange-50 to-white p-4 sm:p-6">
                   <header className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-700">
@@ -1040,7 +1097,7 @@ function EventForm() {
                     {form.schedule.map((entry, index) => (
                       <div
                         key={entry.id}
-                        className="rounded-3xl border border-orange-100 bg-white p-6 shadow-sm shadow-orange-100/70"
+                        className="rounded-2xl sm:rounded-3xl border border-orange-100 bg-white p-4 sm:p-6 shadow-sm shadow-orange-100/70"
                       >
                         <header className="flex flex-wrap items-center justify-between gap-3">
                           <div>
@@ -1049,9 +1106,6 @@ function EventForm() {
                               {entry.label || `Serving window ${index + 1}`} • {entry.date || "Date TBD"}
                             </h5>
                           </div>
-                          <span className="rounded-full bg-brand-500 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow">
-                            {entry.servingsPerDay} serving{entry.servingsPerDay === 1 ? "" : "s"}
-                          </span>
                         </header>
 
                         <dl className="mt-5 grid gap-4 text-sm text-slate-700 md:grid-cols-3">
@@ -1127,14 +1181,14 @@ function EventForm() {
 
             <div className="grid gap-6 lg:grid-cols-[1.15fr_1fr]">
               {!createdEvent && (
-                <div className="rounded-3xl border border-dashed border-orange-200 bg-orange-50 p-6 text-sm text-slate-700 lg:col-span-2">
+                <div className="rounded-2xl sm:rounded-3xl border border-dashed border-orange-200 bg-orange-50 p-4 sm:p-6 text-sm text-slate-700 lg:col-span-2">
                   Save your event to unlock the QR code and sharing shortcuts. Return to the previous step if you need to edit details before submitting.
                 </div>
               )}
 
               {createdEvent && (
                 <>
-                  <article className="space-y-5 rounded-3xl border border-orange-100 bg-white p-6 shadow-lg shadow-orange-100/80">
+                  <article className="space-y-4 sm:space-y-5 rounded-2xl sm:rounded-3xl border border-orange-100 bg-white p-4 sm:p-6 shadow-lg shadow-orange-100/80">
                     <header className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-700">
@@ -1144,7 +1198,7 @@ function EventForm() {
                       </div>
                     </header>
                     <p className="text-sm text-slate-600">Guests can scan to RSVP and share preferences in seconds.</p>
-                    <div className="flex items-center justify-center rounded-3xl bg-orange-50 p-6 shadow-inner shadow-orange-200/60">
+                    <div className="flex items-center justify-center rounded-2xl sm:rounded-3xl bg-orange-50 p-4 sm:p-6 shadow-inner shadow-orange-200/60">
                       <QRCodeSVG
                         value={inviteLinkValue}
                         size={240}
@@ -1169,7 +1223,7 @@ function EventForm() {
                     <p className="text-xs text-slate-500">Tip: Add this QR to printed invites or event signage.</p>
                   </article>
 
-                  <aside className="space-y-5 rounded-3xl border border-orange-100 bg-white p-6 shadow-lg shadow-orange-100/80">
+                  <aside className="space-y-4 sm:space-y-5 rounded-2xl sm:rounded-3xl border border-orange-100 bg-white p-4 sm:p-6 shadow-lg shadow-orange-100/80">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <h4 className="text-sm font-semibold uppercase tracking-wide text-brand-600">Share via WhatsApp</h4>
@@ -1239,16 +1293,16 @@ function EventForm() {
   };
 
   return (
-    <section className="space-y-8">
+    <section className="space-y-6 sm:space-y-8 px-4 sm:px-0">
       <header>
-        <h1 className="text-3xl font-semibold text-slate-900">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900">
           Plan a new event
         </h1>
       </header>
 
-      <div className="overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-sm shadow-orange-100/70">
-        <div className="border-b border-orange-100 bg-orange-50 px-6 py-4">
-          <ol className="flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <div className="overflow-hidden rounded-xl sm:rounded-2xl border border-orange-100 bg-white shadow-sm shadow-orange-100/70">
+        <div className="border-b border-orange-100 bg-orange-50 px-4 sm:px-6 py-3 sm:py-4 overflow-x-auto">
+          <ol className="flex flex-nowrap sm:flex-wrap gap-2 sm:gap-3 text-[10px] sm:text-xs font-semibold uppercase tracking-wide text-slate-500 min-w-max sm:min-w-0">
             {steps.map((label, index) => {
               const isActive = index === activeStep;
               const isCompleted = index < activeStep;
@@ -1257,7 +1311,7 @@ function EventForm() {
                   <button
                     type="button"
                     onClick={() => !isSaving && setActiveStep(index)}
-                    className={`flex items-center gap-2 rounded-full px-3 py-1 transition ${
+                    className={`flex items-center gap-1.5 sm:gap-2 rounded-full px-2.5 sm:px-3 py-1 transition whitespace-nowrap ${
                       isActive
                         ? "bg-brand-500 text-white"
                         : isCompleted
@@ -1275,15 +1329,15 @@ function EventForm() {
           </ol>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6 px-6 py-8">
+        <form onSubmit={handleSubmit} className="space-y-6 px-4 sm:px-6 py-6 sm:py-8">
           {renderStepContent()}
 
-          <footer className="mt-8 flex flex-wrap justify-between gap-3">
+          <footer className="mt-6 sm:mt-8 flex flex-wrap justify-between gap-2 sm:gap-3">
             <button
               type="button"
               onClick={goBack}
               disabled={activeStep === 0 || isSaving}
-              className="rounded-full border border-orange-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:border-brand-300 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-full border border-orange-200 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-600 hover:border-brand-300 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Back
             </button>
@@ -1297,7 +1351,7 @@ function EventForm() {
                 type="button"
                 onClick={goNext}
                 disabled={!isCurrentStepValid() || ((activeStep === 4 || activeStep === 5) && isSaving)}
-                className="rounded-full bg-brand-500 px-6 py-2 text-sm font-semibold text-white shadow hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-slate-400"
+                className="rounded-full bg-brand-500 px-5 sm:px-6 py-2 text-xs sm:text-sm font-semibold text-white shadow hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-slate-400"
               >
                 {activeStep === 4 ? (isSaving ? "Submitting..." : "Submit") : activeStep === 5 && isSaving ? "Saving..." : "Next"}
               </button>
@@ -1305,7 +1359,7 @@ function EventForm() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="rounded-full bg-brand-500 px-6 py-2 text-sm font-semibold text-white shadow hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-slate-400"
+                className="rounded-full bg-brand-500 px-5 sm:px-6 py-2 text-xs sm:text-sm font-semibold text-white shadow hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-slate-400"
               >
                 {isSaving ? "Saving..." : createdEvent ? "Go to event dashboard" : "Save event plan"}
               </button>
@@ -1313,6 +1367,79 @@ function EventForm() {
           </footer>
         </form>
       </div>
+
+      {/* Authentication Modal */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => {}}>
+          <div className="w-full max-w-md rounded-2xl sm:rounded-3xl border border-orange-100 bg-white p-6 sm:p-8 shadow-2xl mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-4 sm:mb-6 text-center">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Let's Create Your Event</h2>
+              <p className="mt-2 text-xs sm:text-sm text-slate-600">Enter your details to get started</p>
+            </div>
+            
+            <form onSubmit={handleCreateAccount} className="space-y-4 sm:space-y-5">
+              <label className="block space-y-2 text-sm font-medium text-slate-700">
+                Full Name
+                <input
+                  required
+                  value={authForm.fullName}
+                  onChange={(event) =>
+                    setAuthForm((prev) => ({ ...prev, fullName: event.target.value }))
+                  }
+                  className="w-full rounded-xl border border-orange-200 bg-orange-50 px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
+                  placeholder="Enter your full name"
+                />
+              </label>
+              
+              <label className="block space-y-2 text-sm font-medium text-slate-700">
+                Mobile Number
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  required
+                  value={authForm.phone}
+                  onChange={(event) => {
+                    const cleaned = event.target.value.replace(/[^\d\s\-\(\)]/g, "");
+                    setAuthForm((prev) => ({ ...prev, phone: cleaned }));
+                  }}
+                  autoComplete="tel"
+                  className="w-full rounded-xl border border-orange-200 bg-orange-50 px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-200"
+                  placeholder="Enter mobile number (e.g., 9876543210)"
+                />
+                <p className="text-xs text-slate-500">Enter your mobile number without country code</p>
+              </label>
+              
+              {authError && (
+                <p className="rounded-md bg-red-50 px-3 py-2 text-xs font-semibold text-red-600">
+                  {authError}
+                </p>
+              )}
+              
+              <div className="flex gap-2 sm:gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAuthModal(false);
+                    setAuthError(null);
+                    setAuthForm({ fullName: "", phone: "" });
+                    navigate("/");
+                  }}
+                  className="flex-1 rounded-full border border-orange-200 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-slate-600 hover:bg-orange-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCreatingAccount}
+                  className="flex-1 rounded-full bg-brand-500 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white shadow hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-slate-400"
+                >
+                  {isCreatingAccount ? "Creating..." : "Create Event"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

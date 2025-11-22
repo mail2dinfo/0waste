@@ -1,8 +1,9 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowUpIcon } from "@heroicons/react/24/outline";
 import logo from "../assets/zerowaste-logo.svg";
+import { useApi } from "../hooks/useApi";
 
 type LocaleState = { country: string; language: string };
 
@@ -22,21 +23,21 @@ const supportedLanguages = [
   { code: "ml", label: "മലയാളം" },
 ];
 
-const features = [
+const userTypes = [
   {
-    title: "Predict Guests",
+    title: "Individual user",
     description:
-      "Track arrival time slots and RSVPs in real-time. Know exactly when and how many guests will arrive.",
+      "Plan your personal celebrations with confidence. Track guest arrivals and plan food precisely for weddings, housewarmings, and family events.",
   },
   {
-    title: "Plan Food Precisely",
+    title: "Event planners",
     description:
-      "Use arrival analytics to estimate portions accurately. Prepare the right amount at the right time.",
+      "Professional event management made easy. Use arrival analytics to plan multiple events, manage guest RSVPs, and prevent food waste at scale.",
   },
   {
-    title: "Stop Waste Before It Happens",
+    title: "Caterers & Venues",
     description:
-      "Prevent over-preparation with data-driven planning. Stop food waste before it occurs, not after.",
+      "Optimize food preparation with real-time guest data. Reduce waste, improve efficiency, and deliver better service with arrival analytics.",
   },
 ];
 
@@ -99,6 +100,8 @@ const rotatingEvents = [
 
 function Landing() {
   const { t, i18n } = useTranslation("common");
+  const navigate = useNavigate();
+  const api = useApi();
   const [locale, setLocale] = useState<LocaleState>(() => {
     const storedCountry = window.localStorage.getItem("nowasteCountry");
     const storedLanguage = window.localStorage.getItem("nowasteLanguage");
@@ -149,6 +152,12 @@ function Landing() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleCreateEvent = async () => {
+    // Navigate to event form - it will check authentication and show modal if needed
+    navigate("/events/new");
+  };
+
+
   const handleCountryChange = (value: string) => {
     setLocale((current) => ({ ...current, country: value }));
     window.localStorage.setItem("nowasteCountry", value);
@@ -164,21 +173,21 @@ function Landing() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-orange-100">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-2">
-        <div className="flex items-center gap-3">
-          <img src={logo} alt="Zerovaste logo" className="h-9 w-9" />
+      <header className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-2">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <img src={logo} alt="Zerovaste logo" className="h-7 w-7 sm:h-9 sm:w-9" />
           <div className="leading-tight">
-            <div className="text-3xl font-bold">
+            <div className="text-xl sm:text-2xl lg:text-3xl font-bold">
               <span className="text-brand-600">Zero</span>
               <span className="text-slate-900">vaste</span>
             </div>
-            <span className="mt-0.5 inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-700">
+            <span className="mt-0.5 inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-2 py-0.5 text-[9px] sm:text-[10px] font-semibold uppercase tracking-wide text-brand-700">
               Fight food waste
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="hidden items-center gap-2 text-[10px] font-semibold tracking-wide text-slate-600 sm:flex">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="hidden items-center gap-1.5 sm:gap-2 text-[9px] sm:text-[10px] font-semibold tracking-wide text-slate-600 sm:flex">
             <label className="flex items-center gap-1 text-[10px]">
               <span>{t("countryLabel")}</span>
               <select
@@ -208,13 +217,13 @@ function Landing() {
               </select>
             </label>
           </div>
-          <nav className="flex items-center gap-4 text-sm font-semibold text-slate-600">
-            <Link to="/login" className="hover:text-brand-600">
+          <nav className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm font-semibold text-slate-600">
+            <Link to="/login" className="px-3 py-1.5 sm:px-0 sm:py-0 hover:text-brand-600">
               Login
             </Link>
             <Link
               to="/signup"
-              className="rounded-full bg-brand-500 px-5 py-2 text-white shadow hover:bg-brand-600"
+              className="rounded-full bg-brand-500 px-4 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm text-white shadow hover:bg-brand-600"
             >
               Get started
             </Link>
@@ -222,7 +231,7 @@ function Landing() {
         </div>
       </header>
 
-      <main className="relative mx-auto max-w-6xl px-6 pb-24 pt-12">
+      <main className="relative mx-auto max-w-6xl px-4 sm:px-6 pb-24 pt-8 sm:pt-12">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute left-[-120px] top-[-60px] h-64 w-64 rounded-full bg-brand-300/30 blur-3xl"></div>
           <div className="absolute right-[-80px] top-[140px] h-72 w-72 rounded-full bg-brand-500/20 blur-3xl"></div>
@@ -231,30 +240,29 @@ function Landing() {
         <section className="grid gap-8 lg:grid-cols-2 items-start">
           <div className="space-y-4">
             <div className="space-y-2">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-tight">
-                Predict Guest{" "}
-                <span className="text-brand-600">!</span>{" "}
-                <span className="text-brand-600">Plan Food.</span>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 leading-tight">
+                <span className="text-brand-600">Guest Arrival</span>{" "}
+                <span className="text-slate-900">Analytics</span>
               </h1>
             </div>
-            <p className="text-lg sm:text-xl text-slate-600 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed">
               Use <span className="font-semibold text-brand-600">guest arrival analytics</span> to predict attendance and plan food preparation precisely. Stop food waste <span className="font-semibold">before it occurs</span>—not after.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <Link
-                to="/signup"
-                className="rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold normal-case text-white shadow-lg shadow-brand-500/40 transition hover:bg-brand-600"
+            <div className="flex flex-wrap gap-3 sm:gap-4">
+              <button
+                onClick={handleCreateEvent}
+                className="w-full sm:w-auto rounded-full bg-brand-500 px-6 sm:px-8 py-2.5 sm:py-3 text-sm font-semibold normal-case text-white shadow-lg shadow-brand-500/40 transition hover:bg-brand-600"
               >
-                Create a free account
-              </Link>
+                Create Event
+              </button>
               <Link
                 to="/login"
-                className="rounded-full border border-brand-300 px-6 py-3 text-sm font-semibold normal-case text-brand-600 hover:bg-brand-50"
+                className="w-full sm:w-auto rounded-full border border-brand-300 px-6 py-2.5 sm:py-3 text-sm font-semibold normal-case text-brand-600 hover:bg-brand-50 text-center"
               >
                 I already have an account
               </Link>
             </div>
-            <div className="mt-12 grid grid-cols-3 gap-3">
+            <div className="mt-8 sm:mt-12 grid grid-cols-3 gap-2 sm:gap-3">
               <div className="rounded-2xl border border-orange-200 bg-white p-4 text-center shadow-sm">
                 <div className="text-2xl font-bold text-brand-600">40%</div>
                 <div className="mt-1 text-xs font-medium text-brand-600">Waste prevented</div>
@@ -272,9 +280,9 @@ function Landing() {
               Stop waste before it happens. Plan smarter with arrival analytics.
             </p>
           </div>
-          <div className="relative">
-            <div className="absolute -left-6 top-6 h-64 w-64 rounded-full bg-brand-200/40 blur-3xl" />
-            <div className="relative ml-auto rounded-3xl border border-orange-100 bg-white p-5 shadow-2xl shadow-orange-200/60 lg:max-w-md transition-all duration-500">
+          <div className="relative mt-8 lg:mt-0">
+            <div className="absolute -left-6 top-6 h-32 w-32 sm:h-64 sm:w-64 rounded-full bg-brand-200/40 blur-3xl" />
+            <div className="relative mx-auto lg:ml-auto rounded-2xl sm:rounded-3xl border border-orange-100 bg-white p-4 sm:p-5 shadow-2xl shadow-orange-200/60 max-w-md lg:max-w-md transition-all duration-500">
               {(() => {
                 const currentEvent = rotatingEvents[currentEventIndex];
                 return (
@@ -289,83 +297,70 @@ function Landing() {
                         {currentEvent.date} • {currentEvent.location}
                       </p>
                       
-                      {/* Visual Analytics Card - Enhanced */}
-                      <div className="mt-5 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 p-5 shadow-lg">
-                        <div className="space-y-4">
+                      {/* Visual Analytics Card - Horizontal Layout */}
+                      <div className="mt-5 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 p-4 shadow-lg">
+                        <div className="grid grid-cols-4 gap-3 items-center">
                           {/* Planned */}
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm font-semibold text-white/90">Planned</span>
-                              <span className="text-lg font-bold text-white bg-white/20 px-3 py-1 rounded-lg">
-                                {currentEvent.plannedGuests} Guests
-                              </span>
-                            </div>
-                            <div className="h-4 bg-white/25 rounded-full overflow-hidden shadow-inner">
-                              <div 
-                                className="h-full bg-gradient-to-r from-white/50 to-white/40 rounded-full transition-all duration-500 shadow-sm"
-                                style={{ width: '100%' }}
-                              />
-                            </div>
+                          <div className="text-center">
+                            <p className="text-xs font-semibold text-white/80 mb-1">Planned</p>
+                            <p className="text-lg font-bold text-white">{currentEvent.plannedGuests}</p>
+                            <p className="text-[10px] text-white/70">Guests</p>
                           </div>
                           
-                          {/* Via Analytics Arrow */}
-                          <div className="flex items-center justify-center gap-2 py-2">
-                            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/40 to-white/40"></div>
-                            <div className="flex items-center gap-2 bg-white/20 px-3 py-1.5 rounded-full">
-                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
-                              </svg>
-                              <span className="text-xs font-bold text-white">Via Analytics</span>
-                            </div>
-                            <div className="flex-1 h-px bg-gradient-to-l from-transparent via-white/40 to-white/40"></div>
+                          {/* Arrow */}
+                          <div className="flex flex-col items-center justify-center">
+                            <svg className="w-5 h-5 text-white/90 mb-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                            <p className="text-[9px] font-bold text-white/80 text-center">Via Analytics</p>
                           </div>
                           
                           {/* Actual */}
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm font-semibold text-white/90">Actual</span>
-                              <span className="text-lg font-bold text-green-200 bg-green-500/30 px-3 py-1 rounded-lg border border-green-300/30">
-                                {currentEvent.actualGuests} Guests
-                              </span>
+                          <div className="text-center">
+                            <p className="text-xs font-semibold text-white/80 mb-1">Actual</p>
+                            <p className="text-lg font-bold text-green-200">{currentEvent.actualGuests}</p>
+                            <p className="text-[10px] text-white/70">Guests</p>
+                          </div>
+                          
+                          {/* Saved */}
+                          <div className="text-center bg-gradient-to-br from-green-500/50 to-emerald-500/50 rounded-lg p-2 border border-green-300/40">
+                            <div className="flex items-center justify-center gap-1 mb-1">
+                              <svg className="w-4 h-4 text-green-200" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                              <p className="text-xs font-bold text-green-100">Saved!</p>
                             </div>
-                            <div className="h-4 bg-white/25 rounded-full overflow-hidden shadow-inner">
+                            <p className="text-xl font-extrabold text-white drop-shadow-md">
+                              {currentEvent.savedGuests}
+                            </p>
+                            <p className="text-[10px] text-green-100 font-semibold">Meals</p>
+                          </div>
+                        </div>
+                        
+                        {/* Progress Bar Comparison */}
+                        <div className="mt-4 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-white/70 w-12">Planned</span>
+                            <div className="flex-1 h-2.5 bg-white/25 rounded-full overflow-hidden shadow-inner">
                               <div 
-                                className="h-full bg-gradient-to-r from-green-400 to-green-300 rounded-full transition-all duration-500 shadow-md"
+                                className="h-full bg-gradient-to-r from-white/50 to-white/40 rounded-full"
+                                style={{ width: '100%' }}
+                              />
+                            </div>
+                            <span className="text-[10px] font-bold text-white w-12 text-right">{currentEvent.plannedGuests}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-white/70 w-12">Actual</span>
+                            <div className="flex-1 h-2.5 bg-white/25 rounded-full overflow-hidden shadow-inner">
+                              <div 
+                                className="h-full bg-gradient-to-r from-green-400 to-green-300 rounded-full shadow-sm"
                                 style={{ width: `${(currentEvent.actualGuests / currentEvent.plannedGuests) * 100}%` }}
                               />
                             </div>
-                          </div>
-                          
-                          {/* Saved Highlight - Eye-catching */}
-                          <div className="mt-4 pt-4 border-t-2 border-white/30">
-                            <div className="bg-gradient-to-r from-green-500/40 to-emerald-500/40 rounded-xl p-4 border-2 border-green-300/50 shadow-lg">
-                              <div className="flex items-center justify-center gap-3">
-                                <div className="bg-green-400 rounded-full p-2 shadow-lg">
-                                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                  </svg>
-                                </div>
-                                <div className="text-center">
-                                  <p className="text-2xl font-extrabold text-white drop-shadow-lg">
-                                    {currentEvent.savedGuests} Meals
-                                  </p>
-                                  <p className="text-sm font-bold text-green-100 uppercase tracking-wide">
-                                    Saved!
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
+                            <span className="text-[10px] font-bold text-green-200 w-12 text-right">{currentEvent.actualGuests}</span>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="mt-6 rounded-2xl border border-orange-100 bg-orange-50 p-4">
-                      <p className="text-sm font-semibold text-brand-700">
-                        "Arrival analytics helped us plan food precisely. We prevented 40% waste by knowing exactly when guests would arrive."
-                      </p>
-                      <p className="mt-3 text-xs text-slate-500">
-                        Kavya Sharma • Event Planner, Bengaluru
-                      </p>
                     </div>
                     <div className="mt-4 flex justify-center gap-1.5">
                       {rotatingEvents.map((_, index) => (
@@ -389,16 +384,15 @@ function Landing() {
           </div>
         </section>
 
-        <section className="mt-16">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
-              Predict Guest{" "}
-              <span className="text-brand-600">!</span>{" "}
-              <span className="text-brand-600">Plan Food.</span>
+        <section className="mt-12 sm:mt-16">
+          <div className="text-center mb-6 sm:mb-8">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight">
+              <span className="text-brand-600">Guest Arrival</span>{" "}
+              <span className="text-slate-900">Analytics</span>
             </h2>
-            <p className="mt-3 text-slate-600">Simple steps to predict guests and plan food precisely</p>
+            <p className="mt-2 sm:mt-3 text-sm sm:text-base text-slate-600 px-2">Simple steps to predict guests and plan food precisely</p>
           </div>
-          <div className="grid gap-6 rounded-3xl bg-white/80 p-6 shadow-lg shadow-orange-100/70 backdrop-blur-sm sm:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 rounded-2xl sm:rounded-3xl bg-white/80 p-4 sm:p-6 shadow-lg shadow-orange-100/70 backdrop-blur-sm sm:grid-cols-3">
             <article className="flex flex-col items-center text-center rounded-2xl border border-orange-100 bg-white p-6 shadow-sm">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-700 mb-4">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M7 3h10a2 2 0 0 1 2 2v2H5V5a2 2 0 0 1 2-2zm12 6v8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9h14zm-9 3h6v2H10v-2z"/></svg>
@@ -424,50 +418,47 @@ function Landing() {
         </section>
 
         <section className="mt-16 rounded-3xl bg-gradient-to-br from-brand-50 to-orange-50 p-10 shadow-lg shadow-orange-100/70">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
-              Predict Guest{" "}
-              <span className="text-brand-600">!</span>{" "}
-              <span className="text-brand-600">Plan Food.</span>
+          <div className="text-center mb-6 sm:mb-8">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight">
+              Who are all using
             </h2>
-            <p className="mt-3 text-slate-600">Use arrival analytics to predict guests and plan food precisely</p>
+            <p className="mt-2 sm:mt-3 text-sm sm:text-base text-slate-600 px-2">Join thousands of event organizers who are preventing food waste with arrival analytics</p>
           </div>
-          <div className="grid gap-6 sm:grid-cols-3">
-            {features.map((feature, index) => (
-              <article key={feature.title} className="space-y-3 rounded-2xl bg-white p-6 shadow-sm">
+          <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {userTypes.map((userType, index) => (
+              <article key={userType.title} className="space-y-3 rounded-2xl bg-white p-6 shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-brand-700 font-bold">
                     {index + 1}
                   </div>
                   <h3 className="text-lg font-semibold text-slate-900">
-                    {feature.title}
+                    {userType.title}
                   </h3>
                 </div>
-                <p className="text-sm text-slate-600">{feature.description}</p>
+                <p className="text-sm text-slate-600">{userType.description}</p>
               </article>
             ))}
           </div>
         </section>
 
-        <section className="mt-16 rounded-3xl border border-orange-100 bg-gradient-to-r from-orange-50 to-brand-50 p-10 text-center shadow-md">
-          <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
-            Predict Guest{" "}
-            <span className="text-brand-600">!</span>{" "}
-            <span className="text-brand-600">Plan Food.</span>
+        <section className="mt-12 sm:mt-16 rounded-2xl sm:rounded-3xl border border-orange-100 bg-gradient-to-r from-orange-50 to-brand-50 p-6 sm:p-8 lg:p-10 text-center shadow-md">
+          <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight">
+            <span className="text-brand-600">Guest Arrival</span>{" "}
+            <span className="text-slate-900">Analytics</span>
           </h3>
-          <p className="mt-4 text-lg text-slate-600">Start planning with Zerovaste today. Use arrival analytics to prevent waste before it happens.</p>
-          <div className="mt-5">
+          <p className="mt-3 sm:mt-4 text-sm sm:text-base lg:text-lg text-slate-600 px-2">Start planning with Zerovaste today. Use arrival analytics to prevent waste before it happens.</p>
+          <div className="mt-4 sm:mt-5">
             <Link
               to="/signup"
-              className="inline-flex items-center rounded-full bg-brand-600 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow hover:bg-brand-700"
+              className="inline-flex items-center rounded-full bg-brand-600 px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold uppercase tracking-wide text-white shadow hover:bg-brand-700"
             >
               Get started free
             </Link>
           </div>
         </section>
 
-        <footer className="mt-16 border-t border-orange-200 bg-white/80 py-12">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <footer className="mt-12 sm:mt-16 border-t border-orange-200 bg-white/80 py-8 sm:py-12">
+          <div className="grid gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {/* Company Info */}
             <div className="space-y-4 text-right">
               <div className="flex items-center justify-end gap-2">
@@ -586,12 +577,13 @@ function Landing() {
         {showScrollTop && (
           <button
             onClick={scrollToTop}
-            className="fixed bottom-8 right-8 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-brand-500 text-white shadow-lg transition hover:bg-brand-600 hover:shadow-xl"
+            className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-50 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-brand-500 text-white shadow-lg transition hover:bg-brand-600 hover:shadow-xl"
             aria-label="Scroll to top"
           >
             <ArrowUpIcon className="h-6 w-6" />
           </button>
         )}
+
       </main>
     </div>
   );
