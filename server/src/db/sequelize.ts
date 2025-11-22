@@ -11,11 +11,29 @@ import { NwReportPayment } from "../models/NwReportPayment.js";
 import { NwSettings } from "../models/NwSettings.js";
 import { NwChatMessage } from "../models/NwChatMessage.js";
 
+// Custom logger that only logs when explicitly enabled
+function createDatabaseLogger() {
+  if (!env.databaseLogging) {
+    // Return a no-op function to completely disable logging
+    return () => {};
+  }
+  // Only log SQL queries, not connection pool messages
+  return (msg: string) => {
+    // Filter out verbose connection pool messages
+    if (msg.includes("@node") || msg.includes("connection pool")) {
+      return;
+    }
+    console.log(msg);
+  };
+}
+
 function buildSequelize(): Sequelize {
+  const logger = createDatabaseLogger();
+  
   // Use DATABASE_URL if provided (e.g., Render PostgreSQL connection string)
   if (env.databaseUrl) {
     return new Sequelize(env.databaseUrl, {
-      logging: env.databaseLogging ? console.log : false,
+      logging: logger,
       models: [
         NwUser,
         NwEvent,
@@ -57,7 +75,7 @@ function buildSequelize(): Sequelize {
     host: hostConfig.host,
     port: hostConfig.port,
     dialect: "postgres",
-    logging: env.databaseLogging ? console.log : false,
+    logging: logger,
     dialectOptions: hostConfig.ssl
       ? { ssl: { require: true, rejectUnauthorized: false } }
       : undefined,

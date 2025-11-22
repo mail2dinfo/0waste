@@ -126,6 +126,23 @@ function AdminDashboard() {
     ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const handleDeleteEvent = async (eventId: string, eventTitle: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation when clicking delete
+    
+    if (!window.confirm(`Are you sure you want to delete "${eventTitle}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await api.delete(`/events/${eventId}`);
+      // Refresh the dashboard after deletion
+      fetchData();
+    } catch (err) {
+      console.error("Failed to delete event:", err);
+      alert("Failed to delete event. Please try again.");
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -231,7 +248,7 @@ function AdminDashboard() {
               data.events.paidEvents.map((event) => (
                 <div
                   key={event.id}
-                  className="rounded-lg border border-emerald-100 bg-emerald-50 p-3 cursor-pointer transition-all hover:bg-emerald-100 hover:shadow-sm"
+                  className="group rounded-lg border border-emerald-100 bg-emerald-50 p-3 cursor-pointer transition-all hover:bg-emerald-100 hover:shadow-sm relative"
                   onClick={() => navigate(`/events/${event.id}/overview`)}
                   role="button"
                   tabIndex={0}
@@ -242,7 +259,17 @@ function AdminDashboard() {
                     }
                   }}
                 >
-                  <div className="font-medium text-slate-900">{event.title}</div>
+                  <button
+                    onClick={(e) => handleDeleteEvent(event.id, event.title, e)}
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-100 text-red-600"
+                    title="Delete event"
+                    aria-label="Delete event"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                  <div className="font-medium text-slate-900 pr-6">{event.title}</div>
                   <div className="mt-1 text-xs text-slate-600">
                     {formatDate(event.eventDate)} • {event.location || "N/A"}
                   </div>
@@ -269,7 +296,7 @@ function AdminDashboard() {
               data.events.unpaidEvents.map((event) => (
                 <div
                   key={event.id}
-                  className="rounded-lg border border-orange-100 bg-orange-50 p-3 cursor-pointer transition-all hover:bg-orange-100 hover:shadow-sm"
+                  className="group rounded-lg border border-orange-100 bg-orange-50 p-3 cursor-pointer transition-all hover:bg-orange-100 hover:shadow-sm relative"
                   onClick={() => navigate(`/events/${event.id}/overview`)}
                   role="button"
                   tabIndex={0}
@@ -280,7 +307,17 @@ function AdminDashboard() {
                     }
                   }}
                 >
-                  <div className="font-medium text-slate-900">{event.title}</div>
+                  <button
+                    onClick={(e) => handleDeleteEvent(event.id, event.title, e)}
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-100 text-red-600"
+                    title="Delete event"
+                    aria-label="Delete event"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                  <div className="font-medium text-slate-900 pr-6">{event.title}</div>
                   <div className="mt-1 text-xs text-slate-600">
                     {formatDate(event.eventDate)} • {event.location || "N/A"}
                   </div>
@@ -307,7 +344,7 @@ function AdminDashboard() {
               data.events.inProgressEvents.map((event) => (
                 <div
                   key={event.id}
-                  className="rounded-lg border border-blue-100 bg-blue-50 p-3 cursor-pointer transition-all hover:bg-blue-100 hover:shadow-sm"
+                  className="group rounded-lg border border-blue-100 bg-blue-50 p-3 cursor-pointer transition-all hover:bg-blue-100 hover:shadow-sm relative"
                   onClick={() => navigate(`/events/${event.id}/overview`)}
                   role="button"
                   tabIndex={0}
@@ -318,7 +355,17 @@ function AdminDashboard() {
                     }
                   }}
                 >
-                  <div className="font-medium text-slate-900">{event.title}</div>
+                  <button
+                    onClick={(e) => handleDeleteEvent(event.id, event.title, e)}
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-100 text-red-600"
+                    title="Delete event"
+                    aria-label="Delete event"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                  <div className="font-medium text-slate-900 pr-6">{event.title}</div>
                   <div className="mt-1 text-xs text-slate-600">
                     {formatDate(event.eventDate)} • {event.location || "N/A"}
                   </div>

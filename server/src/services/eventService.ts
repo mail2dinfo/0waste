@@ -1,6 +1,11 @@
 import { Op } from "sequelize";
 import { NwEvent } from "../models/NwEvent.js";
 import { NwUser } from "../models/NwUser.js";
+import { NwGuest } from "../models/NwGuest.js";
+import { NwFoodItem } from "../models/NwFoodItem.js";
+import { NwPrediction } from "../models/NwPrediction.js";
+import { NwInviteRsvp } from "../models/NwInviteRsvp.js";
+import { NwReportPayment } from "../models/NwReportPayment.js";
 import { env } from "../config/env.js";
 
 function buildInviteLink(eventId: string) {
@@ -52,6 +57,25 @@ export async function updateEvent(eventId: string, payload: Partial<NwEvent>) {
     event.inviteLink = inviteLink;
   }
   return event;
+}
+
+export async function deleteEvent(eventId: string) {
+  const event = await getEvent(eventId);
+  if (!event) {
+    return false;
+  }
+
+  // Delete all related records first to avoid foreign key constraint errors
+  // Delete in order: payments, invite RSVPs, predictions, food items, guests
+  await NwReportPayment.destroy({ where: { eventId } });
+  await NwInviteRsvp.destroy({ where: { eventId } });
+  await NwPrediction.destroy({ where: { eventId } });
+  await NwFoodItem.destroy({ where: { eventId } });
+  await NwGuest.destroy({ where: { eventId } });
+
+  // Now delete the event itself
+  await event.destroy();
+  return true;
 }
 
 /**

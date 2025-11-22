@@ -64,8 +64,16 @@ async function bootstrap() {
   await sequelize.authenticate();
   console.log("Database connection established");
 
-  await sequelize.sync({ alter: true });
-  console.log("Database schema synchronized");
+  // Only sync schema in development mode, and only if DB_SYNC is enabled
+  // In production, use migrations instead of sync
+  const shouldSync = env.nodeEnv === "development" && process.env.DB_SYNC === "true";
+  if (shouldSync) {
+    console.log("Syncing database schema...");
+    await sequelize.sync({ alter: true });
+    console.log("Database schema synchronized");
+  } else if (env.nodeEnv === "development") {
+    console.log("Database schema sync disabled (set DB_SYNC=true to enable)");
+  }
 
   await ensureDefaultAdmin();
   await ensureDefaultReportPricing();

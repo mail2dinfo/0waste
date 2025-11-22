@@ -4,6 +4,7 @@ import {
   listEventsHandler,
   getEventHandler,
   updateEventHandler,
+  deleteEventHandler,
 } from "../controllers/eventController.js";
 import {
   createInviteRsvpHandler,
@@ -17,6 +18,7 @@ eventRouter.get("/", listEventsHandler);
 eventRouter.post("/", createEventHandler);
 eventRouter.get("/:eventId", getEventHandler);
 eventRouter.put("/:eventId", updateEventHandler);
+eventRouter.delete("/:eventId", deleteEventHandler);
 eventRouter.post("/:eventId/invite-rsvp", createInviteRsvpHandler);
 eventRouter.get("/:eventId/invite-rsvp/summary", getInviteRsvpSummaryHandler);
 eventRouter.post("/:eventId/payments", createReportPaymentHandler);
