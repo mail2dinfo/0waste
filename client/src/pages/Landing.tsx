@@ -23,23 +23,7 @@ const supportedLanguages = [
   { code: "ml", label: "മലയാളം" },
 ];
 
-const userTypes = [
-  {
-    title: "Individual user",
-    description:
-      "Plan your personal celebrations with confidence. Track guest arrivals and plan food precisely for weddings, housewarmings, and family events.",
-  },
-  {
-    title: "Event planners",
-    description:
-      "Professional event management made easy. Use arrival analytics to plan multiple events, manage guest RSVPs, and prevent food waste at scale.",
-  },
-  {
-    title: "Caterers & Venues",
-    description:
-      "Optimize food preparation with real-time guest data. Reduce waste, improve efficiency, and deliver better service with arrival analytics.",
-  },
-];
+// userTypes will be generated from translations in component
 
 const rotatingEvents = [
   {
@@ -102,6 +86,21 @@ function Landing() {
   const { t, i18n } = useTranslation("common");
   const navigate = useNavigate();
   const api = useApi();
+  
+  const userTypes = [
+    {
+      title: t("landing.whoUsing.individualUser.title"),
+      description: t("landing.whoUsing.individualUser.description"),
+    },
+    {
+      title: t("landing.whoUsing.eventPlanners.title"),
+      description: t("landing.whoUsing.eventPlanners.description"),
+    },
+    {
+      title: t("landing.whoUsing.caterers.title"),
+      description: t("landing.whoUsing.caterers.description"),
+    },
+  ];
   const [locale, setLocale] = useState<LocaleState>(() => {
     const storedCountry = window.localStorage.getItem("nowasteCountry");
     const storedLanguage = window.localStorage.getItem("nowasteLanguage");
@@ -182,7 +181,7 @@ function Landing() {
               <span className="text-slate-900">vaste</span>
             </div>
             <span className="mt-0.5 inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-2 py-0.5 text-[9px] sm:text-[10px] font-semibold uppercase tracking-wide text-brand-700">
-              Fight food waste
+              {t("landing.tagline")}
             </span>
           </div>
         </div>
@@ -241,44 +240,25 @@ function Landing() {
           <div className="space-y-4">
             <div className="space-y-2">
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 leading-tight">
-                <span className="text-brand-600">Guest Arrival</span>{" "}
-                <span className="text-slate-900">Analytics</span>
+                <span className="text-brand-600">{t("landing.hero.titlePart1")}</span>{" "}
+                <span className="text-slate-900">{t("landing.hero.titlePart2")}</span>
               </h1>
             </div>
-            <p className="text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed">
-              Use <span className="font-semibold text-brand-600">guest arrival analytics</span> to predict attendance and plan food preparation precisely. Stop food waste <span className="font-semibold">before it occurs</span>—not after.
-            </p>
+            <p className="text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: t("landing.hero.description") }} />
             <div className="flex flex-wrap gap-3 sm:gap-4">
               <button
                 onClick={handleCreateEvent}
                 className="w-full sm:w-auto rounded-full bg-brand-500 px-6 sm:px-8 py-2.5 sm:py-3 text-sm font-semibold normal-case text-white shadow-lg shadow-brand-500/40 transition hover:bg-brand-600"
               >
-                Create Event
+                {t("landing.hero.createEvent")}
               </button>
               <Link
                 to="/login"
                 className="w-full sm:w-auto rounded-full border border-brand-300 px-6 py-2.5 sm:py-3 text-sm font-semibold normal-case text-brand-600 hover:bg-brand-50 text-center"
               >
-                I already have an account
+                {t("landing.hero.haveAccount")}
               </Link>
             </div>
-            <div className="mt-8 sm:mt-12 grid grid-cols-3 gap-2 sm:gap-3">
-              <div className="rounded-2xl border border-orange-200 bg-white p-4 text-center shadow-sm">
-                <div className="text-2xl font-bold text-brand-600">40%</div>
-                <div className="mt-1 text-xs font-medium text-brand-600">Waste prevented</div>
-              </div>
-              <div className="rounded-2xl border border-orange-200 bg-white p-4 text-center shadow-sm">
-                <div className="text-2xl font-bold text-brand-600">Real-time</div>
-                <div className="mt-1 text-xs font-medium text-brand-600">Arrival analytics</div>
-              </div>
-              <div className="rounded-2xl border border-orange-200 bg-white p-4 text-center shadow-sm">
-                <div className="text-2xl font-bold text-brand-600">Precise</div>
-                <div className="mt-1 text-xs font-medium text-brand-600">Food planning</div>
-              </div>
-            </div>
-            <p className="text-xs uppercase tracking-wide text-slate-500">
-              Stop waste before it happens. Plan smarter with arrival analytics.
-            </p>
           </div>
           <div className="relative mt-8 lg:mt-0">
             <div className="absolute -left-6 top-6 h-32 w-32 sm:h-64 sm:w-64 rounded-full bg-brand-200/40 blur-3xl" />
@@ -302,9 +282,9 @@ function Landing() {
                         <div className="grid grid-cols-4 gap-3 items-center">
                           {/* Planned */}
                           <div className="text-center">
-                            <p className="text-xs font-semibold text-white/80 mb-1">Planned</p>
+                            <p className="text-xs font-semibold text-white/80 mb-1">{t("landing.eventCard.planned")}</p>
                             <p className="text-lg font-bold text-white">{currentEvent.plannedGuests}</p>
-                            <p className="text-[10px] text-white/70">Guests</p>
+                            <p className="text-[10px] text-white/70">{t("landing.eventCard.guests")}</p>
                           </div>
                           
                           {/* Arrow */}
@@ -312,14 +292,14 @@ function Landing() {
                             <svg className="w-5 h-5 text-white/90 mb-1" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                             </svg>
-                            <p className="text-[9px] font-bold text-white/80 text-center">Via Analytics</p>
+                            <p className="text-[9px] font-bold text-white/80 text-center">{t("landing.eventCard.viaAnalytics")}</p>
                           </div>
                           
                           {/* Actual */}
                           <div className="text-center">
-                            <p className="text-xs font-semibold text-white/80 mb-1">Actual</p>
+                            <p className="text-xs font-semibold text-white/80 mb-1">{t("landing.eventCard.actual")}</p>
                             <p className="text-lg font-bold text-green-200">{currentEvent.actualGuests}</p>
-                            <p className="text-[10px] text-white/70">Guests</p>
+                            <p className="text-[10px] text-white/70">{t("landing.eventCard.guests")}</p>
                           </div>
                           
                           {/* Saved */}
@@ -328,19 +308,19 @@ function Landing() {
                               <svg className="w-4 h-4 text-green-200" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                               </svg>
-                              <p className="text-xs font-bold text-green-100">Saved!</p>
+                              <p className="text-xs font-bold text-green-100">{t("landing.eventCard.saved")}</p>
                             </div>
                             <p className="text-xl font-extrabold text-white drop-shadow-md">
                               {currentEvent.savedGuests}
                             </p>
-                            <p className="text-[10px] text-green-100 font-semibold">Meals</p>
+                            <p className="text-[10px] text-green-100 font-semibold">{t("landing.eventCard.meals")}</p>
                           </div>
                         </div>
                         
                         {/* Progress Bar Comparison */}
                         <div className="mt-4 space-y-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] text-white/70 w-12">Planned</span>
+                            <span className="text-[10px] text-white/70 w-12">{t("landing.eventCard.planned")}</span>
                             <div className="flex-1 h-2.5 bg-white/25 rounded-full overflow-hidden shadow-inner">
                               <div 
                                 className="h-full bg-gradient-to-r from-white/50 to-white/40 rounded-full"
@@ -350,7 +330,7 @@ function Landing() {
                             <span className="text-[10px] font-bold text-white w-12 text-right">{currentEvent.plannedGuests}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] text-white/70 w-12">Actual</span>
+                            <span className="text-[10px] text-white/70 w-12">{t("landing.eventCard.actual")}</span>
                             <div className="flex-1 h-2.5 bg-white/25 rounded-full overflow-hidden shadow-inner">
                               <div 
                                 className="h-full bg-gradient-to-r from-green-400 to-green-300 rounded-full shadow-sm"
@@ -387,32 +367,32 @@ function Landing() {
         <section className="mt-12 sm:mt-16">
           <div className="text-center mb-6 sm:mb-8">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight">
-              <span className="text-brand-600">Guest Arrival</span>{" "}
-              <span className="text-slate-900">Analytics</span>
+              <span className="text-brand-600">{t("landing.howItWorks.titlePart1")}</span>{" "}
+              <span className="text-slate-900">{t("landing.howItWorks.titlePart2")}</span>
             </h2>
-            <p className="mt-2 sm:mt-3 text-sm sm:text-base text-slate-600 px-2">Simple steps to predict guests and plan food precisely</p>
+            <p className="mt-2 sm:mt-3 text-sm sm:text-base text-slate-600 px-2">{t("landing.howItWorks.subtitle")}</p>
           </div>
           <div className="grid gap-4 sm:gap-6 rounded-2xl sm:rounded-3xl bg-white/80 p-4 sm:p-6 shadow-lg shadow-orange-100/70 backdrop-blur-sm sm:grid-cols-3">
             <article className="flex flex-col items-center text-center rounded-2xl border border-orange-100 bg-white p-6 shadow-sm">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-700 mb-4">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M7 3h10a2 2 0 0 1 2 2v2H5V5a2 2 0 0 1 2-2zm12 6v8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9h14zm-9 3h6v2H10v-2z"/></svg>
               </div>
-              <h3 className="text-base font-semibold text-slate-900 mb-2">1. Create Event</h3>
-              <p className="text-sm text-slate-600">Set up your event and share invite links with guests.</p>
+              <h3 className="text-base font-semibold text-slate-900 mb-2">{t("landing.howItWorks.step1.title")}</h3>
+              <p className="text-sm text-slate-600">{t("landing.howItWorks.step1.description")}</p>
             </article>
             <article className="flex flex-col items-center text-center rounded-2xl border border-orange-100 bg-white p-6 shadow-sm">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-700 mb-4">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
               </div>
-              <h3 className="text-base font-semibold text-slate-900 mb-2">2. Track Arrivals</h3>
-              <p className="text-sm text-slate-600">Guests RSVP with arrival time slots. Get real-time analytics.</p>
+              <h3 className="text-base font-semibold text-slate-900 mb-2">{t("landing.howItWorks.step2.title")}</h3>
+              <p className="text-sm text-slate-600">{t("landing.howItWorks.step2.description")}</p>
             </article>
             <article className="flex flex-col items-center text-center rounded-2xl border border-orange-100 bg-white p-6 shadow-sm">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-700 mb-4">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h4v8H3v-8zm7-6h4v14h-4V7zm7 3h4v11h-4V10z"/></svg>
               </div>
-              <h3 className="text-base font-semibold text-slate-900 mb-2">3. Plan Precisely</h3>
-              <p className="text-sm text-slate-600">Use arrival analytics to plan food preparation. Stop waste before it happens.</p>
+              <h3 className="text-base font-semibold text-slate-900 mb-2">{t("landing.howItWorks.step3.title")}</h3>
+              <p className="text-sm text-slate-600">{t("landing.howItWorks.step3.description")}</p>
             </article>
           </div>
         </section>
@@ -420,9 +400,9 @@ function Landing() {
         <section className="mt-16 rounded-3xl bg-gradient-to-br from-brand-50 to-orange-50 p-10 shadow-lg shadow-orange-100/70">
           <div className="text-center mb-6 sm:mb-8">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight">
-              Who are all using
+              {t("landing.whoUsing.title")}
             </h2>
-            <p className="mt-2 sm:mt-3 text-sm sm:text-base text-slate-600 px-2">Join thousands of event organizers who are preventing food waste with arrival analytics</p>
+            <p className="mt-2 sm:mt-3 text-sm sm:text-base text-slate-600 px-2">{t("landing.whoUsing.subtitle")}</p>
           </div>
           <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {userTypes.map((userType, index) => (
@@ -443,16 +423,16 @@ function Landing() {
 
         <section className="mt-12 sm:mt-16 rounded-2xl sm:rounded-3xl border border-orange-100 bg-gradient-to-r from-orange-50 to-brand-50 p-6 sm:p-8 lg:p-10 text-center shadow-md">
           <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight">
-            <span className="text-brand-600">Guest Arrival</span>{" "}
-            <span className="text-slate-900">Analytics</span>
+            <span className="text-brand-600">{t("landing.cta.titlePart1")}</span>{" "}
+            <span className="text-slate-900">{t("landing.cta.titlePart2")}</span>
           </h3>
-          <p className="mt-3 sm:mt-4 text-sm sm:text-base lg:text-lg text-slate-600 px-2">Start planning with Zerovaste today. Use arrival analytics to prevent waste before it happens.</p>
+          <p className="mt-3 sm:mt-4 text-sm sm:text-base lg:text-lg text-slate-600 px-2">{t("landing.cta.description")}</p>
           <div className="mt-4 sm:mt-5">
             <Link
               to="/signup"
               className="inline-flex items-center rounded-full bg-brand-600 px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold uppercase tracking-wide text-white shadow hover:bg-brand-700"
             >
-              Get started free
+              {t("landing.cta.button")}
             </Link>
           </div>
         </section>
@@ -469,23 +449,23 @@ function Landing() {
                 </span>
               </div>
               <p className="text-sm text-slate-600">
-                Plan your events with Zerovaste. Reduce food waste, save money, and protect the planet.
+                {t("landing.footer.tagline")}
               </p>
               <p className="text-xs text-slate-500">
-                © {new Date().getFullYear()} Zerovaste. All rights reserved.
+                {t("landing.footer.copyright", { year: new Date().getFullYear() })}
               </p>
             </div>
 
             {/* Contact Us */}
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-900">Contact Us</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-900">{t("landing.footer.contactUs")}</h3>
               <div className="space-y-2 text-sm text-slate-600">
                 <div>
-                  <p className="font-medium text-slate-700">Address</p>
+                  <p className="font-medium text-slate-700">{t("landing.footer.address")}</p>
                   <p className="mt-1">123 Food Waste Street<br />Bengaluru, Karnataka 560001<br />India</p>
                 </div>
                 <div className="mt-4">
-                  <p className="font-medium text-slate-700">WhatsApp</p>
+                  <p className="font-medium text-slate-700">{t("landing.footer.phone")}</p>
                   <a
                     href="https://wa.me/919942393231"
                     target="_blank"
@@ -506,10 +486,10 @@ function Landing() {
               <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-900">Quick Links</h3>
               <div className="space-y-2 text-sm">
                 <Link to="/login" className="block text-slate-600 hover:text-brand-600">
-                  Login
+                  {t("auth.login")}
                 </Link>
                 <Link to="/signup" className="block text-slate-600 hover:text-brand-600">
-                  Sign Up
+                  {t("auth.signup")}
                 </Link>
                 <a href="#" className="block text-slate-600 hover:text-brand-600">
                   Privacy Policy

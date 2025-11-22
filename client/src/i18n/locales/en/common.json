@@ -15,5 +15,86 @@
     "signup": "Sign Up",
     "logout": "Logout"
   },
-  "greeting": "Hi {{name}}"
+  "greeting": "Hi {{name}}",
+  "landing": {
+    "tagline": "Fight food waste",
+    "hero": {
+      "title": "Guest Arrival Analytics",
+      "titlePart1": "Guest Arrival",
+      "titlePart2": "Analytics",
+      "description": "Use <strong>guest arrival analytics</strong> to predict attendance and plan food preparation precisely. Stop food waste <strong>before it occurs</strong>—not after.",
+      "createEvent": "Create Event",
+      "haveAccount": "I already have an account"
+    },
+    "stats": {
+      "wastePrevented": "Waste prevented",
+      "realtime": "Real-time",
+      "arrivalAnalytics": "Arrival analytics",
+      "precise": "Precise",
+      "foodPlanning": "Food planning",
+      "tagline": "Stop waste before it happens. Plan smarter with arrival analytics."
+    },
+    "eventCard": {
+      "planned": "Planned",
+      "actual": "Actual",
+      "guests": "Guests",
+      "viaAnalytics": "Via Analytics",
+      "meals": "Meals",
+      "saved": "Saved!"
+    },
+    "howItWorks": {
+      "title": "Guest Arrival Analytics",
+      "titlePart1": "Guest Arrival",
+      "titlePart2": "Analytics",
+      "subtitle": "Simple steps to predict guests and plan food precisely",
+      "step1": {
+        "title": "1. Create Event",
+        "description": "Set up your event and share invite links with guests."
+      },
+      "step2": {
+        "title": "2. Track Arrivals",
+        "description": "Guests RSVP with arrival time slots. Get real-time analytics."
+      },
+      "step3": {
+        "title": "3. Plan Precisely",
+        "description": "Use arrival analytics to plan food preparation. Stop waste before it happens."
+      }
+    },
+    "whoUsing": {
+      "title": "Who are all using",
+      "subtitle": "Join thousands of event organizers who are preventing food waste with arrival analytics",
+      "individualUser": {
+        "title": "Individual user",
+        "description": "Plan your personal celebrations with confidence. Track guest arrivals and plan food precisely for weddings, housewarmings, and family events."
+      },
+      "eventPlanners": {
+        "title": "Event planners",
+        "description": "Professional event management made easy. Use arrival analytics to plan multiple events, manage guest RSVPs, and prevent food waste at scale."
+      },
+      "caterers": {
+        "title": "Caterers & Venues",
+        "description": "Optimize food preparation with real-time guest data. Reduce waste, improve efficiency, and deliver better service with arrival analytics."
+      }
+    },
+    "cta": {
+      "title": "Guest Arrival Analytics",
+      "titlePart1": "Guest Arrival",
+      "titlePart2": "Analytics",
+      "description": "Start planning with Zerovaste today. Use arrival analytics to prevent waste before it happens.",
+      "button": "Get started free"
+    },
+    "footer": {
+      "tagline": "Plan your events with Zerovaste. Reduce food waste, save money, and protect the planet.",
+      "contactUs": "Contact Us",
+      "address": "Address",
+      "email": "Email",
+      "phone": "Phone",
+      "quickLinks": "Quick Links",
+      "about": "About",
+      "features": "Features",
+      "pricing": "Pricing",
+      "support": "Support",
+      "copyright": "© {{year}} Zerovaste. All rights reserved."
+    }
+  }
 }
