@@ -37,6 +37,7 @@ function ChatWidget() {
   const [isConnected, setIsConnected] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [adminOnline, setAdminOnline] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isOpenRef = useRef(isOpen);
@@ -196,6 +197,13 @@ function ChatWidget() {
             }
           } else if (data.type === "connected") {
             console.log("Connection confirmed, isAdmin:", data.isAdmin);
+          } else if (data.type === "admin_status") {
+            console.log("Admin status update:", data.isOnline);
+            setAdminOnline(data.isOnline);
+            // Optionally show notification when admin comes online
+            if (data.isOnline && !isOpenRef.current) {
+              console.log("Admin is now available for chat");
+            }
           } else if (data.type === "unread_count") {
             console.log("Unread message count:", data.count);
             setUnreadCount(data.count);
@@ -354,7 +362,12 @@ function ChatWidget() {
           <div className="flex items-center justify-between rounded-t-2xl bg-emerald-500 px-4 py-3">
             <div className="flex items-center gap-2">
               <div className={`h-2 w-2 rounded-full ${isConnected ? "bg-emerald-300" : "bg-red-300"}`}></div>
-              <h3 className="text-sm font-semibold text-white">Support Chat</h3>
+              <div className="flex flex-col">
+                <h3 className="text-sm font-semibold text-white">Support Chat</h3>
+                {adminOnline && (
+                  <span className="text-[10px] text-emerald-100">Admin Available</span>
+                )}
+              </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
@@ -381,7 +394,19 @@ function ChatWidget() {
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {messages.length === 0 ? (
               <div className="text-center text-xs text-slate-500 mt-8">
-                {isConnected ? "Start a conversation with our support team" : "Connecting..."}
+                {isConnected ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <p>Start a conversation with our support team</p>
+                    {adminOnline && (
+                      <p className="text-emerald-600 font-semibold">✓ Admin is available</p>
+                    )}
+                    {!adminOnline && isConnected && (
+                      <p className="text-slate-400">Admin is currently offline</p>
+                    )}
+                  </div>
+                ) : (
+                  "Connecting..."
+                )}
               </div>
             ) : (
               messages.map((msg) => (

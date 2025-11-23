@@ -51,6 +51,9 @@ class ChatServer {
           if (isAdmin) {
             this.adminClients.add(userId);
             console.log(`Admin ${userId} added. Total admins: ${this.adminClients.size}`);
+            
+            // Broadcast admin online status to all connected users
+            this.broadcastAdminStatus(true);
           }
 
           this.clients.set(userId, { ws, userId, isAdmin });
@@ -63,6 +66,18 @@ class ChatServer {
               isAdmin,
             })
           );
+
+          // If user (not admin), send current admin status
+          if (!isAdmin) {
+            const adminOnline = this.adminClients.size > 0;
+            ws.send(
+              JSON.stringify({
+                type: "admin_status",
+                isOnline: adminOnline,
+                message: adminOnline ? "Admin is available for chat" : "Admin is offline",
+              })
+            );
+          }
 
           // Set up ping/pong to keep connection alive (important for Render and other cloud providers)
           const pingInterval = setInterval(() => {
@@ -122,9 +137,16 @@ class ChatServer {
           ws.on("close", () => {
             console.log(`WebSocket closed for user ${userId}`);
             clearInterval(pingInterval);
+            const wasAdmin = isAdmin;
             this.clients.delete(userId);
-            if (isAdmin) {
+            if (wasAdmin) {
               this.adminClients.delete(userId);
+              console.log(`Admin ${userId} disconnected. Total admins: ${this.adminClients.size}`);
+              
+              // Broadcast admin offline status to all connected users if no admins left
+              if (this.adminClients.size === 0) {
+                this.broadcastAdminStatus(false);
+              }
             }
           });
 
@@ -412,6 +434,34 @@ class ChatServer {
         adminClient.ws.send(JSON.stringify(message));
       }
     });
+  }
+
+  // Broadcast admin online/offline status to all non-admin users
+  broadcastAdminStatus(isOnline: boolean) {
+    const statusMessage = {
+      type: "admin_status",
+      isOnline,
+      message: isOnline ? "Admin is now available for chat" : "Admin is offline",
+    };
+
+    console.log(`Broadcasting admin ${isOnline ? "online" : "offline"} status to all users...`);
+    
+    // Send to all non-admin users
+    this.clients.forEach((client, clientUserId) => {
+      if (!client.isAdmin && client.ws.readyState === WebSocket.OPEN) {
+        try {
+          client.ws.send(JSON.stringify(statusMessage));
+          console.log(`Admin status sent to user ${clientUserId}`);
+        } catch (error) {
+          console.error(`Error sending admin status to user ${clientUserId}:`, error);
+        }
+      }
+    });
+  }
+
+  // Get admin online status
+  getAdminStatus(): boolean {
+    return this.adminClients.size > 0;
   }
 }
 

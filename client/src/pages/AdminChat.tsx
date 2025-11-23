@@ -355,6 +355,16 @@ function AdminChat() {
     console.log("payload.targetUserId value:", payload.targetUserId);
     console.log("payload.targetUserId type:", typeof payload.targetUserId);
     
+    // ONE MORE SAFETY CHECK - verify payload.targetUserId is actually set
+    if (!payload.targetUserId || payload.targetUserId !== trimmedTargetUserId) {
+      console.error("✗✗✗ CRITICAL ERROR: Payload.targetUserId mismatch!");
+      console.error("Expected:", trimmedTargetUserId);
+      console.error("Actual:", payload.targetUserId);
+      console.error("Full payload:", payload);
+      alert("Internal error: Message payload invalid. Please refresh the page.");
+      return;
+    }
+    
     // Serialize payload to JSON
     let payloadString: string;
     try {
@@ -366,11 +376,13 @@ function AdminChat() {
       return;
     }
     
-    // Final verification - ensure targetUserId is in the JSON string
+    // FINAL VERIFICATION - ensure targetUserId is in the JSON string
+    // This is the last line of defense before sending
     if (!payloadString.includes('"targetUserId"')) {
       console.error("✗✗✗ CRITICAL ERROR: targetUserId key missing from JSON!");
       console.error("JSON string:", payloadString);
-      console.error("This should never happen!");
+      console.error("Payload object:", payload);
+      console.error("This should NEVER happen - aborting send!");
       alert("Internal error: Message payload invalid. Please refresh the page.");
       return;
     }
@@ -379,14 +391,33 @@ function AdminChat() {
       console.error("✗✗✗ CRITICAL ERROR: targetUserId value missing from JSON!");
       console.error("Looking for:", trimmedTargetUserId);
       console.error("JSON string:", payloadString);
+      console.error("Payload object:", payload);
+      alert("Internal error: Message payload invalid. Please refresh the page.");
+      return;
+    }
+    
+    // ABSOLUTE FINAL CHECK - parse JSON back and verify
+    try {
+      const parsedBack = JSON.parse(payloadString);
+      if (!parsedBack.targetUserId || parsedBack.targetUserId !== trimmedTargetUserId) {
+        console.error("✗✗✗ CRITICAL ERROR: targetUserId missing after JSON roundtrip!");
+        console.error("Parsed back:", parsedBack);
+        console.error("Expected targetUserId:", trimmedTargetUserId);
+        alert("Internal error: Message payload invalid. Please refresh the page.");
+        return;
+      }
+    } catch (error) {
+      console.error("✗✗✗ ERROR: Failed to parse JSON back:", error);
       alert("Internal error: Message payload invalid. Please refresh the page.");
       return;
     }
     
     // ALL CHECKS PASSED - Safe to send
     try {
-      console.log("✓ All validations passed - sending WebSocket message...");
+      console.log("✓✓✓ ALL VALIDATIONS PASSED - SENDING WEBSOCKET MESSAGE");
       console.log("Final payload string:", payloadString);
+      console.log("Target user ID:", trimmedTargetUserId);
+      console.log("Payload verified with targetUserId:", payload.targetUserId);
       
       if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
         console.error("WebSocket not open, cannot send");
@@ -394,9 +425,10 @@ function AdminChat() {
         return;
       }
       
+      // FINAL SEND
       wsRef.current.send(payloadString);
       setInputMessage("");
-      console.log("✓✓✓ Message sent successfully to user:", trimmedTargetUserId);
+      console.log("✓✓✓✓✓ Message sent successfully to user:", trimmedTargetUserId);
     } catch (error) {
       console.error("✗✗✗ Error sending message:", error);
       console.error("Error details:", error);
@@ -407,6 +439,13 @@ function AdminChat() {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
+      // Check selectedUserId BEFORE calling sendMessage
+      const currentSelectedUserId = selectedUserIdRef.current || selectedUserId;
+      if (!currentSelectedUserId) {
+        console.error("Cannot send: No user selected");
+        alert("Please select a user from the sidebar to chat with first.");
+        return;
+      }
       sendMessage();
     }
   };
@@ -555,7 +594,17 @@ function AdminChat() {
                       className="flex-1 rounded-full border border-slate-300 px-4 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200 disabled:bg-slate-100"
                     />
                     <button
-                      onClick={sendMessage}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // Double-check before calling sendMessage
+                        const currentSelectedUserId = selectedUserIdRef.current || selectedUserId;
+                        if (!currentSelectedUserId) {
+                          console.error("Send button clicked but no user selected");
+                          alert("Please select a user from the sidebar to chat with first.");
+                          return;
+                        }
+                        sendMessage();
+                      }}
                       disabled={!isConnected || !inputMessage.trim() || !selectedUserId}
                       className="rounded-full bg-brand-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-slate-300"
                       title={!selectedUserId ? "Please select a user to chat with first" : ""}
