@@ -42,6 +42,8 @@ interface ActiveChat {
 }
 
 function AdminChat() {
+  console.log("🔵 ADMIN CHAT COMPONENT LOADED - VERSION WITH FIXED SEND MESSAGE 🔵");
+  
   const { userId: userIdFromUrl } = useParams<{ userId?: string }>();
   // CRITICAL: selectedUserId is the userId that admin clicked in sidebar
   // This becomes the targetUserId when admin sends a message
@@ -267,12 +269,40 @@ function AdminChat() {
    * 4. Server receives message and routes to targetUserId (the user)
    */
   const sendMessage = () => {
+    console.log("🚀🚀🚀 ADMIN SEND MESSAGE CALLED - NEW CODE VERSION 🚀🚀🚀");
+    console.log("===========================================");
+    console.log("selectedUserId state:", selectedUserId);
+    console.log("selectedUserIdRef.current:", selectedUserIdRef.current);
+    
     // STEP 1: Get the target user ID (the user admin wants to send message to)
     const targetUserId = selectedUserIdRef.current || selectedUserId;
     
+    console.log("targetUserId (ref || state):", targetUserId);
+    console.log("targetUserId type:", typeof targetUserId);
+    console.log("targetUserId truthy?", !!targetUserId);
+    
     // VALIDATION: Must have a target user selected
-    if (!targetUserId || typeof targetUserId !== "string" || targetUserId.trim().length < 10) {
-      alert("Please select a user from the sidebar to chat with first.");
+    if (!targetUserId) {
+      console.error("✗✗✗ VALIDATION FAILED: targetUserId is null/undefined!");
+      console.error("selectedUserId state:", selectedUserId);
+      console.error("selectedUserIdRef.current:", selectedUserIdRef.current);
+      alert("ERROR: Please select a user from the sidebar to chat with first.");
+      return;
+    }
+    
+    if (typeof targetUserId !== "string") {
+      console.error("✗✗✗ VALIDATION FAILED: targetUserId is not a string!");
+      console.error("targetUserId type:", typeof targetUserId);
+      console.error("targetUserId value:", targetUserId);
+      alert("ERROR: Invalid user selection. Please select a user from the sidebar.");
+      return;
+    }
+    
+    if (targetUserId.trim().length < 10) {
+      console.error("✗✗✗ VALIDATION FAILED: targetUserId is too short!");
+      console.error("targetUserId length:", targetUserId.trim().length);
+      console.error("targetUserId value:", targetUserId);
+      alert("ERROR: Invalid user selection. Please select a user from the sidebar.");
       return;
     }
     
@@ -290,31 +320,82 @@ function AdminChat() {
     
     // STEP 4: Create the message payload
     // CRITICAL: targetUserId MUST be included - this tells server which user to send to
+    const trimmedTargetUserId = targetUserId.trim();
+    
+    console.log("=== SEND MESSAGE DEBUG ===");
+    console.log("selectedUserId from ref:", selectedUserIdRef.current);
+    console.log("selectedUserId from state:", selectedUserId);
+    console.log("targetUserId (ref || state):", targetUserId);
+    console.log("trimmedTargetUserId:", trimmedTargetUserId);
+    
+    // Verify targetUserId one more time before creating payload
+    if (!trimmedTargetUserId || trimmedTargetUserId.length < 10) {
+      console.error("✗✗✗ VALIDATION FAILED: targetUserId is invalid!");
+      console.error("trimmedTargetUserId:", trimmedTargetUserId);
+      alert("Please select a user from the sidebar to chat with first.");
+      return;
+    }
+    
     const payload = {
       type: "message",
       message: messageText,
-      targetUserId: targetUserId.trim(), // The user admin selected in sidebar
+      targetUserId: trimmedTargetUserId, // CRITICAL: Must be included
     };
+    
+    console.log("Created payload object:", payload);
+    console.log("Payload keys:", Object.keys(payload));
+    console.log("payload.targetUserId:", payload.targetUserId);
+    console.log("payload.targetUserId type:", typeof payload.targetUserId);
     
     // STEP 5: Verify payload has all 3 required fields
     if (!payload.targetUserId || !payload.message || !payload.type) {
-      console.error("Payload validation failed:", payload);
+      console.error("✗✗✗ Payload validation failed!");
+      console.error("Payload:", payload);
       alert("Error: Invalid message. Please try again.");
+      return;
+    }
+    
+    // Verify targetUserId is actually in the payload
+    if (!("targetUserId" in payload)) {
+      console.error("✗✗✗ CRITICAL: targetUserId key missing from payload!");
+      console.error("Payload:", payload);
+      alert("Error: Message payload invalid. Please refresh the page.");
       return;
     }
     
     // STEP 6: Send the message
     try {
       const payloadJson = JSON.stringify(payload);
+      
+      console.log("=== FINAL PAYLOAD BEFORE SEND ===");
+      console.log("Payload JSON string:", payloadJson);
+      console.log("Target user ID:", payload.targetUserId);
+      console.log("Payload contains 'targetUserId':", payloadJson.includes('"targetUserId"'));
+      console.log("Payload contains targetUserId value:", payloadJson.includes(trimmedTargetUserId));
+      
+      // FINAL CHECK: Parse back and verify
+      const parsedCheck = JSON.parse(payloadJson);
+      if (!parsedCheck.targetUserId || parsedCheck.targetUserId !== trimmedTargetUserId) {
+        console.error("✗✗✗ FINAL CHECK FAILED: targetUserId missing after JSON roundtrip!");
+        console.error("Parsed payload:", parsedCheck);
+        console.error("Expected targetUserId:", trimmedTargetUserId);
+        alert("Error: Message validation failed. Please refresh the page.");
+        return;
+      }
+      
+      console.log("✓✓✓ All checks passed - sending message");
       console.log("Sending message to user:", payload.targetUserId);
-      console.log("Payload:", payloadJson);
+      console.log("FINAL PAYLOAD JSON:", payloadJson);
+      console.log("===========================================");
       
       wsRef.current.send(payloadJson);
       setInputMessage(""); // Clear input
       
-      console.log("✓ Message sent successfully!");
+      console.log("✅✅✅ ADMIN MESSAGE SENT SUCCESSFULLY ✅✅✅");
+      console.log("Sent to user:", payload.targetUserId);
+      console.log("Payload:", payloadJson);
     } catch (error) {
-      console.error("Failed to send message:", error);
+      console.error("✗✗✗ Failed to send message:", error);
       alert("Failed to send message. Please try again.");
     }
   };
@@ -351,18 +432,27 @@ function AdminChat() {
                   <button
                     key={chat.userId}
                     onClick={() => {
-                      console.log("User selected in sidebar:", chat.userId);
-                      console.log("Setting selectedUserId to:", chat.userId);
+                      console.log("=== USER CLICKED IN SIDEBAR ===");
+                      console.log("Clicked user ID:", chat.userId);
+                      console.log("Chat object:", chat);
+                      
                       setSelectedUserId(chat.userId);
                       selectedUserIdRef.current = chat.userId; // Update ref immediately
+                      
+                      console.log("selectedUserId state set to:", chat.userId);
+                      console.log("selectedUserIdRef.current set to:", selectedUserIdRef.current);
+                      console.log("Verification: selectedUserIdRef.current === chat.userId?", selectedUserIdRef.current === chat.userId);
+                      
                       window.history.pushState({}, "", `/admin/chat/${chat.userId}`);
+                      
                       // Reset unread count for selected chat
                       setActiveChats((prev) =>
                         prev.map((c) =>
                           c.userId === chat.userId ? { ...c, unreadCount: 0 } : c
                         )
                       );
-                      console.log("selectedUserId after setting:", selectedUserIdRef.current);
+                      
+                      console.log("✓ User selection complete");
                     }}
                     className={`w-full rounded-xl border p-3 text-left transition ${
                       selectedUserId === chat.userId
