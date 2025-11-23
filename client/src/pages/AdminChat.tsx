@@ -116,6 +116,26 @@ function AdminChat() {
             if (exists) return prev;
             return [...prev, newMessage];
           });
+
+          // If message is from user (not admin), update room with green signal indicator
+          if (data.sender === "user") {
+            setRooms((prev) => {
+              const existing = prev.find((r) => r.roomId === data.roomId);
+              if (existing) {
+                return prev.map((r) =>
+                  r.roomId === data.roomId
+                    ? {
+                        ...r,
+                        lastMessage: data.message,
+                        lastMessageTime: new Date(data.timestamp),
+                        unreadCount: selectedRoomId === data.roomId ? 0 : r.unreadCount + 1,
+                      }
+                    : r
+                );
+              }
+              return prev;
+            });
+          }
         } else if (data.type === "history") {
           // Chat history
           const historyMessages: ChatMessage[] = (data.messages || []).map((msg: any) => ({
@@ -128,6 +148,18 @@ function AdminChat() {
           }));
 
           setMessages(historyMessages);
+        } else if (data.type === "room_closed") {
+          // Room was successfully closed
+          setRooms((prev) => prev.filter((room) => room.roomId !== data.roomId));
+          setMessages((prev) => prev.filter((msg) => msg.roomId !== data.roomId));
+          if (selectedRoomId === data.roomId) {
+            setSelectedRoomId(null);
+            navigate("/admin/chat");
+          }
+        } else if (data.type === "new_message_notification") {
+          // Green signal notification when user sends a message
+          // This will trigger visual indicator
+          console.log("[AdminChat] New message notification from user:", data.userId);
         }
       } catch (error) {
         console.error("[AdminChat] Error parsing message:", error);
@@ -194,6 +226,43 @@ function AdminChat() {
     );
   };
 
+  // Handle close/delete chat room
+  const handleCloseRoom = async (roomId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent room selection
+    
+    if (!window.confirm("Are you sure you want to close this chat room? All messages will be deleted.")) {
+      return;
+    }
+
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      alert("Not connected. Please refresh the page.");
+      return;
+    }
+
+    try {
+      // Send close room request to server
+      wsRef.current.send(JSON.stringify({
+        type: "close_room",
+        roomId: roomId,
+      }));
+
+      // If this room is selected, navigate away
+      if (selectedRoomId === roomId) {
+        setSelectedRoomId(null);
+        navigate("/admin/chat");
+      }
+
+      // Remove room from list immediately (server will confirm)
+      setRooms((prev) => prev.filter((room) => room.roomId !== roomId));
+      
+      // Clear messages for this room
+      setMessages((prev) => prev.filter((msg) => msg.roomId !== roomId));
+    } catch (error) {
+      console.error("[AdminChat] Error closing room:", error);
+      alert("Failed to close chat room. Please try again.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-orange-50">
       <div className="mx-auto max-w-7xl px-6 py-8">
@@ -213,37 +282,63 @@ function AdminChat() {
                 <p className="text-xs text-slate-500">No active chats</p>
               ) : (
                 rooms.map((room) => (
-                  <button
+                  <div
                     key={room.roomId}
-                    onClick={() => handleRoomSelect(room.roomId)}
-                    className={`w-full rounded-xl border p-3 text-left transition ${
+                    className={`relative w-full rounded-xl border p-3 transition ${
                       selectedRoomId === room.roomId
                         ? "border-brand-500 bg-brand-50"
                         : "border-orange-100 hover:bg-orange-50"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs font-semibold text-slate-900">{room.userName}</p>
-                      {room.unreadCount > 0 && (
-                        <span className="rounded-full bg-brand-500 px-2 py-0.5 text-[10px] font-semibold text-white">
-                          {room.unreadCount}
-                        </span>
-                      )}
-                    </div>
-                    {room.lastMessage && (
-                      <>
-                        <p className="mt-1 truncate text-[11px] text-slate-600">{room.lastMessage}</p>
-                        {room.lastMessageTime && (
-                          <p className="mt-1 text-[10px] text-slate-400">
-                            {new Date(room.lastMessageTime).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                    <button
+                      onClick={() => handleRoomSelect(room.roomId)}
+                      className="w-full text-left"
+                    >
+                      <div className="flex items-center justify-between pr-6">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          {/* Green signal indicator for new messages */}
+                          {room.unreadCount > 0 && (
+                            <span 
+                              className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse flex-shrink-0 shadow-lg shadow-emerald-500/50" 
+                              title="New message received"
+                            ></span>
+                          )}
+                          <p className={`text-xs font-semibold truncate ${room.unreadCount > 0 ? "text-emerald-700" : "text-slate-900"}`}>
+                            {room.userName}
                           </p>
+                        </div>
+                        {room.unreadCount > 0 && (
+                          <span className="rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-semibold text-white flex-shrink-0 ml-2 shadow shadow-emerald-500/50">
+                            {room.unreadCount}
+                          </span>
                         )}
-                      </>
-                    )}
-                  </button>
+                      </div>
+                      {room.lastMessage && (
+                        <>
+                          <p className="mt-1 truncate text-[11px] text-slate-600">{room.lastMessage}</p>
+                          {room.lastMessageTime && (
+                            <p className="mt-1 text-[10px] text-slate-400">
+                              {new Date(room.lastMessageTime).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </p>
+                          )}
+                        </>
+                      )}
+                    </button>
+                    {/* Close room button */}
+                    <button
+                      onClick={(e) => handleCloseRoom(room.roomId, e)}
+                      className="absolute top-2 right-2 p-1 rounded-full hover:bg-red-100 text-red-600 transition-colors"
+                      title="Close chat room"
+                      aria-label="Close chat room"
+                    >
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
                 ))
               )}
             </div>

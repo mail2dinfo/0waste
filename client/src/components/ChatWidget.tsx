@@ -85,8 +85,26 @@ function ChatWidget() {
             };
 
             setMessages((prev) => {
+              // Check if message already exists by ID
               const exists = prev.some((msg) => msg.id === data.id);
               if (exists) return prev;
+              
+              // If this is a user message, check if we have a temp message with same content
+              // and replace it with the real message from server
+              if (data.sender === "user") {
+                const tempMessageIndex = prev.findIndex(
+                  (msg) => msg.id.startsWith("temp-") && 
+                           msg.message === data.message && 
+                           msg.sender === "user"
+                );
+                
+                if (tempMessageIndex !== -1) {
+                  // Replace temp message with real one
+                  const updated = [...prev];
+                  updated[tempMessageIndex] = newMessage;
+                  return updated;
+                }
+              }
               
               // Increment unread if admin message and chat is closed
               if (data.sender === "admin" && !isOpenRef.current) {
@@ -169,8 +187,11 @@ function ChatWidget() {
           type: "message",
           message: messageText,
         }));
+        // Note: We keep the optimistic message until server confirms with real ID
+        // The server response will replace the temp message
       } catch (error) {
         console.error("[ChatWidget] Error sending message:", error);
+        // Remove optimistic message on error
         setMessages((prev) => prev.filter((msg) => msg.id !== tempId));
         setInputMessage(messageText);
       }

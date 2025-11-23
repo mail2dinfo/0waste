@@ -301,6 +301,49 @@ class ChatServer {
       return;
     }
 
+    if (message.type === "close_room") {
+      // Admin wants to close/delete a chat room
+      if (!isAdmin) {
+        console.error(`[ChatServer] Non-admin user ${userId} attempted to close room`);
+        return;
+      }
+
+      const roomId = message.roomId;
+      if (!roomId) {
+        console.error(`[ChatServer] No roomId in close_room message`);
+        return;
+      }
+
+      try {
+        // Delete all messages for this room
+        const deletedCount = await NwChatMessage.destroy({
+          where: { userId: roomId },
+        });
+
+        console.log(`[ChatServer] Admin ${userId} closed room ${roomId}, deleted ${deletedCount} messages`);
+
+        // Notify admin that room was closed
+        const adminClient = this.clients.get(userId);
+        if (adminClient && adminClient.ws.readyState === WebSocket.OPEN) {
+          adminClient.ws.send(JSON.stringify({
+            type: "room_closed",
+            roomId: roomId,
+            deletedCount,
+          }));
+        }
+      } catch (error) {
+        console.error(`[ChatServer] Error closing room ${roomId}:`, error);
+        const adminClient = this.clients.get(userId);
+        if (adminClient && adminClient.ws.readyState === WebSocket.OPEN) {
+          adminClient.ws.send(JSON.stringify({
+            type: "error",
+            message: "Failed to close chat room",
+          }));
+        }
+      }
+      return;
+    }
+
     if (message.type === "message") {
       const roomId = isAdmin ? message.roomId : userId;
       
@@ -381,11 +424,20 @@ class ChatServer {
           userClient.ws.send(JSON.stringify(messageData));
         }
 
-        // Send to all admins
+        // Send to all admins with notification
         this.adminClients.forEach((adminId) => {
           const adminClient = this.clients.get(adminId);
           if (adminClient && adminClient.ws.readyState === WebSocket.OPEN) {
+            // Send the message
             adminClient.ws.send(JSON.stringify(messageData));
+            
+            // Send notification for green signal indicator
+            adminClient.ws.send(JSON.stringify({
+              type: "new_message_notification",
+              userId: userId,
+              roomId: roomId,
+              userName: userName,
+            }));
           }
         });
 
