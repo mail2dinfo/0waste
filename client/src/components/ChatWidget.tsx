@@ -82,11 +82,20 @@ function ChatWidget() {
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          console.log("User received WebSocket message:", data);
+          console.log("=== USER RECEIVED WEBSOCKET MESSAGE ===");
+          console.log("Raw message:", event.data);
+          console.log("Parsed data:", data);
+          console.log("Message type:", data.type);
+          console.log("Sender:", data.sender);
           
           if (data.type === "message") {
-            console.log("User received message - Type: message, Sender:", data.sender, "Message:", data.message);
-            console.log("Full message data:", data);
+            console.log("✓ Processing message type");
+            console.log("  - Sender:", data.sender);
+            console.log("  - Message:", data.message);
+            console.log("  - Message ID:", data.id);
+            console.log("  - UserId:", data.userId);
+            console.log("  - Timestamp:", data.timestamp);
+            
             // Always add message to state, even if chat is closed
             // User will see it when they open the chat
             setMessages((prev) => {
@@ -117,34 +126,70 @@ function ChatWidget() {
               }
               
               // Add new message (from admin or new user message)
-              console.log("Adding new message to state - Sender:", data.sender, "Message:", data.message);
+              console.log("Adding new message to state:");
+              console.log("  - Sender:", data.sender);
+              console.log("  - Message:", data.message);
+              console.log("  - Is from admin?", data.sender === "admin");
+              
+              // Validate sender - must be "admin" or "user"
+              const validSender = data.sender === "admin" || data.sender === "user" ? data.sender : "user";
+              if (data.sender !== validSender) {
+                console.warn("Invalid sender detected, defaulting to 'user':", data.sender);
+              }
+              
               const newMessage = {
                 id: data.id || `msg-${Date.now()}-${Math.random()}`,
-                sender: data.sender,
+                sender: validSender,
                 message: data.message,
                 timestamp: new Date(data.timestamp || Date.now()),
               };
               console.log("New message object created:", newMessage);
+              console.log("Current messages count:", prev.length);
+              console.log("New messages count:", prev.length + 1);
               
               // Increment unread count if message is from admin and chat is closed
-              if (data.sender === "admin" && !isOpenRef.current) {
-                console.log("Incrementing unread count for admin message");
-                setUnreadCount((prev) => prev + 1);
+              if (validSender === "admin" && !isOpenRef.current) {
+                console.log("✓ Admin message received while chat is closed - incrementing unread count");
+                setUnreadCount((prev) => {
+                  const newCount = prev + 1;
+                  console.log(`Unread count: ${prev} -> ${newCount}`);
+                  return newCount;
+                });
+              } else if (validSender === "admin") {
+                console.log("✓ Admin message received while chat is open");
               }
               
+              console.log("Adding message to state...");
               return [...prev, newMessage];
             });
           } else if (data.type === "history") {
-            console.log("Received chat history:", data.messages.length, "messages");
-            console.log("History messages:", data.messages);
-            const historyMessages = data.messages.map((msg: any) => ({
-              id: msg.id,
-              sender: msg.sender,
-              message: msg.message,
-              timestamp: new Date(msg.timestamp),
-            }));
+            console.log("=== RECEIVED CHAT HISTORY ===");
+            console.log("Total messages in history:", data.messages.length);
+            console.log("Raw history data:", data.messages);
+            
+            const historyMessages = data.messages.map((msg: any) => {
+              const validSender = msg.sender === "admin" || msg.sender === "user" ? msg.sender : "user";
+              return {
+                id: msg.id,
+                sender: validSender,
+                message: msg.message,
+                timestamp: new Date(msg.timestamp),
+              };
+            });
+            
+            // Count admin vs user messages
+            const adminMessages = historyMessages.filter((m: any) => m.sender === "admin");
+            const userMessages = historyMessages.filter((m: any) => m.sender === "user");
+            console.log(`History breakdown: ${adminMessages.length} admin messages, ${userMessages.length} user messages`);
             console.log("Processed history messages:", historyMessages);
+            
             setMessages(historyMessages);
+            
+            // Update unread count based on admin messages if chat is closed
+            if (!isOpenRef.current && adminMessages.length > 0) {
+              console.log(`Setting unread count to ${adminMessages.length} (admin messages in history)`);
+              setUnreadCount(adminMessages.length);
+            }
             // Clear unread count when history is loaded (user opened chat)
             if (isOpenRef.current) {
               setUnreadCount(0);

@@ -216,24 +216,37 @@ class ChatServer {
     }
 
     if (message.type === "message") {
-      console.log(`Processing message from ${isAdmin ? "admin" : "user"} ${userId}:`, message);
+      console.log(`=== PROCESSING MESSAGE ===`);
+      console.log(`From: ${isAdmin ? "admin" : "user"} ${userId}`);
+      console.log(`Raw message object:`, message);
+      console.log(`Message keys:`, Object.keys(message));
+      console.log(`Has targetUserId?`, !!message.targetUserId);
+      console.log(`targetUserId value:`, message.targetUserId);
+      
       const targetUserId = isAdmin ? message.targetUserId : userId;
       
       if (!targetUserId) {
-        console.error(`ERROR: No targetUserId! isAdmin: ${isAdmin}, message.targetUserId: ${message.targetUserId}, userId: ${userId}`);
+        console.error(`✗✗✗ ERROR: No targetUserId! ✗✗✗`);
+        console.error(`  isAdmin: ${isAdmin}`);
+        console.error(`  message.targetUserId: ${message.targetUserId}`);
+        console.error(`  message.targetUserId type: ${typeof message.targetUserId}`);
+        console.error(`  userId: ${userId}`);
+        console.error(`  Full message:`, JSON.stringify(message));
+        console.error(`  Message keys:`, Object.keys(message));
+        
         const client = this.clients.get(userId);
         if (client) {
           client.ws.send(
             JSON.stringify({
               type: "error",
-              message: "Target user ID required",
+              message: "Target user ID required. Please select a user to send message to.",
             })
           );
         }
         return;
       }
       
-      console.log(`Message targetUserId: ${targetUserId}`);
+      console.log(`✓ Target user ID: ${targetUserId}`);
 
       const chatMessage = await NwChatMessage.create({
         userId: targetUserId,
@@ -314,43 +327,65 @@ class ChatServer {
         console.log(`[ADMIN->USER] Current active clients:`, Array.from(this.clients.keys()));
         
         // Send to the target user (the user who owns this conversation)
+        console.log(`[ADMIN->USER] Looking for user ${targetUserId} in clients map...`);
+        console.log(`[ADMIN->USER] Total active clients: ${this.clients.size}`);
+        console.log(`[ADMIN->USER] Active client IDs:`, Array.from(this.clients.keys()));
+        
         const targetClient = this.clients.get(targetUserId);
         if (targetClient) {
-          console.log(`[ADMIN->USER] Target user client found: ${targetUserId}, readyState: ${targetClient.ws.readyState}, OPEN: ${WebSocket.OPEN}`);
+          console.log(`[ADMIN->USER] ✓ Target user client found: ${targetUserId}`);
+          console.log(`[ADMIN->USER] WebSocket readyState: ${targetClient.ws.readyState} (OPEN=${WebSocket.OPEN})`);
+          
           if (targetClient.ws.readyState === WebSocket.OPEN) {
             try {
-              const messageStr = JSON.stringify(messageData);
-              console.log(`[ADMIN->USER] Sending message string to user ${targetUserId}:`, messageStr);
-              console.log(`[ADMIN->USER] Message data structure:`, {
-                type: messageData.type,
+              // Ensure messageData has correct structure
+              const messageToSend = {
+                type: "message",
                 id: messageData.id,
-                sender: messageData.sender,
+                sender: "admin", // Explicitly set to "admin"
                 message: messageData.message,
                 timestamp: messageData.timestamp,
                 userId: messageData.userId,
-              });
+              };
+              
+              const messageStr = JSON.stringify(messageToSend);
+              console.log(`[ADMIN->USER] Preparing to send message to user ${targetUserId}:`);
+              console.log(`[ADMIN->USER] Message string:`, messageStr);
+              console.log(`[ADMIN->USER] Message structure:`, messageToSend);
+              
               targetClient.ws.send(messageStr);
-              console.log(`[ADMIN->USER] ✓ Message sent successfully to user ${targetUserId}`);
+              console.log(`[ADMIN->USER] ✓✓✓ Message sent successfully to user ${targetUserId} ✓✓✓`);
+              
               // Mark message as read since it was delivered
               await NwChatMessage.update(
                 { isRead: true },
                 { where: { id: chatMessage.id } }
               );
+              console.log(`[ADMIN->USER] Message marked as read in database`);
             } catch (error) {
-              console.error(`[ADMIN->USER] ✗ Failed to send to user ${targetUserId}:`, error);
-              console.error(`[ADMIN->USER] Error details:`, error);
+              console.error(`[ADMIN->USER] ✗✗✗ FAILED to send to user ${targetUserId} ✗✗✗`);
+              console.error(`[ADMIN->USER] Error:`, error);
+              console.error(`[ADMIN->USER] Error type:`, (error as any)?.constructor?.name);
               console.error(`[ADMIN->USER] Error stack:`, (error as Error).stack);
             }
           } else {
-            console.warn(`[ADMIN->USER] Target user ${targetUserId} WebSocket not OPEN (readyState: ${targetClient.ws.readyState})`);
-            console.warn(`[ADMIN->USER] WebSocket states: OPEN=${WebSocket.OPEN}, CONNECTING=${WebSocket.CONNECTING}, CLOSING=${WebSocket.CLOSING}, CLOSED=${WebSocket.CLOSED}`);
+            const stateNames: Record<number, string> = {
+              [WebSocket.CONNECTING]: "CONNECTING",
+              [WebSocket.OPEN]: "OPEN",
+              [WebSocket.CLOSING]: "CLOSING",
+              [WebSocket.CLOSED]: "CLOSED",
+            };
+            const stateName = stateNames[targetClient.ws.readyState] || `UNKNOWN(${targetClient.ws.readyState})`;
+            console.warn(`[ADMIN->USER] ✗ Target user ${targetUserId} WebSocket not OPEN`);
+            console.warn(`[ADMIN->USER] Current state: ${stateName} (${targetClient.ws.readyState})`);
             console.warn(`[ADMIN->USER] Message saved to database (id: ${chatMessage.id}), will be delivered when user reconnects`);
           }
         } else {
-          console.warn(`[ADMIN->USER] Target user ${targetUserId} not found in clients map`);
+          console.warn(`[ADMIN->USER] ✗ Target user ${targetUserId} NOT FOUND in clients map`);
           console.warn(`[ADMIN->USER] Available clients:`, Array.from(this.clients.keys()));
           console.warn(`[ADMIN->USER] Total active clients: ${this.clients.size}`);
           console.warn(`[ADMIN->USER] Message saved to database (id: ${chatMessage.id}), will be delivered when user reconnects`);
+          console.warn(`[ADMIN->USER] User should receive message when they connect or reload history`);
         }
 
         // Also send confirmation to admin

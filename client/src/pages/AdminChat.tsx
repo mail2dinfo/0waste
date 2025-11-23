@@ -269,28 +269,66 @@ function AdminChat() {
     if (!selectedUserId || selectedUserId.trim() === "") {
       console.error("ERROR: No selectedUserId! Cannot send message without a target user.");
       console.error("selectedUserId value:", selectedUserId);
+      console.error("selectedUserId type:", typeof selectedUserId);
       alert("Please select a user to chat with first.");
       return;
     }
     
+    // Validate selectedUserId is a valid UUID-like string
+    const trimmedSelectedUserId = selectedUserId.trim();
+    if (trimmedSelectedUserId.length < 10) {
+      console.error("ERROR: Invalid selectedUserId format:", trimmedSelectedUserId);
+      alert("Invalid user selected. Please select a user to chat with first.");
+      return;
+    }
+    
+    // Build payload - CRITICAL: ensure targetUserId is included
     const payload = {
       type: "message",
       message: messageText,
-      sender: "admin",
-      targetUserId: selectedUserId, // This is the user who will receive the message
+      targetUserId: trimmedSelectedUserId, // This is the user who will receive the message - MUST be included
     };
     
-    console.log("Sending admin message to user:", selectedUserId);
+    // Validate payload before sending
+    if (!payload.targetUserId || payload.targetUserId === "") {
+      console.error("ERROR: Payload missing targetUserId!");
+      console.error("Payload:", payload);
+      alert("Cannot send message: target user not set.");
+      return;
+    }
+    
+    console.log("=== ADMIN SENDING MESSAGE ===");
+    console.log("Target user ID:", trimmedSelectedUserId);
     console.log("Message text:", messageText);
-    console.log("Payload:", payload);
+    console.log("Full payload:", payload);
     console.log("Payload JSON:", JSON.stringify(payload));
+    console.log("Payload has targetUserId?", !!payload.targetUserId);
+    console.log("targetUserId value:", payload.targetUserId);
     
     try {
-      wsRef.current.send(JSON.stringify(payload));
+      const payloadString = JSON.stringify(payload);
+      console.log("Sending payload string:", payloadString);
+      
+      // Verify targetUserId is in the string
+      if (!payloadString.includes('"targetUserId"')) {
+        console.error("ERROR: targetUserId not found in JSON string!");
+        console.error("JSON string:", payloadString);
+        return;
+      }
+      
+      if (!payloadString.includes(trimmedSelectedUserId)) {
+        console.error("ERROR: targetUserId value not found in JSON string!");
+        console.error("Looking for:", trimmedSelectedUserId);
+        console.error("JSON string:", payloadString);
+        return;
+      }
+      
+      wsRef.current.send(payloadString);
       setInputMessage("");
-      console.log("✓ Message sent successfully");
+      console.log("✓✓✓ Message sent successfully to user:", trimmedSelectedUserId);
     } catch (error) {
-      console.error("✗ Error sending message:", error);
+      console.error("✗✗✗ Error sending message:", error);
+      console.error("Error details:", error);
     }
   };
 
