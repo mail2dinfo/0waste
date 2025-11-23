@@ -340,25 +340,29 @@ class ChatServer {
         }
       }
 
+      // CRITICAL: For user messages, userId in messageData should be the user who sent it
+      // For admin messages, userId should be the target user
       const messageData = {
         type: "message",
         id: chatMessage.id,
         sender: chatMessage.sender,
         message: chatMessage.message,
         timestamp: chatMessage.createdAt.toISOString(),
-        userId: targetUserId,
+        userId: isAdmin ? targetUserId : userId, // For users: userId = sender. For admin: userId = target
         userName: userName,
         userEmail: userEmail,
       };
 
       console.log(`Broadcasting message:`, messageData);
       console.log(`Sender isAdmin: ${isAdmin}, sender userId: ${userId}, targetUserId: ${targetUserId}`);
+      console.log(`messageData.userId: ${messageData.userId} (should be sender's userId for user messages)`);
       console.log(`Active admins:`, Array.from(this.adminClients));
       console.log(`Active clients:`, Array.from(this.clients.keys()));
 
       if (!isAdmin) {
         // User sent message - send confirmation back to user (to replace optimistic update)
         // and send to all admins
+        // CRITICAL: messageData.userId = userId (the user who sent it) - this is correct
         const userClient = this.clients.get(userId);
         if (userClient && userClient.ws.readyState === WebSocket.OPEN) {
           console.log(`Sending confirmation to user ${userId} (to replace optimistic update)`);
@@ -371,7 +375,9 @@ class ChatServer {
         }
         
         // Send to all admins
+        // CRITICAL: messageData.userId tells admin which user sent this message
         console.log(`User message - notifying ${this.adminClients.size} admins`);
+        console.log(`Message userId (which user sent it): ${messageData.userId}`);
         if (this.adminClients.size === 0) {
           console.warn("WARNING: No admin clients connected to receive user message!");
         }
@@ -379,6 +385,7 @@ class ChatServer {
           const adminClient = this.clients.get(adminId);
           if (adminClient && adminClient.ws.readyState === WebSocket.OPEN) {
             console.log(`Sending to admin ${adminId} (readyState: ${adminClient.ws.readyState})`);
+            console.log(`  Message userId: ${messageData.userId} (this identifies which user sent it)`);
             try {
               adminClient.ws.send(JSON.stringify(messageData));
               console.log(`✓ Message sent successfully to admin ${adminId}`);

@@ -131,37 +131,53 @@ function AdminChat() {
             });
             
             // Update active chats when user sends a message
+            // CRITICAL: Each user must have their own separate chat in sidebar
             if (data.sender === "user" && data.userId) {
+              console.log(`📝 Processing user message for chat sidebar - UserId: ${data.userId}, Message: ${data.message}`);
+              
               setActiveChats((prev) => {
                 const existing = prev.find((chat) => chat.userId === data.userId);
-                let updated;
+                
+                console.log(`  Existing chats: ${prev.length}`);
+                console.log(`  Looking for userId: ${data.userId}`);
+                console.log(`  Found existing chat?: ${!!existing}`);
+                
+                let updated: ActiveChat[];
+                
                 if (existing) {
                   // Update existing chat - increment unread count if not currently viewing this chat
-                  updated = prev.map((chat) =>
-                    chat.userId === data.userId
-                      ? {
-                          ...chat,
-                          lastMessage: data.message,
-                          lastMessageTime: new Date(data.timestamp),
-                          unreadCount: chat.userId === selectedUserId ? 0 : chat.unreadCount + 1,
-                        }
-                      : chat
-                  );
+                  console.log(`  ✅ Updating existing chat for user ${data.userId}`);
+                  updated = prev.map((chat) => {
+                    if (chat.userId === data.userId) {
+                      return {
+                        ...chat,
+                        lastMessage: data.message,
+                        lastMessageTime: new Date(data.timestamp),
+                        unreadCount: chat.userId === selectedUserId ? 0 : chat.unreadCount + 1,
+                        userName: data.userName || chat.userName, // Update name if available
+                      };
+                    }
+                    return chat;
+                  });
                 } else {
                   // Add new chat - show as unread if not currently selected
-                  updated = [
-                    ...prev,
-                    {
-                      userId: data.userId,
-                      userName: data.userName || `User ${data.userId.substring(0, 8)}`,
-                      lastMessage: data.message,
-                      lastMessageTime: new Date(data.timestamp),
-                      unreadCount: data.userId === selectedUserId ? 0 : 1,
-                    },
-                  ];
+                  console.log(`  ✅ Creating NEW chat for user ${data.userId}`);
+                  const newChat: ActiveChat = {
+                    userId: data.userId,
+                    userName: data.userName || `User ${data.userId.substring(0, 8)}`,
+                    lastMessage: data.message,
+                    lastMessageTime: new Date(data.timestamp),
+                    unreadCount: data.userId === selectedUserId ? 0 : 1,
+                  };
+                  
+                  updated = [...prev, newChat];
+                  console.log(`  Added new chat - Total chats now: ${updated.length}`);
                 }
+                
                 // Sort by most recent message first (newest conversations on top)
-                return updated.sort((a, b) => b.lastMessageTime.getTime() - a.lastMessageTime.getTime());
+                const sorted = updated.sort((a, b) => b.lastMessageTime.getTime() - a.lastMessageTime.getTime());
+                console.log(`  Sorted chats - Top chat: ${sorted[0]?.userName} (${sorted[0]?.userId})`);
+                return sorted;
               });
               
               // Auto-scroll to bottom if this message is for the currently selected chat
@@ -191,12 +207,18 @@ function AdminChat() {
             console.log("Processed history messages:", historyMessages);
             setMessages(historyMessages);
             
-            // Build active chats from history - only from user messages
+            // Build active chats from history - CRITICAL: Each user gets their own separate chat
+            console.log("🔍 Building active chats from history...");
             const userChats = new Map<string, ActiveChat>();
+            
             historyMessages.forEach((msg: ChatMessage) => {
               // Only process user messages (not admin messages) to build chat list
               if (msg.sender === "user" && msg.userId) {
+                console.log(`  Processing message - UserId: ${msg.userId}, Message: ${msg.message}`);
+                
                 if (!userChats.has(msg.userId)) {
+                  // Create new chat for this user
+                  console.log(`    ✅ Creating NEW chat for user ${msg.userId}`);
                   userChats.set(msg.userId, {
                     userId: msg.userId,
                     userName: msg.userName || `User ${msg.userId.substring(0, 8)}`,
@@ -205,6 +227,7 @@ function AdminChat() {
                     unreadCount: 0, // Will be recalculated based on unread admin messages
                   });
                 } else {
+                  // Update existing chat - keep latest message
                   const chat = userChats.get(msg.userId)!;
                   if (msg.timestamp > chat.lastMessageTime) {
                     chat.lastMessage = msg.message;
@@ -214,9 +237,14 @@ function AdminChat() {
                   if (msg.userName && !chat.userName.startsWith("User ")) {
                     chat.userName = msg.userName;
                   }
+                  console.log(`    ✅ Updated existing chat for user ${msg.userId}`);
                 }
+              } else if (msg.sender === "user" && !msg.userId) {
+                console.warn(`    ⚠️ Skipping message without userId:`, msg);
               }
             });
+            
+            console.log(`✅ Built ${userChats.size} separate chats from history`);
             // Sort by most recent message first (newest on top)
             const sortedChats = Array.from(userChats.values()).sort(
               (a, b) => b.lastMessageTime.getTime() - a.lastMessageTime.getTime()
@@ -260,51 +288,87 @@ function AdminChat() {
   }, [messages]);
 
   /**
-   * SEND MESSAGE - Simple and clear implementation
+   * SEND MESSAGE - REDESIGNED with multiple fallbacks
+   * 
+   * Problem: Server doesn't know which user to send to (missing targetUserId)
+   * Solution: Get targetUserId from multiple sources with fallbacks
    * 
    * Flow:
    * 1. Admin clicks user in sidebar → selectedUserId is set
    * 2. Admin types message and clicks Send
-   * 3. This function creates payload with targetUserId = selectedUserId
-   * 4. Server receives message and routes to targetUserId (the user)
+   * 3. Get targetUserId from: ref → state → URL param → activeChats[0]
+   * 4. Create payload with targetUserId
+   * 5. Server uses targetUserId to route message to that specific user
    */
   const sendMessage = () => {
-    console.log("🚀🚀🚀 ADMIN SEND MESSAGE CALLED - NEW CODE VERSION 🚀🚀🚀");
-    console.log("===========================================");
-    console.log("selectedUserId state:", selectedUserId);
-    console.log("selectedUserIdRef.current:", selectedUserIdRef.current);
+    console.log("═══════════════════════════════════════");
+    console.log("🚀 ADMIN SEND MESSAGE - REDESIGNED 🚀");
+    console.log("═══════════════════════════════════════");
     
-    // STEP 1: Get the target user ID (the user admin wants to send message to)
-    const targetUserId = selectedUserIdRef.current || selectedUserId;
+    // STEP 1: Get targetUserId from MULTIPLE sources (with fallbacks)
+    // Priority: ref → state → URL param → first active chat
+    let targetUserId: string | null = null;
+    
+    console.log("📍 Step 1: Finding targetUserId...");
+    console.log("  - selectedUserIdRef.current:", selectedUserIdRef.current);
+    console.log("  - selectedUserId (state):", selectedUserId);
+    console.log("  - userIdFromUrl (URL param):", userIdFromUrl);
+    console.log("  - activeChats count:", activeChats.length);
+    
+    // Try 1: Use ref (most current)
+    if (selectedUserIdRef.current && typeof selectedUserIdRef.current === "string" && selectedUserIdRef.current.trim().length >= 10) {
+      targetUserId = selectedUserIdRef.current.trim();
+      console.log("  ✅ Found in ref:", targetUserId);
+    }
+    // Try 2: Use state
+    else if (selectedUserId && typeof selectedUserId === "string" && selectedUserId.trim().length >= 10) {
+      targetUserId = selectedUserId.trim();
+      console.log("  ✅ Found in state:", targetUserId);
+    }
+    // Try 3: Use URL parameter
+    else if (userIdFromUrl && typeof userIdFromUrl === "string" && userIdFromUrl.trim().length >= 10) {
+      targetUserId = userIdFromUrl.trim();
+      console.log("  ✅ Found in URL param:", targetUserId);
+      // Also update selectedUserId for next time
+      setSelectedUserId(targetUserId);
+      selectedUserIdRef.current = targetUserId;
+    }
+    // Try 4: Use first active chat (last resort)
+    else if (activeChats.length > 0 && activeChats[0].userId && typeof activeChats[0].userId === "string" && activeChats[0].userId.trim().length >= 10) {
+      targetUserId = activeChats[0].userId.trim();
+      console.log("  ✅ Found in first active chat:", targetUserId);
+      // Also update selectedUserId for next time
+      setSelectedUserId(targetUserId);
+      selectedUserIdRef.current = targetUserId;
+    }
+    
+    console.log("📍 Final targetUserId:", targetUserId);
     
     console.log("targetUserId (ref || state):", targetUserId);
     console.log("targetUserId type:", typeof targetUserId);
     console.log("targetUserId truthy?", !!targetUserId);
     
-    // VALIDATION: Must have a target user selected
-    if (!targetUserId) {
-      console.error("✗✗✗ VALIDATION FAILED: targetUserId is null/undefined!");
-      console.error("selectedUserId state:", selectedUserId);
-      console.error("selectedUserIdRef.current:", selectedUserIdRef.current);
-      alert("ERROR: Please select a user from the sidebar to chat with first.");
+    // STEP 2: Validate targetUserId
+    if (!targetUserId || typeof targetUserId !== "string" || targetUserId.length < 10) {
+      console.error("✗✗✗ VALIDATION FAILED: No valid targetUserId found!");
+      console.error("  targetUserId:", targetUserId);
+      console.error("  selectedUserIdRef:", selectedUserIdRef.current);
+      console.error("  selectedUserId:", selectedUserId);
+      console.error("  userIdFromUrl:", userIdFromUrl);
+      console.error("  activeChats:", activeChats.map(c => ({ userId: c.userId, userName: c.userName })));
+      
+      alert(
+        "ERROR: Cannot determine which user to send to.\n\n" +
+        "Please:\n" +
+        "1. Click a user in the sidebar to select them\n" +
+        "2. Then type your message\n" +
+        "3. Click Send\n\n" +
+        "If you see users in the sidebar, click on one first."
+      );
       return;
     }
     
-    if (typeof targetUserId !== "string") {
-      console.error("✗✗✗ VALIDATION FAILED: targetUserId is not a string!");
-      console.error("targetUserId type:", typeof targetUserId);
-      console.error("targetUserId value:", targetUserId);
-      alert("ERROR: Invalid user selection. Please select a user from the sidebar.");
-      return;
-    }
-    
-    if (targetUserId.trim().length < 10) {
-      console.error("✗✗✗ VALIDATION FAILED: targetUserId is too short!");
-      console.error("targetUserId length:", targetUserId.trim().length);
-      console.error("targetUserId value:", targetUserId);
-      alert("ERROR: Invalid user selection. Please select a user from the sidebar.");
-      return;
-    }
+    console.log("✅ targetUserId validated:", targetUserId);
     
     // STEP 2: Get message text
     const messageText = inputMessage.trim();
@@ -318,34 +382,21 @@ function AdminChat() {
       return;
     }
     
-    // STEP 4: Create the message payload
-    // CRITICAL: targetUserId MUST be included - this tells server which user to send to
-    const trimmedTargetUserId = targetUserId.trim();
-    
-    console.log("=== SEND MESSAGE DEBUG ===");
-    console.log("selectedUserId from ref:", selectedUserIdRef.current);
-    console.log("selectedUserId from state:", selectedUserId);
-    console.log("targetUserId (ref || state):", targetUserId);
-    console.log("trimmedTargetUserId:", trimmedTargetUserId);
-    
-    // Verify targetUserId one more time before creating payload
-    if (!trimmedTargetUserId || trimmedTargetUserId.length < 10) {
-      console.error("✗✗✗ VALIDATION FAILED: targetUserId is invalid!");
-      console.error("trimmedTargetUserId:", trimmedTargetUserId);
-      alert("Please select a user from the sidebar to chat with first.");
-      return;
-    }
-    
+    // STEP 5: Create payload - ALWAYS include targetUserId
+    // THIS IS THE FIX: targetUserId tells server which user to send to
     const payload = {
-      type: "message",
+      type: "message" as const,
       message: messageText,
-      targetUserId: trimmedTargetUserId, // CRITICAL: Must be included
+      targetUserId: targetUserId, // ← THIS TELLS SERVER WHICH USER TO SEND TO
     };
     
-    console.log("Created payload object:", payload);
-    console.log("Payload keys:", Object.keys(payload));
-    console.log("payload.targetUserId:", payload.targetUserId);
-    console.log("payload.targetUserId type:", typeof payload.targetUserId);
+    console.log("📍 Step 5: Created payload");
+    console.log("  Payload keys:", Object.keys(payload));
+    console.log("  payload.type:", payload.type);
+    console.log("  payload.message:", payload.message);
+    console.log("  payload.targetUserId:", payload.targetUserId);
+    console.log("  Has targetUserId?:", "targetUserId" in payload);
+    console.log("  targetUserId type:", typeof payload.targetUserId);
     
     // STEP 5: Verify payload has all 3 required fields
     if (!payload.targetUserId || !payload.message || !payload.type) {
@@ -367,33 +418,33 @@ function AdminChat() {
     try {
       const payloadJson = JSON.stringify(payload);
       
-      console.log("=== FINAL PAYLOAD BEFORE SEND ===");
-      console.log("Payload JSON string:", payloadJson);
-      console.log("Target user ID:", payload.targetUserId);
-      console.log("Payload contains 'targetUserId':", payloadJson.includes('"targetUserId"'));
-      console.log("Payload contains targetUserId value:", payloadJson.includes(trimmedTargetUserId));
+      console.log("📍 Step 7: Sending message...");
+      console.log("  Payload JSON:", payloadJson);
+      console.log("  JSON contains 'targetUserId':", payloadJson.includes('"targetUserId"'));
+      console.log("  JSON contains targetUserId value:", payloadJson.includes(targetUserId));
       
-      // FINAL CHECK: Parse back and verify
-      const parsedCheck = JSON.parse(payloadJson);
-      if (!parsedCheck.targetUserId || parsedCheck.targetUserId !== trimmedTargetUserId) {
-        console.error("✗✗✗ FINAL CHECK FAILED: targetUserId missing after JSON roundtrip!");
-        console.error("Parsed payload:", parsedCheck);
-        console.error("Expected targetUserId:", trimmedTargetUserId);
-        alert("Error: Message validation failed. Please refresh the page.");
+      // Final verification: Parse back and check
+      const parsed = JSON.parse(payloadJson);
+      if (!parsed.targetUserId || parsed.targetUserId !== targetUserId) {
+        console.error("✗✗✗ CRITICAL: targetUserId missing after JSON stringify/parse!");
+        console.error("  Parsed payload:", parsed);
+        console.error("  Expected targetUserId:", targetUserId);
+        alert("ERROR: Message validation failed. Please refresh the page.");
         return;
       }
       
-      console.log("✓✓✓ All checks passed - sending message");
-      console.log("Sending message to user:", payload.targetUserId);
-      console.log("FINAL PAYLOAD JSON:", payloadJson);
-      console.log("===========================================");
+      console.log("✅ Final verification passed");
+      console.log("═══════════════════════════════════════");
+      console.log("📤 SENDING MESSAGE TO USER:", targetUserId);
+      console.log("   Message:", messageText);
+      console.log("   Payload:", payloadJson);
+      console.log("═══════════════════════════════════════");
       
       wsRef.current.send(payloadJson);
       setInputMessage(""); // Clear input
       
-      console.log("✅✅✅ ADMIN MESSAGE SENT SUCCESSFULLY ✅✅✅");
-      console.log("Sent to user:", payload.targetUserId);
-      console.log("Payload:", payloadJson);
+      console.log("✅✅✅ MESSAGE SENT SUCCESSFULLY ✅✅✅");
+      console.log("   To user:", targetUserId);
     } catch (error) {
       console.error("✗✗✗ Failed to send message:", error);
       alert("Failed to send message. Please try again.");
