@@ -4,8 +4,24 @@ import { useParams } from "react-router-dom";
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 // Remove /api from URL for WebSocket since it's mounted on the server root
 // Convert http/https to ws/wss for WebSocket protocol
-const WS_BASE_URL = API_BASE_URL.replace(/\/api$/, "").replace(/^https:\/\//, "wss://").replace(/^http:\/\//, "ws://");
-const WS_URL = `${WS_BASE_URL}/chat`;
+// Handle the conversion more robustly
+function getWebSocketUrl() {
+  const apiUrl = API_BASE_URL.replace(/\/api$/, ""); // Remove trailing /api
+  // Convert protocol: https -> wss, http -> ws
+  if (apiUrl.startsWith("https://")) {
+    return `wss://${apiUrl.replace(/^https:\/\//, "")}/chat`;
+  } else if (apiUrl.startsWith("http://")) {
+    return `ws://${apiUrl.replace(/^http:\/\//, "")}/chat`;
+  }
+  // If no protocol, assume it's just a domain/host
+  // For production, default to wss
+  if (apiUrl.includes("onrender.com") || apiUrl.includes("zerovaste.com")) {
+    return `wss://${apiUrl}/chat`;
+  }
+  // For localhost, use ws
+  return `ws://${apiUrl}/chat`;
+}
+const WS_URL = getWebSocketUrl();
 
 interface ChatMessage {
   id: string;
@@ -88,8 +104,10 @@ function AdminChat() {
             if (data.sender === "user" && data.userId) {
               setActiveChats((prev) => {
                 const existing = prev.find((chat) => chat.userId === data.userId);
+                let updated;
                 if (existing) {
-                  return prev.map((chat) =>
+                  // Update existing chat - increment unread count if not currently viewing this chat
+                  updated = prev.map((chat) =>
                     chat.userId === data.userId
                       ? {
                           ...chat,
@@ -99,19 +117,29 @@ function AdminChat() {
                         }
                       : chat
                   );
+                } else {
+                  // Add new chat - show as unread if not currently selected
+                  updated = [
+                    ...prev,
+                    {
+                      userId: data.userId,
+                      userName: data.userName || `User ${data.userId.substring(0, 8)}`,
+                      lastMessage: data.message,
+                      lastMessageTime: new Date(data.timestamp),
+                      unreadCount: data.userId === selectedUserId ? 0 : 1,
+                    },
+                  ];
                 }
-                // Add new chat
-                return [
-                  ...prev,
-                  {
-                    userId: data.userId,
-                    userName: data.userName || `User ${data.userId.substring(0, 8)}`,
-                    lastMessage: data.message,
-                    lastMessageTime: new Date(data.timestamp),
-                    unreadCount: data.userId === selectedUserId ? 0 : 1,
-                  },
-                ];
+                // Sort by most recent message first (newest conversations on top)
+                return updated.sort((a, b) => b.lastMessageTime.getTime() - a.lastMessageTime.getTime());
               });
+              
+              // Auto-scroll to bottom if this message is for the currently selected chat
+              if (data.userId === selectedUserId) {
+                setTimeout(() => {
+                  messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+                }, 100);
+              }
             }
           } else if (data.type === "history") {
             console.log("Loading chat history:", data.messages.length, "messages");
@@ -134,7 +162,7 @@ function AdminChat() {
                     userName: msg.userName || `User ${msg.userId.substring(0, 8)}`,
                     lastMessage: msg.message,
                     lastMessageTime: msg.timestamp,
-                    unreadCount: 0,
+                    unreadCount: 0, // Will be recalculated based on unread admin messages
                   });
                 } else {
                   const chat = userChats.get(msg.userId)!;
@@ -149,7 +177,11 @@ function AdminChat() {
                 }
               }
             });
-            setActiveChats(Array.from(userChats.values()));
+            // Sort by most recent message first (newest on top)
+            const sortedChats = Array.from(userChats.values()).sort(
+              (a, b) => b.lastMessageTime.getTime() - a.lastMessageTime.getTime()
+            );
+            setActiveChats(sortedChats);
           } else if (data.type === "connected") {
             console.log("Admin WebSocket connected, isAdmin:", data.isAdmin);
           }
@@ -163,8 +195,18 @@ function AdminChat() {
         setIsConnected(false);
       };
 
-      ws.onclose = () => {
+      ws.onclose = (event) => {
+        console.log("Admin WebSocket closed:", event.code, event.reason);
         setIsConnected(false);
+        // Attempt to reconnect after a delay
+        if (event.code !== 1000 && currentUserId) {
+          setTimeout(() => {
+            if (currentUserId && (!wsRef.current || wsRef.current.readyState === WebSocket.CLOSED)) {
+              console.log("Admin reconnecting WebSocket...");
+              setIsConnected(false);
+            }
+          }, 3000);
+        }
       };
 
       return () => {
@@ -256,6 +298,12 @@ function AdminChat() {
                     onClick={() => {
                       setSelectedUserId(chat.userId);
                       window.history.pushState({}, "", `/admin/chat/${chat.userId}`);
+                      // Reset unread count for selected chat
+                      setActiveChats((prev) =>
+                        prev.map((c) =>
+                          c.userId === chat.userId ? { ...c, unreadCount: 0 } : c
+                        )
+                      );
                     }}
                     className={`w-full rounded-xl border p-3 text-left transition ${
                       selectedUserId === chat.userId

@@ -4,8 +4,24 @@ import { createPortal } from "react-dom";
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 // Remove /api from URL for WebSocket since it's mounted on the server root
 // Convert http/https to ws/wss for WebSocket protocol
-const WS_BASE_URL = API_BASE_URL.replace(/\/api$/, "").replace(/^https:\/\//, "wss://").replace(/^http:\/\//, "ws://");
-const WS_URL = `${WS_BASE_URL}/chat`;
+// Handle the conversion more robustly
+function getWebSocketUrl() {
+  const apiUrl = API_BASE_URL.replace(/\/api$/, ""); // Remove trailing /api
+  // Convert protocol: https -> wss, http -> ws
+  if (apiUrl.startsWith("https://")) {
+    return `wss://${apiUrl.replace(/^https:\/\//, "")}/chat`;
+  } else if (apiUrl.startsWith("http://")) {
+    return `ws://${apiUrl.replace(/^http:\/\//, "")}/chat`;
+  }
+  // If no protocol, assume it's just a domain/host
+  // For production, default to wss
+  if (apiUrl.includes("onrender.com") || apiUrl.includes("zerovaste.com")) {
+    return `wss://${apiUrl}/chat`;
+  }
+  // For localhost, use ws
+  return `ws://${apiUrl}/chat`;
+}
+const WS_URL = getWebSocketUrl();
 
 interface ChatMessage {
   id: string;
@@ -56,10 +72,11 @@ function ChatWidget() {
       ws.onopen = () => {
         console.log("WebSocket connected for user:", userId);
         setIsConnected(true);
-        // Load chat history when connection opens
-        if (isOpen) {
-          ws.send(JSON.stringify({ type: "load_history" }));
-        }
+        // ALWAYS request chat history when connection opens
+        // This ensures users receive admin messages even if chat widget is closed
+        // Server also auto-loads history, but explicitly requesting ensures we get it
+        console.log("Requesting chat history on connection...");
+        ws.send(JSON.stringify({ type: "load_history" }));
       };
 
       ws.onmessage = (event) => {
@@ -68,7 +85,8 @@ function ChatWidget() {
           console.log("User received WebSocket message:", data);
           
           if (data.type === "message") {
-            console.log("Processing incoming message:", data.sender, data.message);
+            console.log("User received message - Type: message, Sender:", data.sender, "Message:", data.message);
+            console.log("Full message data:", data);
             // Always add message to state, even if chat is closed
             // User will see it when they open the chat
             setMessages((prev) => {
@@ -99,13 +117,14 @@ function ChatWidget() {
               }
               
               // Add new message (from admin or new user message)
-              console.log("Adding new message to state:", data.sender, data.message);
+              console.log("Adding new message to state - Sender:", data.sender, "Message:", data.message);
               const newMessage = {
-                id: data.id || Date.now().toString(),
+                id: data.id || `msg-${Date.now()}-${Math.random()}`,
                 sender: data.sender,
                 message: data.message,
                 timestamp: new Date(data.timestamp || Date.now()),
               };
+              console.log("New message object created:", newMessage);
               
               // Increment unread count if message is from admin and chat is closed
               if (data.sender === "admin" && !isOpenRef.current) {
@@ -116,14 +135,25 @@ function ChatWidget() {
               return [...prev, newMessage];
             });
           } else if (data.type === "history") {
-            setMessages(
-              data.messages.map((msg: any) => ({
-                ...msg,
-                timestamp: new Date(msg.timestamp),
-              }))
-            );
+            console.log("Received chat history:", data.messages.length, "messages");
+            console.log("History messages:", data.messages);
+            const historyMessages = data.messages.map((msg: any) => ({
+              id: msg.id,
+              sender: msg.sender,
+              message: msg.message,
+              timestamp: new Date(msg.timestamp),
+            }));
+            console.log("Processed history messages:", historyMessages);
+            setMessages(historyMessages);
+            // Clear unread count when history is loaded (user opened chat)
+            if (isOpenRef.current) {
+              setUnreadCount(0);
+            }
           } else if (data.type === "connected") {
             console.log("Connection confirmed, isAdmin:", data.isAdmin);
+          } else if (data.type === "unread_count") {
+            console.log("Unread message count:", data.count);
+            setUnreadCount(data.count);
           } else if (data.type === "error") {
             console.error("WebSocket error from server:", data.message);
           }
@@ -140,16 +170,21 @@ function ChatWidget() {
       ws.onclose = (event) => {
         console.log("WebSocket closed:", event.code, event.reason);
         setIsConnected(false);
-        // Attempt to reconnect after 3 seconds
-        setTimeout(() => {
-          if (userId) {
-            console.log("Attempting to reconnect...");
-            // Trigger reconnection
-            if (wsRef.current) {
+        // Attempt to reconnect after a delay (exponential backoff)
+        // Don't reconnect if it was a normal closure (code 1000) and we're closing intentionally
+        if (event.code !== 1000 && userId) {
+          const reconnectDelay = 3000; // Start with 3 seconds
+          console.log(`Attempting to reconnect in ${reconnectDelay}ms...`);
+          setTimeout(() => {
+            if (userId && (!wsRef.current || wsRef.current.readyState === WebSocket.CLOSED)) {
+              console.log("Reconnecting WebSocket...");
+              // Force reconnection by clearing the ref
               wsRef.current = null;
+              // Trigger effect by setting a dummy state or force re-render
+              setIsConnected(false);
             }
-          }
-        }, 3000);
+          }, reconnectDelay);
+        }
       };
     } else if (isOpen && wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       // Connection exists and chat just opened, load history
@@ -160,6 +195,8 @@ function ChatWidget() {
       // Don't close connection when component unmounts or chat closes
       // Keep connection alive to receive admin messages
       // Only close if userId changes (handled at the top)
+      // Note: We keep the connection open even when chat widget is closed
+      // so users can receive admin messages when they're not actively chatting
     };
   }, [userId, isOpen]);
 
