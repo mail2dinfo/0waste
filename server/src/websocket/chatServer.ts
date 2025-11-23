@@ -341,17 +341,21 @@ class ChatServer {
       }
 
       // CRITICAL: For user messages, userId in messageData should be the user who sent it
-      // For admin messages, userId should be the target user
+      // For admin messages, userId should be the target user (who should receive it)
+      // This userId tells admin which user this message belongs to (for sidebar separation)
       const messageData = {
         type: "message",
         id: chatMessage.id,
         sender: chatMessage.sender,
         message: chatMessage.message,
         timestamp: chatMessage.createdAt.toISOString(),
-        userId: isAdmin ? targetUserId : userId, // For users: userId = sender. For admin: userId = target
+        userId: isAdmin ? targetUserId : userId, // For users: userId = sender (who sent it). For admin: userId = target (who receives it)
         userName: userName,
         userEmail: userEmail,
       };
+      
+      console.log(`[MESSAGE DATA] Created messageData - sender: ${chatMessage.sender}, userId: ${messageData.userId}, isAdmin: ${isAdmin}`);
+      console.log(`[MESSAGE DATA] For admin: userId=${messageData.userId} identifies which user this message belongs to`);
 
       console.log(`Broadcasting message:`, messageData);
       console.log(`Sender isAdmin: ${isAdmin}, sender userId: ${userId}, targetUserId: ${targetUserId}`);
