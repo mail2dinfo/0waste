@@ -52,6 +52,11 @@ class ChatServer {
 
       this.handleConnection(ws, userId);
     });
+
+    // Periodic cleanup of stale connections (every 60 seconds)
+    setInterval(() => {
+      this.cleanupStaleConnections();
+    }, 60000);
   }
 
   private async handleConnection(ws: WebSocket, userId: string) {
@@ -78,8 +83,10 @@ class ChatServer {
         // Send list of online users to admin
         this.sendOnlineUsersToAdmin(userId);
       } else {
-        // Notify all admins that user came online
-        this.broadcastUserStatus(userId, true);
+        // Notify all admins that user came online (only if connection is actually open)
+        if (ws.readyState === WebSocket.OPEN) {
+          this.broadcastUserStatus(userId, true);
+        }
       }
 
       // Send connection confirmation
@@ -102,19 +109,55 @@ class ChatServer {
       // Load chat history
       await this.loadChatHistory(userId, ws, isAdmin);
 
-      // Set up ping/pong
+      // Set up ping/pong to detect dead connections
+      let pongReceived = true;
+      let missedPongs = 0;
+      
       const pingInterval = setInterval(() => {
         if (ws.readyState === WebSocket.OPEN) {
           try {
+            // If we haven't received pong from last ping, increment missed count
+            if (!pongReceived) {
+              missedPongs++;
+              console.log(`[ChatServer] User ${userId} missed ${missedPongs} pong(s)`);
+              
+              // If missed 2 pongs in a row, consider connection dead
+              if (missedPongs >= 2) {
+                console.log(`[ChatServer] User ${userId} connection appears dead, closing`);
+                clearInterval(pingInterval);
+                ws.terminate();
+                this.clients.delete(userId);
+                if (isAdmin) {
+                  this.adminClients.delete(userId);
+                } else {
+                  this.broadcastUserStatus(userId, false);
+                }
+                return;
+              }
+            }
+            
+            pongReceived = false;
             ws.ping();
           } catch (error) {
             console.error(`[ChatServer] Error sending ping to ${userId}:`, error);
             clearInterval(pingInterval);
+            this.clients.delete(userId);
+            if (isAdmin) {
+              this.adminClients.delete(userId);
+            } else {
+              this.broadcastUserStatus(userId, false);
+            }
           }
         } else {
           clearInterval(pingInterval);
         }
-      }, 30000);
+      }, 30000); // Ping every 30 seconds
+
+      // Handle pong responses
+      ws.on("pong", () => {
+        pongReceived = true;
+        missedPongs = 0; // Reset missed pongs counter
+      });
 
       // Handle messages
       ws.on("message", async (data: Buffer) => {
@@ -131,17 +174,21 @@ class ChatServer {
       });
 
       // Handle close
-      ws.on("close", () => {
-        console.log(`[ChatServer] ${isAdmin ? "Admin" : "User"} ${userId} disconnected`);
+      ws.on("close", (code, reason) => {
+        console.log(`[ChatServer] ${isAdmin ? "Admin" : "User"} ${userId} disconnected (code: ${code}, reason: ${reason.toString()})`);
         clearInterval(pingInterval);
+        
+        // Only notify if we still have this client (might have been removed already)
+        const hadClient = this.clients.has(userId);
         this.clients.delete(userId);
+        
         if (isAdmin) {
           this.adminClients.delete(userId);
           if (this.adminClients.size === 0) {
             this.broadcastAdminStatus(false);
           }
-        } else {
-          // Notify all admins that user went offline
+        } else if (hadClient) {
+          // Notify all admins that user went offline (only if they were actually connected)
           this.broadcastUserStatus(userId, false);
         }
       });
@@ -409,9 +456,12 @@ class ChatServer {
     const adminClient = this.clients.get(adminId);
     if (!adminClient || adminClient.ws.readyState !== WebSocket.OPEN) return;
 
-    // Get all online non-admin user IDs
+    // Get all online non-admin user IDs - ONLY if their WebSocket is OPEN
     const onlineUserIds = Array.from(this.clients.entries())
-      .filter(([id, client]) => !client.isAdmin)
+      .filter(([id, client]) => {
+        // Only include non-admin users with OPEN WebSocket connections
+        return !client.isAdmin && client.ws.readyState === WebSocket.OPEN;
+      })
       .map(([id]) => id);
 
     try {
@@ -419,12 +469,23 @@ class ChatServer {
         type: "online_users",
         userIds: onlineUserIds,
       }));
+      console.log(`[ChatServer] Sent ${onlineUserIds.length} online users to admin ${adminId}`);
     } catch (error) {
       console.error(`[ChatServer] Error sending online users to admin ${adminId}:`, error);
     }
   }
 
   private broadcastUserStatus(userId: string, isOnline: boolean) {
+    // Verify the user's actual connection state before broadcasting
+    if (isOnline) {
+      const userClient = this.clients.get(userId);
+      // Only broadcast online if connection is actually OPEN
+      if (!userClient || userClient.ws.readyState !== WebSocket.OPEN) {
+        console.log(`[ChatServer] User ${userId} not actually online (readyState: ${userClient?.ws.readyState}), skipping online broadcast`);
+        return;
+      }
+    }
+
     const statusMessage = {
       type: "user_status",
       userId,
@@ -442,6 +503,37 @@ class ChatServer {
         }
       }
     });
+  }
+
+  // Periodic cleanup of stale connections
+  private cleanupStaleConnections() {
+    const staleUsers: string[] = [];
+    
+    this.clients.forEach((client, userId) => {
+      // Remove clients with closed/closing connections
+      if (client.ws.readyState === WebSocket.CLOSED || client.ws.readyState === WebSocket.CLOSING) {
+        staleUsers.push(userId);
+      }
+    });
+
+    staleUsers.forEach((userId) => {
+      console.log(`[ChatServer] Cleaning up stale connection for ${userId}`);
+      const client = this.clients.get(userId);
+      this.clients.delete(userId);
+      
+      if (client?.isAdmin) {
+        this.adminClients.delete(userId);
+        if (this.adminClients.size === 0) {
+          this.broadcastAdminStatus(false);
+        }
+      } else {
+        this.broadcastUserStatus(userId, false);
+      }
+    });
+
+    if (staleUsers.length > 0) {
+      console.log(`[ChatServer] Cleaned up ${staleUsers.length} stale connection(s)`);
+    }
   }
 }
 
