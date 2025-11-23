@@ -245,23 +245,63 @@ class ChatServer {
       console.log(`Has targetUserId?`, !!message.targetUserId);
       console.log(`targetUserId value:`, message.targetUserId);
       
+      // For admin messages, targetUserId MUST be in the message payload
+      // For user messages, targetUserId is the userId (they're sending to admin)
       const targetUserId = isAdmin ? message.targetUserId : userId;
       
-      if (!targetUserId) {
-        console.error(`✗✗✗ ERROR: No targetUserId! ✗✗✗`);
-        console.error(`  isAdmin: ${isAdmin}`);
+      // STRICT VALIDATION - reject admin messages without targetUserId
+      if (isAdmin && !message.targetUserId) {
+        console.error(`✗✗✗ CRITICAL ERROR: Admin message missing targetUserId! ✗✗✗`);
+        console.error(`  Admin userId: ${userId}`);
         console.error(`  message.targetUserId: ${message.targetUserId}`);
         console.error(`  message.targetUserId type: ${typeof message.targetUserId}`);
-        console.error(`  userId: ${userId}`);
         console.error(`  Full message:`, JSON.stringify(message));
         console.error(`  Message keys:`, Object.keys(message));
+        
+        const adminClient = this.clients.get(userId);
+        if (adminClient && adminClient.ws.readyState === WebSocket.OPEN) {
+          adminClient.ws.send(
+            JSON.stringify({
+              type: "error",
+              message: "ERROR: Cannot send message. Please select a user from the sidebar to chat with first.",
+            })
+          );
+        }
+        
+        // DO NOT PROCESS THIS MESSAGE - reject it completely
+        console.error(`✗✗✗ REJECTING admin message without targetUserId ✗✗✗`);
+        return;
+      }
+      
+      // For users, targetUserId should be their own userId
+      if (!isAdmin && !userId) {
+        console.error(`✗✗✗ ERROR: User message without userId! ✗✗✗`);
+        const userClient = this.clients.get(userId);
+        if (userClient) {
+          userClient.ws.send(
+            JSON.stringify({
+              type: "error",
+              message: "User ID missing",
+            })
+          );
+        }
+        return;
+      }
+      
+      // Final check - ensure targetUserId exists
+      if (!targetUserId) {
+        console.error(`✗✗✗ ERROR: No targetUserId after validation! ✗✗✗`);
+        console.error(`  isAdmin: ${isAdmin}`);
+        console.error(`  message.targetUserId: ${message.targetUserId}`);
+        console.error(`  userId: ${userId}`);
+        console.error(`  Final targetUserId: ${targetUserId}`);
         
         const client = this.clients.get(userId);
         if (client) {
           client.ws.send(
             JSON.stringify({
               type: "error",
-              message: "Target user ID required. Please select a user to send message to.",
+              message: "Cannot send message: target user not specified",
             })
           );
         }
