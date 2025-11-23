@@ -82,21 +82,38 @@ function AdminChat() {
           console.log("Admin received WebSocket message:", data);
           
           if (data.type === "message") {
+            // CRITICAL: userId must come from server data, not fallback to selectedUserId
+            // The userId indicates which user this message belongs to
+            // For user messages: userId = the user who sent it
+            // For admin messages: userId = the target user (who should receive it)
+            const messageUserId = data.userId;
+            
+            if (!messageUserId) {
+              console.error("ERROR: Received message without userId!", data);
+              return; // Don't add messages without userId
+            }
+            
             const newMessage: ChatMessage = {
               id: data.id || Date.now().toString(),
               sender: data.sender,
               message: data.message,
               timestamp: new Date(data.timestamp || Date.now()),
-              userId: data.userId || selectedUserId || "",
+              userId: messageUserId, // Always use the userId from server, never fallback
               userName: data.userName || null,
               userEmail: data.userEmail || null,
             };
+            
+            console.log(`Admin received message - Sender: ${data.sender}, UserId: ${messageUserId}, Message: ${data.message}`);
             
             // Always add message to messages list (will be filtered by selectedUserId in display)
             setMessages((prev) => {
               // Check if message already exists
               const exists = prev.some((msg) => msg.id === data.id);
-              if (exists) return prev;
+              if (exists) {
+                console.log("Message already exists, skipping duplicate:", data.id);
+                return prev;
+              }
+              console.log(`Adding message to state - UserId: ${messageUserId}, Total messages: ${prev.length + 1}`);
               return [...prev, newMessage];
             });
             
@@ -143,18 +160,28 @@ function AdminChat() {
             }
           } else if (data.type === "history") {
             console.log("Loading chat history:", data.messages.length, "messages");
-            const historyMessages = data.messages.map((msg: any) => ({
-              ...msg,
-              timestamp: new Date(msg.timestamp),
-              userId: msg.userId || "",
-              userName: msg.userName || null,
-              userEmail: msg.userEmail || null,
-            }));
+            console.log("Raw history data:", data.messages);
+            
+            // Process history messages - CRITICAL: only use userId from server, never fallback
+            const historyMessages = data.messages
+              .filter((msg: any) => msg.userId) // Only include messages with userId
+              .map((msg: any) => ({
+                id: msg.id,
+                sender: msg.sender,
+                message: msg.message,
+                timestamp: new Date(msg.timestamp),
+                userId: msg.userId, // Always use userId from server, never fallback
+                userName: msg.userName || null,
+                userEmail: msg.userEmail || null,
+              }));
+            
+            console.log("Processed history messages:", historyMessages);
             setMessages(historyMessages);
             
-            // Build active chats from history
+            // Build active chats from history - only from user messages
             const userChats = new Map<string, ActiveChat>();
             historyMessages.forEach((msg: ChatMessage) => {
+              // Only process user messages (not admin messages) to build chat list
               if (msg.sender === "user" && msg.userId) {
                 if (!userChats.has(msg.userId)) {
                   userChats.set(msg.userId, {
@@ -250,10 +277,12 @@ function AdminChat() {
       type: "message",
       message: messageText,
       sender: "admin",
-      targetUserId: selectedUserId,
+      targetUserId: selectedUserId, // This is the user who will receive the message
     };
     
-    console.log("Sending admin message:", payload);
+    console.log("Sending admin message to user:", selectedUserId);
+    console.log("Message text:", messageText);
+    console.log("Payload:", payload);
     console.log("Payload JSON:", JSON.stringify(payload));
     
     try {
@@ -351,14 +380,25 @@ function AdminChat() {
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-6 space-y-3">
-                  {messages.filter((msg) => msg.userId === selectedUserId).length === 0 ? (
-                    <div className="text-center text-xs text-slate-500 mt-8">
-                      {isConnected ? "No messages yet. Start the conversation!" : "Connecting..."}
-                    </div>
-                  ) : (
-                    messages
-                      .filter((msg) => msg.userId === selectedUserId)
-                      .map((msg) => (
+                  {(() => {
+                    // Filter messages by selectedUserId - only show messages for the selected user
+                    const filteredMessages = messages.filter((msg) => {
+                      const matches = msg.userId === selectedUserId;
+                      if (!matches && msg.userId) {
+                        // Log messages that don't match (for debugging)
+                        console.log(`Message filtered out - msg.userId: ${msg.userId}, selectedUserId: ${selectedUserId}`);
+                      }
+                      return matches;
+                    });
+                    
+                    console.log(`Displaying chat for user ${selectedUserId}: ${filteredMessages.length} messages`);
+                    
+                    return filteredMessages.length === 0 ? (
+                      <div className="text-center text-xs text-slate-500 mt-8">
+                        {isConnected ? "No messages yet. Start the conversation!" : "Connecting..."}
+                      </div>
+                    ) : (
+                      filteredMessages.map((msg) => (
                         <div
                           key={msg.id}
                           className={`flex ${msg.sender === "admin" ? "justify-end" : "justify-start"}`}
@@ -384,7 +424,8 @@ function AdminChat() {
                           </div>
                         </div>
                       ))
-                  )}
+                    );
+                  })()}
                   <div ref={messagesEndRef} />
                 </div>
 
