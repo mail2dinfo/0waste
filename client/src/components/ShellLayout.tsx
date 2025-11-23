@@ -200,7 +200,7 @@ function ShellLayout() {
               </nav>
             </div>
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] font-semibold text-brand-600">
-              {auth.userId && (
+              {auth.userId && auth.role !== "admin" && (
                 <div className="mr-1 sm:mr-2">
                   <ChatWidget />
                 </div>

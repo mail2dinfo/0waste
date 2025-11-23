@@ -27,7 +27,7 @@ function App() {
       <Route element={<ShellLayout />}>
         <Route path="/dashboard" element={<Navigate to="/events" replace />} />
         <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/chat/:userId?" element={<AdminChat />} />
+        <Route path="/admin/chat/:roomId?" element={<AdminChat />} />
         <Route path="/admin/upi-settings" element={<AdminUpiSettings />} />
         <Route path="/events" element={<Dashboard />} />
         <Route path="/events/new" element={<EventForm />} />

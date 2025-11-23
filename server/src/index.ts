@@ -85,35 +85,16 @@ async function bootstrap() {
 
   const server = createServer(app);
   
-  // Initialize WebSocket chat server with origin verification
+  // Initialize WebSocket chat server
   chatServer.initialize(server, isOriginAllowed);
 
   server.listen(env.port, () => {
     console.log(`Nowaste API listening on port ${env.port}`);
-    
-    // Construct WebSocket URL - prioritize production URLs
-    let wsUrl: string;
-    const renderExternalUrl = process.env.RENDER_EXTERNAL_URL;
-    const apiUrl = env.backendUrl;
-    
-    if (renderExternalUrl) {
-      // Render provides RENDER_EXTERNAL_URL automatically
-      const wsProtocol = renderExternalUrl.startsWith("https") ? "wss" : "ws";
-      const wsHost = renderExternalUrl.replace(/^https?:\/\//, "");
-      wsUrl = `${wsProtocol}://${wsHost}/chat`;
-      console.log(`WebSocket chat server ready on ${wsUrl} (Render production)`);
-    } else if (apiUrl) {
-      // Use API_URL if provided
-      const wsProtocol = apiUrl.startsWith("https") ? "wss" : "ws";
-      const wsHost = apiUrl.replace(/^https?:\/\//, "");
-      wsUrl = `${wsProtocol}://${wsHost}/chat`;
-      console.log(`WebSocket chat server ready on ${wsUrl}`);
-    } else {
-      // Fallback to localhost for local development
-      wsUrl = `ws://localhost:${env.port}/chat`;
-      console.log(`WebSocket chat server ready on ${wsUrl} (localhost - development mode)`);
-      console.log(`⚠️  Note: Set API_URL or RENDER_EXTERNAL_URL environment variable for production WebSocket URL`);
-    }
+    const wsProtocol = env.nodeEnv === "production" ? "wss" : "ws";
+    const wsHost = env.backendUrl 
+      ? env.backendUrl.replace(/^https?:\/\//, "")
+      : `localhost:${env.port}`;
+    console.log(`WebSocket chat server ready on ${wsProtocol}://${wsHost}/chat`);
   });
 
   // Schedule daily job to check and update event statuses based on cutoff dates
