@@ -582,6 +582,10 @@ function AdminChat() {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
+                        console.log("🔴🔴🔴 SEND BUTTON CLICKED IN ADMIN CHAT 🔴🔴🔴");
+                        console.log("selectedUserId:", selectedUserId);
+                        console.log("selectedUserIdRef.current:", selectedUserIdRef.current);
+                        console.log("Button disabled?:", !isConnected || !inputMessage.trim() || !selectedUserId);
                         sendMessage(); // sendMessage() will handle validation
                       }}
                       disabled={!isConnected || !inputMessage.trim() || !selectedUserId}
