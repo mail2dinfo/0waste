@@ -3,6 +3,21 @@ import { Link, useNavigate } from "react-router-dom";
 import { useApi } from "../hooks/useApi";
 import { useTranslation } from "react-i18next";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+
+function getWebSocketUrl() {
+  const apiUrl = API_BASE_URL.replace(/\/api$/, "");
+  if (apiUrl.startsWith("https://")) {
+    return `wss://${apiUrl.replace(/^https:\/\//, "")}/chat`;
+  } else if (apiUrl.startsWith("http://")) {
+    return `ws://${apiUrl.replace(/^http:\/\//, "")}/chat`;
+  }
+  if (apiUrl.includes("onrender.com") || apiUrl.includes("zerovaste.com")) {
+    return `wss://${apiUrl}/chat`;
+  }
+  return `ws://${apiUrl}/chat`;
+}
+
 type AdminStats = {
   totalUsers: number;
   totalEvents: number;
@@ -46,6 +61,9 @@ function AdminDashboard() {
   const [data, setData] = useState<AdminDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+  const wsRef = useRef<WebSocket | null>(null);
+  const currentUserIdRef = useRef<string | null>(null);
   
   // Refs for scrolling to event sections
   const paidEventsRef = useRef<HTMLDivElement>(null);
@@ -65,6 +83,83 @@ function AdminDashboard() {
       setLoading(false);
     }
   }, [api]);
+
+  // WebSocket connection for tracking online users
+  useEffect(() => {
+    const userId = window.localStorage.getItem("nowasteUserId");
+    currentUserIdRef.current = userId;
+
+    if (!userId) return;
+
+    const wsUrl = `${getWebSocketUrl()}?userId=${userId}`;
+    console.log("[AdminDashboard] Connecting to WebSocket:", wsUrl);
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      console.log("[AdminDashboard] WebSocket connected");
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "rooms") {
+          // Track which users are online based on active rooms
+          const onlineSet = new Set<string>();
+          if (data.rooms && Array.isArray(data.rooms)) {
+            data.rooms.forEach((room: any) => {
+              if (room.roomId) {
+                onlineSet.add(room.roomId);
+              }
+            });
+          }
+          setOnlineUsers(onlineSet);
+        } else if (data.type === "room_update") {
+          // User came online or sent a message
+          if (data.room?.roomId) {
+            setOnlineUsers((prev) => new Set([...prev, data.room.roomId]));
+          }
+        } else if (data.type === "message") {
+          // User sent a message, they're online
+          if (data.roomId) {
+            setOnlineUsers((prev) => new Set([...prev, data.roomId]));
+          }
+        } else if (data.type === "online_users") {
+          // Initial list of online users
+          if (data.userIds && Array.isArray(data.userIds)) {
+            setOnlineUsers(new Set(data.userIds));
+          }
+        } else if (data.type === "user_status") {
+          // User came online or went offline
+          if (data.userId) {
+            setOnlineUsers((prev) => {
+              const newSet = new Set(prev);
+              if (data.isOnline) {
+                newSet.add(data.userId);
+              } else {
+                newSet.delete(data.userId);
+              }
+              return newSet;
+            });
+          }
+        }
+      } catch (error) {
+        console.error("[AdminDashboard] Error parsing WebSocket message:", error);
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error("[AdminDashboard] WebSocket error:", error);
+    };
+
+    ws.onclose = () => {
+      console.log("[AdminDashboard] WebSocket closed");
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -141,6 +236,15 @@ function AdminDashboard() {
       console.error("Failed to delete event:", err);
       alert("Failed to delete event. Please try again.");
     }
+  };
+
+  const handleUserChatClick = (userId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent event navigation
+    navigate(`/admin/chat/${userId}`);
+  };
+
+  const isUserOnline = (userId: string | null) => {
+    return userId ? onlineUsers.has(userId) : false;
   };
 
   return (
@@ -283,8 +387,25 @@ function AdminDashboard() {
                     {formatDate(event.eventDate)} • {event.location || "N/A"}
                   </div>
                   {event.owner && (
-                    <div className="mt-1 text-xs text-slate-500">
-                      {event.owner.fullName} • {event.owner.phoneNumber || event.owner.email}
+                    <div className="mt-1 flex items-center gap-2">
+                      <div className="text-xs text-slate-500 flex-1">
+                        <button
+                          onClick={(e) => handleUserChatClick(event.owner!.id, e)}
+                          className="font-medium text-emerald-600 hover:text-emerald-700 hover:underline flex items-center gap-1"
+                          title="Chat with user"
+                        >
+                          {event.owner.fullName}
+                          {isUserOnline(event.owner.id) && (
+                            <span className="inline-flex items-center gap-1">
+                              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" title="Online"></span>
+                              <span className="text-[10px] text-emerald-600">Online</span>
+                            </span>
+                          )}
+                        </button>
+                        <div className="text-slate-400">
+                          {event.owner.phoneNumber || event.owner.email}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -331,8 +452,25 @@ function AdminDashboard() {
                     {formatDate(event.eventDate)} • {event.location || "N/A"}
                   </div>
                   {event.owner && (
-                    <div className="mt-1 text-xs text-slate-500">
-                      {event.owner.fullName} • {event.owner.phoneNumber || event.owner.email}
+                    <div className="mt-1 flex items-center gap-2">
+                      <div className="text-xs text-slate-500 flex-1">
+                        <button
+                          onClick={(e) => handleUserChatClick(event.owner!.id, e)}
+                          className="font-medium text-emerald-600 hover:text-emerald-700 hover:underline flex items-center gap-1"
+                          title="Chat with user"
+                        >
+                          {event.owner.fullName}
+                          {isUserOnline(event.owner.id) && (
+                            <span className="inline-flex items-center gap-1">
+                              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" title="Online"></span>
+                              <span className="text-[10px] text-emerald-600">Online</span>
+                            </span>
+                          )}
+                        </button>
+                        <div className="text-slate-400">
+                          {event.owner.phoneNumber || event.owner.email}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -379,8 +517,25 @@ function AdminDashboard() {
                     {formatDate(event.eventDate)} • {event.location || "N/A"}
                   </div>
                   {event.owner && (
-                    <div className="mt-1 text-xs text-slate-500">
-                      {event.owner.fullName} • {event.owner.phoneNumber || event.owner.email}
+                    <div className="mt-1 flex items-center gap-2">
+                      <div className="text-xs text-slate-500 flex-1">
+                        <button
+                          onClick={(e) => handleUserChatClick(event.owner!.id, e)}
+                          className="font-medium text-emerald-600 hover:text-emerald-700 hover:underline flex items-center gap-1"
+                          title="Chat with user"
+                        >
+                          {event.owner.fullName}
+                          {isUserOnline(event.owner.id) && (
+                            <span className="inline-flex items-center gap-1">
+                              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" title="Online"></span>
+                              <span className="text-[10px] text-emerald-600">Online</span>
+                            </span>
+                          )}
+                        </button>
+                        <div className="text-slate-400">
+                          {event.owner.phoneNumber || event.owner.email}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>

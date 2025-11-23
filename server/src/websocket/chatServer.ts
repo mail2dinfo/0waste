@@ -75,6 +75,11 @@ class ChatServer {
         this.adminClients.add(userId);
         console.log(`[ChatServer] Admin ${userId} online. Total admins: ${this.adminClients.size}`);
         this.broadcastAdminStatus(true);
+        // Send list of online users to admin
+        this.sendOnlineUsersToAdmin(userId);
+      } else {
+        // Notify all admins that user came online
+        this.broadcastUserStatus(userId, true);
       }
 
       // Send connection confirmation
@@ -135,6 +140,9 @@ class ChatServer {
           if (this.adminClients.size === 0) {
             this.broadcastAdminStatus(false);
           }
+        } else {
+          // Notify all admins that user went offline
+          this.broadcastUserStatus(userId, false);
         }
       });
 
@@ -392,6 +400,45 @@ class ChatServer {
           client.ws.send(JSON.stringify(statusMessage));
         } catch (error) {
           console.error(`[ChatServer] Error sending admin status to ${clientUserId}:`, error);
+        }
+      }
+    });
+  }
+
+  private sendOnlineUsersToAdmin(adminId: string) {
+    const adminClient = this.clients.get(adminId);
+    if (!adminClient || adminClient.ws.readyState !== WebSocket.OPEN) return;
+
+    // Get all online non-admin user IDs
+    const onlineUserIds = Array.from(this.clients.entries())
+      .filter(([id, client]) => !client.isAdmin)
+      .map(([id]) => id);
+
+    try {
+      adminClient.ws.send(JSON.stringify({
+        type: "online_users",
+        userIds: onlineUserIds,
+      }));
+    } catch (error) {
+      console.error(`[ChatServer] Error sending online users to admin ${adminId}:`, error);
+    }
+  }
+
+  private broadcastUserStatus(userId: string, isOnline: boolean) {
+    const statusMessage = {
+      type: "user_status",
+      userId,
+      isOnline,
+    };
+
+    // Send to all admins
+    this.adminClients.forEach((adminId) => {
+      const adminClient = this.clients.get(adminId);
+      if (adminClient && adminClient.ws.readyState === WebSocket.OPEN) {
+        try {
+          adminClient.ws.send(JSON.stringify(statusMessage));
+        } catch (error) {
+          console.error(`[ChatServer] Error sending user status to admin ${adminId}:`, error);
         }
       }
     });

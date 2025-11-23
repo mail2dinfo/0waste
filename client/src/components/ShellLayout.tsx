@@ -14,11 +14,15 @@ const formatName = (value: string | null): string | null => {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 };
 
-const getNavItems = () => {
-  return [
+const getNavItems = (isAdmin: boolean) => {
+  const items = [
     { path: "/events", labelKey: "nav.events", exact: true },
     { path: "/events/new", labelKey: "nav.planEvent" },
   ];
+  if (isAdmin) {
+    items.push({ path: "/admin", labelKey: "nav.admin", exact: false });
+  }
+  return items;
 };
 
 type AuthState = { name: string | null; userId: string | null; role: string | null };
@@ -60,11 +64,11 @@ function ShellLayout() {
 
   const translatedNavItems = useMemo(
     () =>
-      getNavItems().map((item) => ({
+      getNavItems(auth.role === "admin").map((item) => ({
         ...item,
         label: t(item.labelKey),
       })),
-    [t]
+    [t, auth.role]
   );
 
   const syncAuth = useCallback(() => {
