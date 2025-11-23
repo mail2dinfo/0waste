@@ -44,6 +44,7 @@ interface ActiveChat {
 function AdminChat() {
   const { userId: userIdFromUrl } = useParams<{ userId?: string }>();
   const [selectedUserId, setSelectedUserId] = useState<string | null>(userIdFromUrl || null);
+  const selectedUserIdRef = useRef<string | null>(userIdFromUrl || null); // Ref for immediate access
   const [activeChats, setActiveChats] = useState<ActiveChat[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState("");
@@ -51,11 +52,19 @@ function AdminChat() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Keep ref in sync with state
+  useEffect(() => {
+    selectedUserIdRef.current = selectedUserId;
+    console.log("selectedUserId updated:", selectedUserId);
+  }, [selectedUserId]);
 
   // Update selectedUserId when URL param changes
   useEffect(() => {
     if (userIdFromUrl) {
+      console.log("URL param changed, setting selectedUserId to:", userIdFromUrl);
       setSelectedUserId(userIdFromUrl);
+      selectedUserIdRef.current = userIdFromUrl;
     }
   }, [userIdFromUrl]);
 
@@ -247,6 +256,15 @@ function AdminChat() {
   }, [messages]);
 
   const sendMessage = () => {
+    console.log("=== SEND MESSAGE CALLED ===");
+    
+    // Use ref for immediate access (avoids stale closure issues)
+    const currentSelectedUserId = selectedUserIdRef.current;
+    console.log("selectedUserId from state:", selectedUserId);
+    console.log("selectedUserId from ref:", currentSelectedUserId);
+    console.log("selectedUserId type:", typeof currentSelectedUserId);
+    console.log("selectedUserId truthy?", !!currentSelectedUserId);
+    
     const messageText = inputMessage.trim();
     
     // Validate all required conditions
@@ -265,70 +283,124 @@ function AdminChat() {
       return;
     }
     
-    // CRITICAL: Check selectedUserId with strict validation
-    if (!selectedUserId || selectedUserId.trim() === "") {
-      console.error("ERROR: No selectedUserId! Cannot send message without a target user.");
-      console.error("selectedUserId value:", selectedUserId);
-      console.error("selectedUserId type:", typeof selectedUserId);
-      alert("Please select a user to chat with first.");
+    // CRITICAL: Use ref value for validation - ensures we get the latest value
+    const targetUserId = currentSelectedUserId || selectedUserId;
+    
+    if (!targetUserId) {
+      console.error("✗✗✗ ERROR: No targetUserId available!");
+      console.error("selectedUserId state:", selectedUserId);
+      console.error("selectedUserId ref:", currentSelectedUserId);
+      console.error("Both are null/undefined - user must select a chat first!");
+      alert("Please select a user from the sidebar to chat with first.");
       return;
     }
     
-    // Validate selectedUserId is a valid UUID-like string
-    const trimmedSelectedUserId = selectedUserId.trim();
-    if (trimmedSelectedUserId.length < 10) {
-      console.error("ERROR: Invalid selectedUserId format:", trimmedSelectedUserId);
-      alert("Invalid user selected. Please select a user to chat with first.");
+    if (typeof targetUserId !== "string") {
+      console.error("✗✗✗ ERROR: targetUserId is not a string!");
+      console.error("targetUserId value:", targetUserId);
+      console.error("targetUserId type:", typeof targetUserId);
+      alert("Invalid user selected. Please select a user from the sidebar.");
       return;
     }
     
-    // Build payload - CRITICAL: ensure targetUserId is included
-    const payload = {
+    const trimmedTargetUserId = targetUserId.trim();
+    
+    if (trimmedTargetUserId === "") {
+      console.error("✗✗✗ ERROR: targetUserId is empty string!");
+      alert("Please select a user from the sidebar to chat with first.");
+      return;
+    }
+    
+    // Validate targetUserId is a valid UUID-like string
+    if (trimmedTargetUserId.length < 10) {
+      console.error("✗✗✗ ERROR: Invalid targetUserId format (too short):", trimmedTargetUserId);
+      alert("Invalid user selected. Please select a user from the sidebar.");
+      return;
+    }
+    
+    // Build payload - targetUserId MUST be present
+    // Using object literal with explicit typing to ensure targetUserId is always included
+    const payload: {
+      type: "message";
+      message: string;
+      targetUserId: string;
+    } = {
       type: "message",
       message: messageText,
-      targetUserId: trimmedSelectedUserId, // This is the user who will receive the message - MUST be included
+      targetUserId: trimmedTargetUserId, // This is GUARANTEED to be a non-empty string at this point
     };
     
-    // Validate payload before sending
-    if (!payload.targetUserId || payload.targetUserId === "") {
-      console.error("ERROR: Payload missing targetUserId!");
-      console.error("Payload:", payload);
-      alert("Cannot send message: target user not set.");
+    // Final validation - double-check payload has targetUserId
+    if (!payload.targetUserId) {
+      console.error("✗✗✗ CRITICAL ERROR: Payload missing targetUserId after assignment!");
+      console.error("This should never happen - payload:", payload);
+      alert("Internal error: Cannot send message. Please refresh the page.");
+      return;
+    }
+    
+    if (typeof payload.targetUserId !== "string" || payload.targetUserId.trim() === "") {
+      console.error("✗✗✗ CRITICAL ERROR: Payload has invalid targetUserId!");
+      console.error("payload.targetUserId:", payload.targetUserId);
+      console.error("payload.targetUserId type:", typeof payload.targetUserId);
+      alert("Internal error: Cannot send message. Please refresh the page.");
       return;
     }
     
     console.log("=== ADMIN SENDING MESSAGE ===");
-    console.log("Target user ID:", trimmedSelectedUserId);
+    console.log("Target user ID:", trimmedTargetUserId);
     console.log("Message text:", messageText);
-    console.log("Full payload:", payload);
-    console.log("Payload JSON:", JSON.stringify(payload));
-    console.log("Payload has targetUserId?", !!payload.targetUserId);
-    console.log("targetUserId value:", payload.targetUserId);
+    console.log("Full payload object:", payload);
+    console.log("Payload keys:", Object.keys(payload));
+    console.log("Payload has targetUserId property?", "targetUserId" in payload);
+    console.log("payload.targetUserId value:", payload.targetUserId);
+    console.log("payload.targetUserId type:", typeof payload.targetUserId);
     
+    // Serialize payload to JSON
+    let payloadString: string;
     try {
-      const payloadString = JSON.stringify(payload);
-      console.log("Sending payload string:", payloadString);
+      payloadString = JSON.stringify(payload);
+      console.log("Payload JSON string:", payloadString);
+    } catch (error) {
+      console.error("✗✗✗ ERROR: Failed to stringify payload:", error);
+      alert("Failed to prepare message. Please try again.");
+      return;
+    }
+    
+    // Final verification - ensure targetUserId is in the JSON string
+    if (!payloadString.includes('"targetUserId"')) {
+      console.error("✗✗✗ CRITICAL ERROR: targetUserId key missing from JSON!");
+      console.error("JSON string:", payloadString);
+      console.error("This should never happen!");
+      alert("Internal error: Message payload invalid. Please refresh the page.");
+      return;
+    }
+    
+    if (!payloadString.includes(trimmedTargetUserId)) {
+      console.error("✗✗✗ CRITICAL ERROR: targetUserId value missing from JSON!");
+      console.error("Looking for:", trimmedTargetUserId);
+      console.error("JSON string:", payloadString);
+      alert("Internal error: Message payload invalid. Please refresh the page.");
+      return;
+    }
+    
+    // ALL CHECKS PASSED - Safe to send
+    try {
+      console.log("✓ All validations passed - sending WebSocket message...");
+      console.log("Final payload string:", payloadString);
       
-      // Verify targetUserId is in the string
-      if (!payloadString.includes('"targetUserId"')) {
-        console.error("ERROR: targetUserId not found in JSON string!");
-        console.error("JSON string:", payloadString);
-        return;
-      }
-      
-      if (!payloadString.includes(trimmedSelectedUserId)) {
-        console.error("ERROR: targetUserId value not found in JSON string!");
-        console.error("Looking for:", trimmedSelectedUserId);
-        console.error("JSON string:", payloadString);
+      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+        console.error("WebSocket not open, cannot send");
+        alert("Connection lost. Please refresh the page.");
         return;
       }
       
       wsRef.current.send(payloadString);
       setInputMessage("");
-      console.log("✓✓✓ Message sent successfully to user:", trimmedSelectedUserId);
+      console.log("✓✓✓ Message sent successfully to user:", trimmedTargetUserId);
     } catch (error) {
       console.error("✗✗✗ Error sending message:", error);
       console.error("Error details:", error);
+      alert("Failed to send message. Please try again.");
     }
   };
 
@@ -363,7 +435,10 @@ function AdminChat() {
                   <button
                     key={chat.userId}
                     onClick={() => {
+                      console.log("User selected in sidebar:", chat.userId);
+                      console.log("Setting selectedUserId to:", chat.userId);
                       setSelectedUserId(chat.userId);
+                      selectedUserIdRef.current = chat.userId; // Update ref immediately
                       window.history.pushState({}, "", `/admin/chat/${chat.userId}`);
                       // Reset unread count for selected chat
                       setActiveChats((prev) =>
@@ -371,6 +446,7 @@ function AdminChat() {
                           c.userId === chat.userId ? { ...c, unreadCount: 0 } : c
                         )
                       );
+                      console.log("selectedUserId after setting:", selectedUserIdRef.current);
                     }}
                     className={`w-full rounded-xl border p-3 text-left transition ${
                       selectedUserId === chat.userId
@@ -480,8 +556,9 @@ function AdminChat() {
                     />
                     <button
                       onClick={sendMessage}
-                      disabled={!isConnected || !inputMessage.trim()}
+                      disabled={!isConnected || !inputMessage.trim() || !selectedUserId}
                       className="rounded-full bg-brand-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-slate-300"
+                      title={!selectedUserId ? "Please select a user to chat with first" : ""}
                     >
                       Send
                     </button>
