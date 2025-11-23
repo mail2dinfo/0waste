@@ -257,380 +257,64 @@ function AdminChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  /**
+   * SEND MESSAGE - Simple and clear implementation
+   * 
+   * Flow:
+   * 1. Admin clicks user in sidebar → selectedUserId is set
+   * 2. Admin types message and clicks Send
+   * 3. This function creates payload with targetUserId = selectedUserId
+   * 4. Server receives message and routes to targetUserId (the user)
+   */
   const sendMessage = () => {
-    console.log("=== SEND MESSAGE FUNCTION CALLED ===");
-    console.log("Call stack:", new Error().stack);
+    // STEP 1: Get the target user ID (the user admin wants to send message to)
+    const targetUserId = selectedUserIdRef.current || selectedUserId;
     
-    // Use ref for immediate access (avoids stale closure issues)
-    // Try ref first, then state
-    const currentSelectedUserId = selectedUserIdRef.current || selectedUserId;
-    
-    console.log("selectedUserId from state:", selectedUserId);
-    console.log("selectedUserId from ref:", selectedUserIdRef.current);
-    console.log("currentSelectedUserId (ref || state):", currentSelectedUserId);
-    console.log("currentSelectedUserId type:", typeof currentSelectedUserId);
-    console.log("currentSelectedUserId truthy?", !!currentSelectedUserId);
-    
-    // ABSOLUTE FIRST CHECK - if no selectedUserId, abort immediately
-    if (!currentSelectedUserId) {
-      console.error("✗✗✗ CRITICAL: sendMessage called without selectedUserId! ✗✗✗");
-      console.error("This should NEVER happen - validation should have prevented this!");
-      console.error("selectedUserId state:", selectedUserId);
-      console.error("selectedUserId ref:", selectedUserIdRef.current);
-      alert("ERROR: No user selected. Please select a user from the sidebar first.");
+    // VALIDATION: Must have a target user selected
+    if (!targetUserId || typeof targetUserId !== "string" || targetUserId.trim().length < 10) {
+      alert("Please select a user from the sidebar to chat with first.");
       return;
     }
     
+    // STEP 2: Get message text
     const messageText = inputMessage.trim();
-    
-    // Validate all required conditions
     if (!messageText) {
-      console.log("Cannot send: no message text");
+      return; // No message to send
+    }
+    
+    // STEP 3: Check WebSocket connection
+    if (!wsRef.current || !isConnected || wsRef.current.readyState !== WebSocket.OPEN) {
+      alert("Not connected. Please refresh the page.");
       return;
     }
     
-    if (!wsRef.current) {
-      console.log("Cannot send: no WebSocket connection");
-      return;
-    }
-    
-    if (!isConnected) {
-      console.log("Cannot send: WebSocket not connected");
-      return;
-    }
-    
-    // CRITICAL: Get targetUserId from multiple sources and validate
-    // Try ref first (most up-to-date), then state, then fail
-    let targetUserIdValue: string | null = null;
-    
-    // Try 1: Use ref (most reliable)
-    if (selectedUserIdRef.current && typeof selectedUserIdRef.current === "string") {
-      targetUserIdValue = selectedUserIdRef.current.trim();
-    }
-    
-    // Try 2: Use state if ref doesn't have it
-    if (!targetUserIdValue && selectedUserId && typeof selectedUserId === "string") {
-      targetUserIdValue = selectedUserId.trim();
-    }
-    
-    // Try 3: Use currentSelectedUserId if neither works
-    if (!targetUserIdValue && currentSelectedUserId && typeof currentSelectedUserId === "string") {
-      targetUserIdValue = currentSelectedUserId.trim();
-    }
-    
-    // FINAL CHECK - if still no targetUserId, abort
-    if (!targetUserIdValue || targetUserIdValue === "") {
-      console.error("✗✗✗ CRITICAL ERROR: No targetUserId available from ANY source!");
-      console.error("selectedUserIdRef.current:", selectedUserIdRef.current);
-      console.error("selectedUserId state:", selectedUserId);
-      console.error("currentSelectedUserId:", currentSelectedUserId);
-      console.error("targetUserIdValue:", targetUserIdValue);
-      alert("ERROR: Please select a user from the sidebar to chat with first.");
-      return;
-    }
-    
-    // Validate format
-    if (targetUserIdValue.length < 10) {
-      console.error("✗✗✗ ERROR: Invalid targetUserId format (too short):", targetUserIdValue);
-      alert("Invalid user selected. Please select a user from the sidebar.");
-      return;
-    }
-    
-    const finalTrimmedTargetUserId = targetUserIdValue;
-    
-    // CRITICAL: Create payload object directly with all required fields
-    // Do NOT rely on any variables - use finalTrimmedTargetUserId directly
+    // STEP 4: Create the message payload
+    // CRITICAL: targetUserId MUST be included - this tells server which user to send to
     const payload = {
-      type: "message" as const,
+      type: "message",
       message: messageText,
-      targetUserId: finalTrimmedTargetUserId, // MUST be included - this is the validated value
+      targetUserId: targetUserId.trim(), // The user admin selected in sidebar
     };
     
-    // Verify payload was created correctly
-    if (Object.keys(payload).length !== 3) {
-      console.error("✗✗✗ CRITICAL: Payload has wrong number of keys!");
-      console.error("Payload keys:", Object.keys(payload));
-      alert("Internal error: Message payload invalid.");
+    // STEP 5: Verify payload has all 3 required fields
+    if (!payload.targetUserId || !payload.message || !payload.type) {
+      console.error("Payload validation failed:", payload);
+      alert("Error: Invalid message. Please try again.");
       return;
     }
     
-    // IMMEDIATE validation after payload creation
-    if (!payload.targetUserId) {
-      console.error("✗✗✗ CRITICAL ERROR: Payload missing targetUserId after assignment!");
-      console.error("Payload:", payload);
-      console.error("finalTrimmedTargetUserId:", finalTrimmedTargetUserId);
-      alert("Internal error: Cannot send message. Please refresh the page.");
-      return;
-    }
-    
-    if (typeof payload.targetUserId !== "string" || payload.targetUserId.trim() === "") {
-      console.error("✗✗✗ CRITICAL ERROR: Payload has invalid targetUserId!");
-      console.error("payload.targetUserId:", payload.targetUserId);
-      console.error("payload.targetUserId type:", typeof payload.targetUserId);
-      alert("Internal error: Cannot send message. Please refresh the page.");
-      return;
-    }
-    
-    // Verify payload has exactly 3 keys: type, message, targetUserId
-    const payloadKeys = Object.keys(payload);
-    if (payloadKeys.length !== 3 || !payloadKeys.includes("targetUserId")) {
-      console.error("✗✗✗ CRITICAL ERROR: Payload structure is invalid!");
-      console.error("Payload keys:", payloadKeys);
-      console.error("Expected: ['type', 'message', 'targetUserId']");
-      console.error("Payload:", payload);
-      alert("Internal error: Message payload is invalid. Please refresh the page.");
-      return;
-    }
-    
-    console.log("=== ADMIN SENDING MESSAGE ===");
-    console.log("Target user ID:", finalTrimmedTargetUserId);
-    console.log("Message text:", messageText);
-    console.log("Full payload object:", payload);
-    console.log("Payload keys:", Object.keys(payload));
-    console.log("Payload has targetUserId property?", "targetUserId" in payload);
-    console.log("payload.targetUserId value:", payload.targetUserId);
-    console.log("payload.targetUserId type:", typeof payload.targetUserId);
-    console.log("Expected targetUserId:", finalTrimmedTargetUserId);
-    console.log("Match check:", payload.targetUserId === finalTrimmedTargetUserId);
-    
-    // ONE MORE SAFETY CHECK - verify payload.targetUserId is actually set
-    if (!payload.targetUserId || payload.targetUserId !== finalTrimmedTargetUserId) {
-      console.error("✗✗✗ CRITICAL ERROR: Payload.targetUserId mismatch!");
-      console.error("Expected:", finalTrimmedTargetUserId);
-      console.error("Actual:", payload.targetUserId);
-      console.error("Full payload:", payload);
-      alert("Internal error: Message payload invalid. Please refresh the page.");
-      return;
-    }
-    
-    // CRITICAL: One final check before building payload
-    // Re-verify targetUserId exists one more time
-    const verifyTargetUserId = selectedUserIdRef.current || selectedUserId;
-    console.log("=== FINAL VERIFICATION ===");
-    console.log("verifyTargetUserId:", verifyTargetUserId);
-    console.log("verifyTargetUserId type:", typeof verifyTargetUserId);
-    console.log("selectedUserIdRef.current:", selectedUserIdRef.current);
-    console.log("selectedUserId:", selectedUserId);
-    console.log("finalTrimmedTargetUserId:", finalTrimmedTargetUserId);
-    
-    if (!verifyTargetUserId) {
-      console.error("✗✗✗ FINAL VERIFICATION FAILED: verifyTargetUserId is falsy!");
-      alert("ERROR: No target user selected. Please select a user from the sidebar.");
-      return;
-    }
-    
-    if (typeof verifyTargetUserId !== "string") {
-      console.error("✗✗✗ FINAL VERIFICATION FAILED: verifyTargetUserId is not a string!");
-      console.error("Type:", typeof verifyTargetUserId);
-      alert("ERROR: Invalid user selection. Please select a user from the sidebar.");
-      return;
-    }
-    
-    const verifiedTargetUserId = verifyTargetUserId.trim();
-    
-    if (verifiedTargetUserId === "" || verifiedTargetUserId === "undefined" || verifiedTargetUserId === "null") {
-      console.error("✗✗✗ FINAL VERIFICATION FAILED: verifiedTargetUserId is empty or invalid!");
-      console.error("Value:", verifiedTargetUserId);
-      alert("ERROR: Invalid user selection. Please select a user from the sidebar.");
-      return;
-    }
-    
-    if (verifiedTargetUserId.length < 10) {
-      console.error("✗✗✗ FINAL VERIFICATION FAILED: verifiedTargetUserId is too short!");
-      console.error("Length:", verifiedTargetUserId.length);
-      alert("ERROR: Invalid user selection. Please select a user from the sidebar.");
-      return;
-    }
-    
-    // Use the verified value, prioritize verifiedTargetUserId over finalTrimmedTargetUserId
-    const actualTargetUserId = verifiedTargetUserId || finalTrimmedTargetUserId;
-    
-    if (!actualTargetUserId || actualTargetUserId === "" || actualTargetUserId === "undefined" || actualTargetUserId === "null") {
-      console.error("✗✗✗ ABORT: No valid targetUserId after final verification!");
-      console.error("actualTargetUserId:", actualTargetUserId);
-      alert("ERROR: Cannot determine target user. Please select a user from the sidebar.");
-      return;
-    }
-    
-    if (actualTargetUserId.length < 10) {
-      console.error("✗✗✗ ABORT: actualTargetUserId is too short!");
-      console.error("Length:", actualTargetUserId.length);
-      alert("ERROR: Invalid target user. Please select a user from the sidebar.");
-      return;
-    }
-    
-    console.log("✓ Final verified targetUserId:", actualTargetUserId);
-    
-    // Serialize payload to JSON - use actualTargetUserId
-    let payloadString: string;
+    // STEP 6: Send the message
     try {
-      // Create payload object fresh with verified targetUserId
-      // DO NOT use any variables except the actual values
-      const safePayload = {
-        type: "message" as const,
-        message: messageText,
-        targetUserId: actualTargetUserId, // Use the verified value
-      };
+      const payloadJson = JSON.stringify(payload);
+      console.log("Sending message to user:", payload.targetUserId);
+      console.log("Payload:", payloadJson);
       
-      // Verify safePayload has targetUserId before stringifying
-      if (!safePayload.targetUserId || safePayload.targetUserId !== actualTargetUserId) {
-        console.error("✗✗✗ ABORT: safePayload.targetUserId mismatch!");
-        console.error("Expected:", actualTargetUserId);
-        console.error("Got:", safePayload.targetUserId);
-        alert("ERROR: Payload validation failed. Please try again.");
-        return;
-      }
+      wsRef.current.send(payloadJson);
+      setInputMessage(""); // Clear input
       
-      payloadString = JSON.stringify(safePayload);
-      console.log("Payload JSON string:", payloadString);
-      
-      // Verify targetUserId is in the JSON string IMMEDIATELY after stringify
-      if (!payloadString.includes('"targetUserId"')) {
-        console.error("✗✗✗ ABORT: targetUserId missing from JSON after stringify!");
-        console.error("JSON:", payloadString);
-        alert("ERROR: Message payload invalid. Please refresh the page.");
-        return;
-      }
-      
-      if (!payloadString.includes(actualTargetUserId)) {
-        console.error("✗✗✗ ABORT: targetUserId value missing from JSON!");
-        console.error("Looking for:", actualTargetUserId);
-        console.error("JSON:", payloadString);
-        alert("ERROR: Message payload invalid. Please refresh the page.");
-        return;
-      }
+      console.log("✓ Message sent successfully!");
     } catch (error) {
-      console.error("✗✗✗ ERROR: Failed to stringify payload:", error);
-      alert("Failed to prepare message. Please try again.");
-      return;
-    }
-    
-    // FINAL VERIFICATION - ensure targetUserId is in the JSON string
-    // This is the last line of defense before sending
-    if (!payloadString.includes('"targetUserId"')) {
-      console.error("✗✗✗ CRITICAL ERROR: targetUserId key missing from JSON!");
-      console.error("JSON string:", payloadString);
-      console.error("Payload object:", payload);
-      console.error("This should NEVER happen - aborting send!");
-      alert("Internal error: Message payload invalid. Please refresh the page.");
-      return;
-    }
-    
-    if (!payloadString.includes(actualTargetUserId)) {
-      console.error("✗✗✗ CRITICAL ERROR: targetUserId value missing from JSON!");
-      console.error("Looking for:", actualTargetUserId);
-      console.error("JSON string:", payloadString);
-      console.error("Payload object:", payload);
-      alert("Internal error: Message payload invalid. Please refresh the page.");
-      return;
-    }
-    
-    // ABSOLUTE FINAL CHECK - parse JSON back and verify
-    try {
-      const parsedBack = JSON.parse(payloadString);
-      if (!parsedBack.targetUserId || typeof parsedBack.targetUserId !== "string" || parsedBack.targetUserId.trim() === "" || parsedBack.targetUserId !== actualTargetUserId) {
-        console.error("✗✗✗ CRITICAL ERROR: targetUserId missing or invalid after JSON roundtrip!");
-        console.error("Parsed back:", parsedBack);
-        console.error("Expected targetUserId:", actualTargetUserId);
-        console.error("Got targetUserId:", parsedBack.targetUserId);
-        console.error("Parsed keys:", Object.keys(parsedBack));
-        alert("Internal error: Message payload invalid. Please refresh the page.");
-        return;
-      }
-      
-      // Verify parsed payload has all required fields
-      if (!parsedBack.type || !parsedBack.message || !parsedBack.targetUserId) {
-        console.error("✗✗✗ CRITICAL ERROR: Parsed payload missing required fields!");
-        console.error("Parsed payload:", parsedBack);
-        alert("Internal error: Message payload invalid. Please refresh the page.");
-        return;
-      }
-    } catch (error) {
-      console.error("✗✗✗ ERROR: Failed to parse JSON back:", error);
-      alert("Internal error: Message payload invalid. Please refresh the page.");
-      return;
-    }
-    
-    // ALL CHECKS PASSED - Safe to send
-    try {
-      console.log("✓✓✓ ALL VALIDATIONS PASSED - SENDING WEBSOCKET MESSAGE");
-      console.log("Final payload string:", payloadString);
-      console.log("Target user ID:", actualTargetUserId);
-      console.log("Payload verified with targetUserId from safePayload:", actualTargetUserId);
-      
-      // ONE ABSOLUTE FINAL CHECK - parse and verify one more time
-      const finalCheck = JSON.parse(payloadString);
-      if (!finalCheck.targetUserId || finalCheck.targetUserId !== actualTargetUserId) {
-        console.error("✗✗✗ FINAL CHECK FAILED - ABORTING SEND!");
-        console.error("finalCheck:", finalCheck);
-        alert("ERROR: Final validation failed. Please try again.");
-        return;
-      }
-      
-      // Last check before sending - verify WebSocket is open
-      if (!wsRef.current) {
-        console.error("WebSocket ref is null!");
-        alert("Connection lost. Please refresh the page.");
-        return;
-      }
-      
-      if (wsRef.current.readyState !== WebSocket.OPEN) {
-        console.error("WebSocket not open, readyState:", wsRef.current.readyState);
-        alert("Connection lost. Please refresh the page.");
-        return;
-      }
-      
-      // ABSOLUTE FINAL SEND - this should never fail validation now
-      console.log("=== SENDING TO WEBSOCKET ===");
-      console.log("Payload JSON:", payloadString);
-      
-      // ONE ABSOLUTE FINAL PARSE CHECK - verify targetUserId exists before sending
-      let finalPayload: { type: string; message: string; targetUserId: string };
-      try {
-        finalPayload = JSON.parse(payloadString);
-        console.log("Parsed payload before send:", finalPayload);
-        console.log("Payload keys:", Object.keys(finalPayload));
-        console.log("targetUserId in payload?", "targetUserId" in finalPayload);
-        console.log("targetUserId value:", finalPayload.targetUserId);
-        console.log("targetUserId type:", typeof finalPayload.targetUserId);
-        
-        if (!finalPayload.targetUserId || 
-            typeof finalPayload.targetUserId !== "string" || 
-            finalPayload.targetUserId.trim() === "" ||
-            finalPayload.targetUserId === "undefined" ||
-            finalPayload.targetUserId === "null" ||
-            finalPayload.targetUserId !== actualTargetUserId) {
-          console.error("✗✗✗ FINAL PRE-SEND CHECK FAILED - ABORTING! ✗✗✗");
-          console.error("Expected targetUserId:", actualTargetUserId);
-          console.error("Got targetUserId:", finalPayload.targetUserId);
-          console.error("Payload:", finalPayload);
-          alert("ERROR: Message validation failed. Please select a user and try again.");
-          return;
-        }
-        
-        console.log("✓✓✓ FINAL PRE-SEND CHECK PASSED - targetUserId confirmed:", finalPayload.targetUserId);
-      } catch (parseError) {
-        console.error("✗✗✗ CRITICAL: Failed to parse payload before send!", parseError);
-        console.error("Payload string:", payloadString);
-        alert("ERROR: Message payload invalid. Please try again.");
-        return;
-      }
-      
-      // LAST CHECK - verify WebSocket is still open
-      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-        console.error("WebSocket not available or not open!");
-        alert("Connection lost. Please refresh the page.");
-        return;
-      }
-      
-      // NOW SEND - with absolute confidence that targetUserId is present
-      wsRef.current.send(payloadString);
-      setInputMessage("");
-      console.log("✓✓✓✓✓ Message sent successfully to user:", actualTargetUserId);
-      console.log("✓✓✓✓✓ Verified payload had targetUserId:", finalPayload.targetUserId);
-    } catch (error) {
-      console.error("✗✗✗ Error sending message:", error);
-      console.error("Error details:", error);
+      console.error("Failed to send message:", error);
       alert("Failed to send message. Please try again.");
     }
   };
@@ -639,29 +323,7 @@ function AdminChat() {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       e.stopPropagation();
-      
-      // STRICT CHECK before calling sendMessage
-      const currentSelectedUserId = selectedUserIdRef.current || selectedUserId;
-      
-      console.log("=== ENTER KEY PRESSED ===");
-      console.log("selectedUserId from state:", selectedUserId);
-      console.log("selectedUserId from ref:", selectedUserIdRef.current);
-      console.log("currentSelectedUserId:", currentSelectedUserId);
-      
-      if (!currentSelectedUserId) {
-        console.error("✗✗✗ Cannot send: No user selected ✗✗✗");
-        alert("Please select a user from the sidebar to chat with first.");
-        return;
-      }
-      
-      if (typeof currentSelectedUserId !== "string" || currentSelectedUserId.trim() === "") {
-        console.error("✗✗✗ Cannot send: Invalid user selected ✗✗✗");
-        alert("Please select a valid user from the sidebar.");
-        return;
-      }
-      
-      // Only call sendMessage if we have a valid selectedUserId
-      sendMessage();
+      sendMessage(); // sendMessage() will handle validation
     }
   };
 
@@ -830,29 +492,7 @@ function AdminChat() {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        
-                        // TRIPLE-CHECK before calling sendMessage
-                        const currentSelectedUserId = selectedUserIdRef.current || selectedUserId;
-                        
-                        console.log("=== SEND BUTTON CLICKED ===");
-                        console.log("selectedUserId from state:", selectedUserId);
-                        console.log("selectedUserId from ref:", selectedUserIdRef.current);
-                        console.log("currentSelectedUserId:", currentSelectedUserId);
-                        
-                        if (!currentSelectedUserId) {
-                          console.error("✗✗✗ Send button clicked but no user selected ✗✗✗");
-                          alert("Please select a user from the sidebar to chat with first.");
-                          return;
-                        }
-                        
-                        if (typeof currentSelectedUserId !== "string" || currentSelectedUserId.trim() === "") {
-                          console.error("✗✗✗ Send button clicked but invalid user selected ✗✗✗");
-                          alert("Please select a valid user from the sidebar.");
-                          return;
-                        }
-                        
-                        // Only call sendMessage if we have a valid selectedUserId
-                        sendMessage();
+                        sendMessage(); // sendMessage() will handle validation
                       }}
                       disabled={!isConnected || !inputMessage.trim() || !selectedUserId}
                       className="rounded-full bg-brand-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-slate-300"
