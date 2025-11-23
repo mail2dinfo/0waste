@@ -403,17 +403,102 @@ function AdminChat() {
       return;
     }
     
-    // Serialize payload to JSON
+    // CRITICAL: One final check before building payload
+    // Re-verify targetUserId exists one more time
+    const verifyTargetUserId = selectedUserIdRef.current || selectedUserId;
+    console.log("=== FINAL VERIFICATION ===");
+    console.log("verifyTargetUserId:", verifyTargetUserId);
+    console.log("verifyTargetUserId type:", typeof verifyTargetUserId);
+    console.log("selectedUserIdRef.current:", selectedUserIdRef.current);
+    console.log("selectedUserId:", selectedUserId);
+    console.log("finalTrimmedTargetUserId:", finalTrimmedTargetUserId);
+    
+    if (!verifyTargetUserId) {
+      console.error("✗✗✗ FINAL VERIFICATION FAILED: verifyTargetUserId is falsy!");
+      alert("ERROR: No target user selected. Please select a user from the sidebar.");
+      return;
+    }
+    
+    if (typeof verifyTargetUserId !== "string") {
+      console.error("✗✗✗ FINAL VERIFICATION FAILED: verifyTargetUserId is not a string!");
+      console.error("Type:", typeof verifyTargetUserId);
+      alert("ERROR: Invalid user selection. Please select a user from the sidebar.");
+      return;
+    }
+    
+    const verifiedTargetUserId = verifyTargetUserId.trim();
+    
+    if (verifiedTargetUserId === "" || verifiedTargetUserId === "undefined" || verifiedTargetUserId === "null") {
+      console.error("✗✗✗ FINAL VERIFICATION FAILED: verifiedTargetUserId is empty or invalid!");
+      console.error("Value:", verifiedTargetUserId);
+      alert("ERROR: Invalid user selection. Please select a user from the sidebar.");
+      return;
+    }
+    
+    if (verifiedTargetUserId.length < 10) {
+      console.error("✗✗✗ FINAL VERIFICATION FAILED: verifiedTargetUserId is too short!");
+      console.error("Length:", verifiedTargetUserId.length);
+      alert("ERROR: Invalid user selection. Please select a user from the sidebar.");
+      return;
+    }
+    
+    // Use the verified value, prioritize verifiedTargetUserId over finalTrimmedTargetUserId
+    const actualTargetUserId = verifiedTargetUserId || finalTrimmedTargetUserId;
+    
+    if (!actualTargetUserId || actualTargetUserId === "" || actualTargetUserId === "undefined" || actualTargetUserId === "null") {
+      console.error("✗✗✗ ABORT: No valid targetUserId after final verification!");
+      console.error("actualTargetUserId:", actualTargetUserId);
+      alert("ERROR: Cannot determine target user. Please select a user from the sidebar.");
+      return;
+    }
+    
+    if (actualTargetUserId.length < 10) {
+      console.error("✗✗✗ ABORT: actualTargetUserId is too short!");
+      console.error("Length:", actualTargetUserId.length);
+      alert("ERROR: Invalid target user. Please select a user from the sidebar.");
+      return;
+    }
+    
+    console.log("✓ Final verified targetUserId:", actualTargetUserId);
+    
+    // Serialize payload to JSON - use actualTargetUserId
     let payloadString: string;
     try {
-      // Create payload object fresh to ensure targetUserId is included
+      // Create payload object fresh with verified targetUserId
+      // DO NOT use any variables except the actual values
       const safePayload = {
         type: "message" as const,
         message: messageText,
-        targetUserId: finalTrimmedTargetUserId,
+        targetUserId: actualTargetUserId, // Use the verified value
       };
+      
+      // Verify safePayload has targetUserId before stringifying
+      if (!safePayload.targetUserId || safePayload.targetUserId !== actualTargetUserId) {
+        console.error("✗✗✗ ABORT: safePayload.targetUserId mismatch!");
+        console.error("Expected:", actualTargetUserId);
+        console.error("Got:", safePayload.targetUserId);
+        alert("ERROR: Payload validation failed. Please try again.");
+        return;
+      }
+      
       payloadString = JSON.stringify(safePayload);
       console.log("Payload JSON string:", payloadString);
+      
+      // Verify targetUserId is in the JSON string IMMEDIATELY after stringify
+      if (!payloadString.includes('"targetUserId"')) {
+        console.error("✗✗✗ ABORT: targetUserId missing from JSON after stringify!");
+        console.error("JSON:", payloadString);
+        alert("ERROR: Message payload invalid. Please refresh the page.");
+        return;
+      }
+      
+      if (!payloadString.includes(actualTargetUserId)) {
+        console.error("✗✗✗ ABORT: targetUserId value missing from JSON!");
+        console.error("Looking for:", actualTargetUserId);
+        console.error("JSON:", payloadString);
+        alert("ERROR: Message payload invalid. Please refresh the page.");
+        return;
+      }
     } catch (error) {
       console.error("✗✗✗ ERROR: Failed to stringify payload:", error);
       alert("Failed to prepare message. Please try again.");
@@ -431,9 +516,9 @@ function AdminChat() {
       return;
     }
     
-    if (!payloadString.includes(finalTrimmedTargetUserId)) {
+    if (!payloadString.includes(actualTargetUserId)) {
       console.error("✗✗✗ CRITICAL ERROR: targetUserId value missing from JSON!");
-      console.error("Looking for:", finalTrimmedTargetUserId);
+      console.error("Looking for:", actualTargetUserId);
       console.error("JSON string:", payloadString);
       console.error("Payload object:", payload);
       alert("Internal error: Message payload invalid. Please refresh the page.");
@@ -443,10 +528,11 @@ function AdminChat() {
     // ABSOLUTE FINAL CHECK - parse JSON back and verify
     try {
       const parsedBack = JSON.parse(payloadString);
-      if (!parsedBack.targetUserId || parsedBack.targetUserId !== finalTrimmedTargetUserId) {
-        console.error("✗✗✗ CRITICAL ERROR: targetUserId missing after JSON roundtrip!");
+      if (!parsedBack.targetUserId || typeof parsedBack.targetUserId !== "string" || parsedBack.targetUserId.trim() === "" || parsedBack.targetUserId !== actualTargetUserId) {
+        console.error("✗✗✗ CRITICAL ERROR: targetUserId missing or invalid after JSON roundtrip!");
         console.error("Parsed back:", parsedBack);
-        console.error("Expected targetUserId:", finalTrimmedTargetUserId);
+        console.error("Expected targetUserId:", actualTargetUserId);
+        console.error("Got targetUserId:", parsedBack.targetUserId);
         console.error("Parsed keys:", Object.keys(parsedBack));
         alert("Internal error: Message payload invalid. Please refresh the page.");
         return;
@@ -469,8 +555,17 @@ function AdminChat() {
     try {
       console.log("✓✓✓ ALL VALIDATIONS PASSED - SENDING WEBSOCKET MESSAGE");
       console.log("Final payload string:", payloadString);
-      console.log("Target user ID:", finalTrimmedTargetUserId);
-      console.log("Payload verified with targetUserId:", payload.targetUserId);
+      console.log("Target user ID:", actualTargetUserId);
+      console.log("Payload verified with targetUserId from safePayload:", actualTargetUserId);
+      
+      // ONE ABSOLUTE FINAL CHECK - parse and verify one more time
+      const finalCheck = JSON.parse(payloadString);
+      if (!finalCheck.targetUserId || finalCheck.targetUserId !== actualTargetUserId) {
+        console.error("✗✗✗ FINAL CHECK FAILED - ABORTING SEND!");
+        console.error("finalCheck:", finalCheck);
+        alert("ERROR: Final validation failed. Please try again.");
+        return;
+      }
       
       // Last check before sending - verify WebSocket is open
       if (!wsRef.current) {
@@ -487,10 +582,52 @@ function AdminChat() {
       
       // ABSOLUTE FINAL SEND - this should never fail validation now
       console.log("=== SENDING TO WEBSOCKET ===");
-      console.log("Payload:", payloadString);
+      console.log("Payload JSON:", payloadString);
+      
+      // ONE ABSOLUTE FINAL PARSE CHECK - verify targetUserId exists before sending
+      let finalPayload: { type: string; message: string; targetUserId: string };
+      try {
+        finalPayload = JSON.parse(payloadString);
+        console.log("Parsed payload before send:", finalPayload);
+        console.log("Payload keys:", Object.keys(finalPayload));
+        console.log("targetUserId in payload?", "targetUserId" in finalPayload);
+        console.log("targetUserId value:", finalPayload.targetUserId);
+        console.log("targetUserId type:", typeof finalPayload.targetUserId);
+        
+        if (!finalPayload.targetUserId || 
+            typeof finalPayload.targetUserId !== "string" || 
+            finalPayload.targetUserId.trim() === "" ||
+            finalPayload.targetUserId === "undefined" ||
+            finalPayload.targetUserId === "null" ||
+            finalPayload.targetUserId !== actualTargetUserId) {
+          console.error("✗✗✗ FINAL PRE-SEND CHECK FAILED - ABORTING! ✗✗✗");
+          console.error("Expected targetUserId:", actualTargetUserId);
+          console.error("Got targetUserId:", finalPayload.targetUserId);
+          console.error("Payload:", finalPayload);
+          alert("ERROR: Message validation failed. Please select a user and try again.");
+          return;
+        }
+        
+        console.log("✓✓✓ FINAL PRE-SEND CHECK PASSED - targetUserId confirmed:", finalPayload.targetUserId);
+      } catch (parseError) {
+        console.error("✗✗✗ CRITICAL: Failed to parse payload before send!", parseError);
+        console.error("Payload string:", payloadString);
+        alert("ERROR: Message payload invalid. Please try again.");
+        return;
+      }
+      
+      // LAST CHECK - verify WebSocket is still open
+      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+        console.error("WebSocket not available or not open!");
+        alert("Connection lost. Please refresh the page.");
+        return;
+      }
+      
+      // NOW SEND - with absolute confidence that targetUserId is present
       wsRef.current.send(payloadString);
       setInputMessage("");
-      console.log("✓✓✓✓✓ Message sent successfully to user:", finalTrimmedTargetUserId);
+      console.log("✓✓✓✓✓ Message sent successfully to user:", actualTargetUserId);
+      console.log("✓✓✓✓✓ Verified payload had targetUserId:", finalPayload.targetUserId);
     } catch (error) {
       console.error("✗✗✗ Error sending message:", error);
       console.error("Error details:", error);

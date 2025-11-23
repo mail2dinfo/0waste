@@ -119,9 +119,16 @@ class ChatServer {
             try {
               const messageStr = data.toString();
               const message = JSON.parse(messageStr);
-              console.log(`Received message from ${isAdmin ? "admin" : "user"} ${userId}:`, message);
-              console.log(`Raw message string:`, messageStr);
-              console.log(`Message has targetUserId:`, !!message.targetUserId, `value:`, message.targetUserId);
+              
+              // Only log targetUserId for actual chat messages (type: "message")
+              if (message.type === "message") {
+                console.log(`Received CHAT message from ${isAdmin ? "admin" : "user"} ${userId}:`, message);
+                console.log(`Raw message string:`, messageStr);
+                console.log(`Message type: ${message.type}, has targetUserId: ${!!message.targetUserId}, value: ${message.targetUserId || "undefined"}`);
+              } else {
+                console.log(`Received ${message.type} from ${isAdmin ? "admin" : "user"} ${userId}`);
+              }
+              
               await this.handleMessage(userId, message, isAdmin);
             } catch (error) {
               console.error("Error handling message:", error);
