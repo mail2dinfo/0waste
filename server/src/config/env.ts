@@ -2,8 +2,13 @@ import "dotenv/config";
 import { config } from "dotenv";
 import { resolve } from "path";
 
-// Load .env.local file if it exists (for local development)
-config({ path: resolve(process.cwd(), ".env.local") });
+// Load .env.local file only in development mode (for local development)
+// In production, use environment variables set by the deployment platform
+const nodeEnv = process.env.NODE_ENV ?? "development";
+if (nodeEnv === "development") {
+  const localEnvPath = resolve(process.cwd(), ".env.local");
+  config({ path: localEnvPath });
+}
 
 const frontendUrlEnv = process.env.FRONTEND_URL ?? "http://localhost:5173";
 const normalizedFrontendUrl = frontendUrlEnv.endsWith("/")

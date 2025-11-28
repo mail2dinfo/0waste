@@ -32,6 +32,10 @@ function buildSequelize(): Sequelize {
   
   // Use DATABASE_URL if provided (e.g., Render PostgreSQL connection string)
   if (env.databaseUrl) {
+    // Auto-detect if SSL is needed for Render PostgreSQL or other cloud databases
+    const isRenderDb = env.databaseUrl.includes("render.com") || env.databaseUrl.includes("dpg-");
+    const needsSsl = env.dbSsl || isRenderDb;
+    
     return new Sequelize(env.databaseUrl, {
       logging: logger,
       models: [
@@ -46,7 +50,7 @@ function buildSequelize(): Sequelize {
         NwSettings,
         NwChatMessage,
       ],
-      dialectOptions: env.dbSsl
+      dialectOptions: needsSsl
         ? { ssl: { require: true, rejectUnauthorized: false } }
         : undefined,
     });
